@@ -2,19 +2,25 @@ import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot, offline
 
 
-def plot_station_activity(data, station_ids=[],
-                          feature_to_plot='available_stand', 
+import plotly.graph_objs as go
+from plotly.offline import init_notebook_mode, iplot, offline
+
+def plot_station_activity(data, station_id,
+                          features_to_plot=['available_stand'], 
                           date_col="date",
                           start_date='',
-                          end_date=''):
+                          end_date='',
+                          return_data=False):
     """
     Plot Time Series
     Parameters
     ----------
     data : pd.DataFrame
         Tableau temporelle de l'activité des stations Vcub
-    features_to_plot : str
-        Nom de la colonne à afficher sur le graphique
+    station_id : Int
+        Numéro de la station de Vcub
+    features_to_plot : List
+        Noms des la colonne à afficher sur le graphique
     date_col : str
         Nom de la colonne à utiliser pour la temporalité
     station_ids : list
@@ -23,50 +29,51 @@ def plot_station_activity(data, station_ids=[],
         Date de début du graphique yyyy-mm-dd
     end_date : str
         Date de fin du graphique yyyy-mm-dd
-    
+    return_data : bool
+        Retour le DataFrame lié à la station demandé et au contraintes de date si remplie.
     Returns
     -------
+    data : pd.DataFrame
+        Could return it if return_data is True.
         
     Examples
     --------
     
-    plot_station_activity(activite, station_ids=[25], start_date='2017-08-28',
+    plot_station_activity(activite, station_id=25, start_date='2017-08-28',
                           end_date='2017-09-02')
     """
 
-    if not isinstance(station_ids, list):
-        raise TypeError('station_ids should be a list')
+    if not isinstance(features_to_plot, list):
+        raise TypeError('features_to_plot should be a list')
 
     init_notebook_mode(connected=True)
 
     all_station_id = data['station_id'].unique()
 
-    if len(station_ids) == 0:
-        raise ValueError('station_ids should not be empty')
-    else:
-        for station_id in station_ids:
-            if station_id not in all_station_id:
-                print(station_id + ' is not in the list station_ids.')
+    if station_id not in all_station_id:
+        raise ValueError(str(station_id) + ' is not in a correct station_id.')
+        #print(station_id + ' is not in a correct station_id.')
     
     if start_date != '':
         data = data[data[date_col] >= start_date]
         
     if end_date != '':
         data = data[data[date_col] <= end_date]
+        
+    temp = data[data['station_id'] == station_id].copy()
 
     # Init list of trace
     data_graph = []
-    for station_id in station_ids:
-        temp = data[data['station_id'] == station_id].copy()
+    for feature in features_to_plot:
         trace = go.Scatter(x=temp[date_col],
-                           y=temp[feature_to_plot],
+                           y=temp[feature],
                            mode='lines',
-                           name='station N° ' + str(station_id))
+                           name=feature)
         data_graph.append(trace)
 
     # Design graph
     layout = dict(
-        title='Activité des stations',
+        title='Activité de la stations N° '+ str(station_id),
         showlegend=True,
         xaxis=dict(
                 rangeslider=dict(
@@ -76,10 +83,12 @@ def plot_station_activity(data, station_ids=[],
                 tickformat='%a %Y-%m-%d %H:%M',
         ),
         yaxis=dict(
-            title=feature_to_plot
+            title='Valeurs'
         )
     )
 
     fig = dict(data=data_graph, layout=layout)
 
     iplot(fig)
+    if return_data is True:
+        return temp
