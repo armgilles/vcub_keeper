@@ -1,9 +1,9 @@
 import pandas as pd 
 import numpy as np
 
-def get_transactions_depot(data):
+def get_transactions_out(data):
     """
-    Calcul le nombre de dépôt de vélo qu'il y a eu pour une même station entre 2 points de données
+    Calcul le nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données
     
     Parameters
     ----------
@@ -13,7 +13,7 @@ def get_transactions_depot(data):
     Returns
     -------
     data : DataFrame
-        Ajout de colonne 'transactions_depot'
+        Ajout de colonne 'transactions_out'
         
     Examples
     --------
@@ -26,17 +26,15 @@ def get_transactions_depot(data):
 
     data['available_stand_shift'] = data['available_stand_shift'].fillna(data['available_stand'])
 
-    data['transactions_depot'] = data['available_stand'] - data['available_stand_shift']
+    data['transactions_out'] = data['available_stand'] - data['available_stand_shift']
 
-    data.loc[data['transactions_depot'] < 0,
-                'transactions_depot'] = 0
+    data.loc[data['transactions_out'] < 0,
+                'transactions_out'] = 0
     
     # Drop non usefull column
     data.drop('available_stand_shift', axis=1, inplace=True)
     
     return data
-
-import pandas as pd 
 
 
 def get_transactions_in(data):
