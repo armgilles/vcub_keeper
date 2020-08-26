@@ -106,3 +106,36 @@ def get_transactions_all(data):
     
     return data
 
+
+def get_consecutive_no_transactions_out(data):
+    """
+    Calcul depuis combien de temps la station n'a pas eu de prise de vélo. Plus le chiffre est haut, 
+    plus ça fait longtemps que la station est inactive sur la prise de vélo.
+    
+    Parameters
+    ----------
+    data : DataFrame
+        Activité des stations Vcub avec la feature `transactions_out` (get_transactions_out)
+    
+    Returns
+    -------
+    data : DataFrame
+        Ajout de colonne 'consecutive_no_transactions_out'
+        
+    Examples
+    --------
+    
+    activite = get_consecutive_no_transactions_out(activite)
+    """
+    
+    data['compteur'] = 1
+    data['consecutive_no_transactions_out'] = \
+        data.groupby([(data['transactions_out'] > 0).cumsum(),
+                      'station_id'])['compteur'].cumsum()
+
+    data['consecutive_no_transactions_out'] = \
+        data['consecutive_no_transactions_out'].fillna(0)
+
+    data = data.drop('compteur', axis=1)
+    return data
+
