@@ -1,5 +1,5 @@
 import pandas as pd 
-
+import numpy as np
 
 def get_transactions_depot(data):
     """
@@ -73,3 +73,38 @@ def get_transactions_ajout(data):
     data.drop('available_bike_shift', axis=1, inplace=True)
     
     return data
+
+
+def get_transactions_all(data):
+    """
+    Calcul le nombre de transactions de vélo (ajout et dépôt) qu'il y a eu pour une même
+    station entre 2 points de données
+    
+    Parameters
+    ----------
+    data : DataFrame
+        Activité des stations Vcub
+    
+    Returns
+    -------
+    data : DataFrame
+        Ajout de colonne 'transactions_all'
+        
+    Examples
+    --------
+    
+    activite = get_transactions_aall(activite)
+    """
+    
+    data['available_bike_shift'] = \
+    data.groupby('station_id')['available_bike'].shift(1)
+
+    data['available_bike_shift'] = data['available_bike_shift'].fillna(data['available_bike'])
+
+    data['transactions_all'] = np.abs(data['available_bike'] - data['available_bike_shift'])
+    
+    # Drop non usefull column
+    data.drop('available_bike_shift', axis=1, inplace=True)
+    
+    return data
+
