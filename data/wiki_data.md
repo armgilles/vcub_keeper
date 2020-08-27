@@ -3,7 +3,7 @@
 Les fichiers de données sont organisés par répertoire : 
  - `Raw` : Fichiers sources bruts (non retravaillées).
  - `Ref` : Fichiers de référence (d'attributs).
- - `Clean` : Fichiers retravailler provenant du répertoire `Raw`.
+ - `Clean` : Fichiers retravaillés provenant du répertoire `Raw`.
 
 ### Raw - Fichiers sources
 
@@ -23,6 +23,6 @@ Les fichiers de données sont organisés par répertoire :
 |  3 | 44.8492876,-0.4966899 | {"type": "Point", "coordinates": [-0.4966899, 44.8492876]} | ARTIGUES-PRES-BORDEAUX |            19 | Artigues Feydeau                                                                          | VCUB    | 22 Boulevard Feydeau              | VLS PLUS |          150 | 44.8493 | -0.49669  |
 |  4 | 44.7821503,-0.5661566 | {"type": "Point", "coordinates": [-0.5661566, 44.7821503]} | VILLENAVE-D'ORNON      |            21 | Pont de la Maye (retirée le 19 novembre 2015 en raison des travaux d'extension du tram C) | VCUB    | face au 564 route de Toulouse     | VLS PLUS |           76 | 44.7822 | -0.566157 |
 
-## Clean - Fichier re-travaillé
+## Clean - Fichier retravaillés
 
 TO DO
