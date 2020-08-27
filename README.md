@@ -10,3 +10,8 @@ Il peut y avoir plusieurs problèmes (écran HS, application HS...). Pourtant lo
 ## Objectif : 
 
 Analyser les données des stations Vcub de Bordeaux afin de déterminer si la stations est hors service.
+
+## Data :
+
+[Wiki](https://github.com/armgilles/vcub_keeper/blob/master/data/wiki_data.md) des données utilisées.
+
