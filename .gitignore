@@ -1,6 +1,7 @@
 # Projet
 *.csv
 *.bz2
+*.h5
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

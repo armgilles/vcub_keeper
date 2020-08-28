@@ -6,7 +6,7 @@ import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot, offline
 
 def plot_station_activity(data, station_id,
-                          features_to_plot=['available_stand'], 
+                          features_to_plot=['available_stands'], 
                           date_col="date",
                           start_date='',
                           end_date='',
