@@ -18,7 +18,7 @@ def get_transactions_out(data):
     Examples
     --------
     
-    activite = get_transactions_depot(activite)
+    activite = get_transactions_out(activite)
     """
     
     data['available_stand_shift'] = \
@@ -91,7 +91,7 @@ def get_transactions_all(data):
     Examples
     --------
     
-    activite = get_transactions_aall(activite)
+    activite = get_transactions_all(activite)
     """
     
     data['available_bike_shift'] = \
