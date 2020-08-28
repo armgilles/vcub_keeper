@@ -1,6 +1,6 @@
 import pandas as pd
 
-from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_REF
+from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_REF, ROOT_DATA_CLEAN
 
 
 def read_stations_attributes(file_name="tb_stvel_p.csv"):
@@ -100,3 +100,28 @@ def read_activity_vcub(file_path = "../../data/bordeaux.csv"):
     activite.reset_index(inplace=True, drop=True)
     
     return activite
+
+
+def read_time_serie_activity(file_name='time_serie_activity.h5'):
+    """
+    
+    Lecture du fichier de type time series sur l'activité des stations Vcub
+    dans le répertoire `/data/clean/`
+    Parameters
+    ----------
+    file_name : str
+        Nom du fichier
+    
+    Returns
+    -------
+    ts_activity : DataFrame
+        
+    Examples
+    --------
+    
+    ts_activity = read_time_serie_activity()
+    """
+    
+    ts_activity = pd.read_hdf(ROOT_DATA_CLEAN + 'time_serie_activity.h5', parse_dates=['date'])
+    
+    return ts_activity

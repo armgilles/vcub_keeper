@@ -21,18 +21,18 @@ def get_transactions_out(data):
     activite = get_transactions_out(activite)
     """
     
-    data['available_stand_shift'] = \
-    data.groupby('station_id')['available_stand'].shift(1)
+    data['available_stands_shift'] = \
+    data.groupby('station_id')['available_stands'].shift(1)
 
-    data['available_stand_shift'] = data['available_stand_shift'].fillna(data['available_stand'])
+    data['available_stands_shift'] = data['available_stands_shift'].fillna(data['available_stands'])
 
-    data['transactions_out'] = data['available_stand'] - data['available_stand_shift']
+    data['transactions_out'] = data['available_stands'] - data['available_stands_shift']
 
     data.loc[data['transactions_out'] < 0,
                 'transactions_out'] = 0
     
     # Drop non usefull column
-    data.drop('available_stand_shift', axis=1, inplace=True)
+    data.drop('available_stands_shift', axis=1, inplace=True)
     
     return data
 
@@ -57,18 +57,18 @@ def get_transactions_in(data):
     activite = get_transactions_in(activite)
     """
     
-    data['available_bike_shift'] = \
-    data.groupby('station_id')['available_bike'].shift(1)
+    data['available_bikes_shift'] = \
+    data.groupby('station_id')['available_bikes'].shift(1)
 
-    data['available_bike_shift'] = data['available_bike_shift'].fillna(data['available_bike'])
+    data['available_bikes_shift'] = data['available_bikes_shift'].fillna(data['available_bikes'])
 
-    data['transactions_in'] = data['available_bike'] - data['available_bike_shift']
+    data['transactions_in'] = data['available_bikes'] - data['available_bikes_shift']
 
     data.loc[data['transactions_in'] < 0,
                  'transactions_in'] = 0
     
     # Drop non usefull column
-    data.drop('available_bike_shift', axis=1, inplace=True)
+    data.drop('available_bikes_shift', axis=1, inplace=True)
     
     return data
 
@@ -94,15 +94,15 @@ def get_transactions_all(data):
     activite = get_transactions_all(activite)
     """
     
-    data['available_bike_shift'] = \
-    data.groupby('station_id')['available_bike'].shift(1)
+    data['available_bikes_shift'] = \
+    data.groupby('station_id')['available_bikes'].shift(1)
 
-    data['available_bike_shift'] = data['available_bike_shift'].fillna(data['available_bike'])
+    data['available_bikes_shift'] = data['available_bikes_shift'].fillna(data['available_bikes'])
 
-    data['transactions_all'] = np.abs(data['available_bike'] - data['available_bike_shift'])
+    data['transactions_all'] = np.abs(data['available_bikes'] - data['available_bikes_shift'])
     
     # Drop non usefull column
-    data.drop('available_bike_shift', axis=1, inplace=True)
+    data.drop('available_bikes_shift', axis=1, inplace=True)
     
     return data
 
