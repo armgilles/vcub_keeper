@@ -114,7 +114,10 @@ def get_consecutive_no_transactions_out(data):
     
     Si il n'y a pas de données d'activité pour la station (absence de 'available_stands'), 
     alors consecutive_no_transactions_out = 0 et une fois qu'il y a  a nouveau de l'activité (des données)
-    le compteur `consecutive_no_transactions_out` reprend
+    le compteur `consecutive_no_transactions_out` reprend.
+
+    Cet indicateur à aussi besoin que la station soit connecté (status == 1) afin de que le compteur
+    avance (sinon = 0)
     
     Parameters
     ----------
@@ -139,6 +142,7 @@ def get_consecutive_no_transactions_out(data):
     data['consecutive_no_transactions_out'] = \
         data.groupby(['station_id',
                       (data['have_data'] == 0).cumsum(),
+                      (data['status'] == 0).cumsum(),
                       (data['transactions_out'] > 0).cumsum()]).cumcount()
 
     data['consecutive_no_transactions_out'] = \
