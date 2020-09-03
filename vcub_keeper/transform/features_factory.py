@@ -112,6 +112,10 @@ def get_consecutive_no_transactions_out(data):
     Calcul depuis combien de temps la station n'a pas eu de prise de vélo. Plus le chiffre est haut, 
     plus ça fait longtemps que la station est inactive sur la prise de vélo.
     
+    Si il n'y a pas de données d'activité pour la station (absence de 'available_stands'), 
+    alors consecutive_no_transactions_out = 0 et une fois qu'il y a  a nouveau de l'activité (des données)
+    le compteur `consecutive_no_transactions_out` reprend
+    
     Parameters
     ----------
     data : DataFrame
@@ -127,15 +131,23 @@ def get_consecutive_no_transactions_out(data):
     
     activite = get_consecutive_no_transactions_out(activite)
     """
-    
-    data['compteur'] = 1
+
+    data['have_data'] = 1
+    data.loc[data['available_stands'].isna(),
+             'have_data'] = 0
+
     data['consecutive_no_transactions_out'] = \
-        data.groupby([(data['transactions_out'] > 0).cumsum(),
-                      'station_id'])['compteur'].cumsum()
+        data.groupby(['station_id',
+                      (data['have_data'] == 0).cumsum(),
+                      (data['transactions_out'] > 0).cumsum()]).cumcount()
 
     data['consecutive_no_transactions_out'] = \
         data['consecutive_no_transactions_out'].fillna(0)
 
-    data = data.drop('compteur', axis=1)
+    data.loc[data['available_stands'].isna(),
+             'consecutive_no_transactions_out'] = 0
+
+    data = data.drop('have_data', axis=1)
+    
     return data
 
