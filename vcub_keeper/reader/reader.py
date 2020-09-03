@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_REF, ROOT_DATA_CLEAN
 
@@ -102,7 +103,8 @@ def read_activity_vcub(file_path = "../../data/bordeaux.csv"):
     return activite
 
 
-def read_time_serie_activity(file_name='time_serie_activity.h5'):
+def read_time_serie_activity(file_name='time_serie_activity.h5',
+                             post_pressessing_status=True):
     """
     
     Lecture du fichier de type time series sur l'activité des stations Vcub
@@ -111,6 +113,9 @@ def read_time_serie_activity(file_name='time_serie_activity.h5'):
     ----------
     file_name : str
         Nom du fichier
+    post_pressessing_status : Bool
+        Permet de rectifier les status à 0 à 1 qui sont ponctuelles (uniquement 1 ligne dans la 
+        time serie)
     
     Returns
     -------
@@ -123,5 +128,22 @@ def read_time_serie_activity(file_name='time_serie_activity.h5'):
     """
     
     ts_activity = pd.read_hdf(ROOT_DATA_CLEAN + 'time_serie_activity.h5', parse_dates=['date'])
+    
+    if post_pressessing_status is True:
+        ts_activity['status_shift'] = ts_activity['status'].shift(-1) 
+
+        # Déconnecté -> NaN
+        ts_activity.loc[ts_activity['status'] == 0,
+           'status'] = np.NaN
+
+        # Si le prochain status est connecté alors on remplace NaN par 1
+        ts_activity.loc[ts_activity['status_shift'] == 1,
+           'status'] = ts_activity['status'].fillna(method='pad', limit=1)
+
+        # On remplace NaN par 0 (comme originalement)
+        ts_activity['status'] = ts_activity['status'].fillna(0)
+
+        # Drop unless column
+        ts_activity = ts_activity.drop('status_shift', axis=1)
     
     return ts_activity
