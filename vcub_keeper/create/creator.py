@@ -85,7 +85,7 @@ def create_activity_time_series():
                                                      label='right',
                                                     ).agg({'available_stands' : 'last',
                                                            'available_bikes' : 'last',
-                                                           'status' : 'min',
+                                                           'status' : 'max', # Empeche les micro déconnection à la station
                                                            'transactions_in' : 'sum',
                                                            'transactions_out' : 'sum',
                                                            'transactions_all' : 'sum'}).reset_index()
