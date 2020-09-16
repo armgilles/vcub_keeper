@@ -25,3 +25,8 @@ if not os.path.exists(ROOT_DATA_CLEAN):
 if not os.path.exists(ROOT_DATA_REF):
     os.mkdir(ROOT_DATA_REF)
     print('Create '+ROOT_DATA_REF)
+
+SEED = 2020
+
+# Key api meteo
+API_METEO = os.getenv("API_METEO")
