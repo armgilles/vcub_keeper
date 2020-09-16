@@ -147,3 +147,26 @@ def read_time_serie_activity(file_name='time_serie_activity.h5',
         ts_activity = ts_activity.drop('status_shift', axis=1)
     
     return ts_activity
+
+
+def read_meteo(file_name='meteo.csv'):
+    """
+    Lecture du fichier météo dans le répertoire dans ROOT_DATA_REF
+    Parameters
+    ----------
+    file_name : str
+        Nom du fichier
+
+    Returns
+    -------
+    meteo : DataFrame
+        
+    Examples
+    --------
+    
+    meteo = read_meteo()
+    """
+    
+    meteo = pd.read_csv(ROOT_DATA_REF+file_name, parse_dates=['date'])
+    
+    return meteo
