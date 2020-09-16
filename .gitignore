@@ -2,6 +2,7 @@
 *.csv
 *.bz2
 *.h5
+*.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
