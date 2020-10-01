@@ -1,6 +1,9 @@
 import pandas as pd 
 import numpy as np
 
+
+from vcub_keeper.reader.reader import read_meteo
+
 def get_transactions_out(data):
     """
     Calcul le nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données
@@ -155,3 +158,57 @@ def get_consecutive_no_transactions_out(data):
     
     return data
 
+def get_meteo(data):
+    """
+    AJoute les données météo suivantes : 
+        - 'min_temp'
+        - 'mean_teamp'
+        - 'max_temp'
+        - 'pressure_mean'
+        - 'humidity_mean'
+        - 'precipitation'
+
+    Parameters
+    ----------
+    data : DataFrame
+        Activité des stations Vcub
+    
+    Returns
+    -------
+    data : DataFrame
+        Ajout des colonnes météo
+        
+    Examples
+    --------
+    
+    ts_activity = get_meteo(ts_activity)
+    """
+    
+    def fast_parse_date_(s):
+        """
+        This is an extremely fast approach to datetime parsing.
+        For large data, the same dates are often repeated. Rather than
+        re-parse these, we store all unique dates, parse them, and
+        use a lookup to convert all dates.
+
+        cf https://github.com/sanand0/benchmarks/tree/master/date-parse
+        """
+        dates = {date: date.strftime(format='%Y-%m-%d') for date in pd.Series(s.unique())}
+        return s.apply(lambda v: dates[v])
+
+    # Lecture des données météo
+    meteo = read_meteo()
+    
+    # Creation des dates au format yyyy_mm avant jointure
+    data['date_year_month'] = fast_parse_date_(data['date'])
+    meteo['date_year_month'] = fast_parse_date_(meteo['date'])
+    
+    # Jointure
+    data = data.merge(meteo.drop('date', axis=1),
+                      on='date_year_month', how='left')
+    
+    # On supprime la colonne 'date_year_month'
+    data = data.drop('date_year_month', axis=1)
+    
+    
+    return data
