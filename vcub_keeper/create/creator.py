@@ -118,7 +118,7 @@ def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
     create_meteo(min_date_history="2018-12-01", max_date_history='2021-03-18')
     """
     api = Api(API_METEO)
-    api.set_granularity('daily')
+    api.set_granularity('hourly')
     
     # Init DataFrame
     meteo_full = pd.DataFrame()
@@ -137,8 +137,9 @@ def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
             history = api.get_history(city="Bordeaux", country="FR",
                                       start_date=date_minus_one_day_str,
                                       end_date=date_str)
-            meteo_day = pd.DataFrame(history.get_series(['max_temp', 'min_temp', 
-                                                         'precip','temp','rh', 'pres']))
+            meteo_day = pd.DataFrame(history.get_series(['temp', 'precip',
+                                                         'rh', 'pres',
+                                                         'wind_spd']))
             meteo_full = pd.concat([meteo_full, meteo_day])
         except requests.HTTPError as exception:
             print(exception)
@@ -148,22 +149,24 @@ def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
     # Accumulated precipitation (default mm)
     meteo_full.rename(columns = {'precip':'precipitation'}, inplace = True)
     # Average temperature
-    meteo_full.rename(columns = {'temp':'mean_teamp'}, inplace = True)
+    meteo_full.rename(columns = {'temp':'temperature'}, inplace = True)
     # Average relative humidity (%)
-    meteo_full.rename(columns = {'rh':'humidity_mean'}, inplace = True)
+    meteo_full.rename(columns = {'rh':'humidity'}, inplace = True)
     # Average pressure (mb)
-    meteo_full.rename(columns = {'pres':'pressure_mean'}, inplace = True)
+    meteo_full.rename(columns = {'pres':'pressure'}, inplace = True)
+    # Wind_speed (m/s)
+    meteo_full.rename(columns = {'wind_spd':'wind_speed'}, inplace = True)
     # date
     meteo_full.rename(columns = {'datetime':'date'}, inplace = True)
 
-    meteo_full = meteo_full[['date', 'min_temp', 'mean_teamp', 'max_temp',
-                             'pressure_mean', 'humidity_mean',
-                             'precipitation']]
+    meteo_full = meteo_full[['date', 'temperature',
+                             'pressure', 'humidity',
+                             'precipitation', 'wind_speed']]
     
     # Check
     min_date = meteo_full.date.min()
     max_date = meteo_full.date.max()
-    date_ref = pd.date_range(start=min_date, end=max_date, freq='d')
+    date_ref = pd.date_range(start=min_date, end=max_date, freq='h')
 
     # Si le référenciel n'a pas toutes les dates dans Timestamp
     assert date_ref.isin(meteo_full['date']).all() == True
@@ -178,6 +181,5 @@ def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
     assert meteo_full['date'].is_monotonic_increasing == True
     
     # export
-    max_date_full = meteo_full.date.max().strftime('%Y-%m-%d')
-    meteo_full.to_csv(ROOT_DATA_REF+'meteo/meteo_'+max_date_full+'.csv',
-                     index=False)
+    
+    meteo_full.to_csv(ROOT_DATA_REF+'meteo.csv', index=False)
