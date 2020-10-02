@@ -158,15 +158,16 @@ def get_consecutive_no_transactions_out(data):
     
     return data
 
+
 def get_meteo(data):
     """
     AJoute les données météo suivantes : 
-        - 'min_temp'
-        - 'mean_teamp'
-        - 'max_temp'
-        - 'pressure_mean'
-        - 'humidity_mean'
-        - 'precipitation'
+        - 'temperature' 
+        - 'pressure'
+        - 'humidity' (%)
+        - 'pressure' (mb)
+        - 'precipitation' (mm/h)
+        - 'wind_speed' (m/s)
 
     Parameters
     ----------
@@ -193,22 +194,21 @@ def get_meteo(data):
 
         cf https://github.com/sanand0/benchmarks/tree/master/date-parse
         """
-        dates = {date: date.strftime(format='%Y-%m-%d') for date in pd.Series(s.unique())}
+        dates = {date: date.strftime(format='%Y-%m-%d %H') for date in pd.Series(s.unique())}
         return s.apply(lambda v: dates[v])
 
     # Lecture des données météo
     meteo = read_meteo()
     
     # Creation des dates au format yyyy_mm avant jointure
-    data['date_year_month'] = fast_parse_date_(data['date'])
-    meteo['date_year_month'] = fast_parse_date_(meteo['date'])
+    data['date_year_month_hours'] = fast_parse_date_(data['date'])
+    meteo['date_year_month_hours'] = fast_parse_date_(meteo['date'])
     
     # Jointure
     data = data.merge(meteo.drop('date', axis=1),
-                      on='date_year_month', how='left')
+                      on='date_year_month_hours', how='left')
     
     # On supprime la colonne 'date_year_month'
-    data = data.drop('date_year_month', axis=1)
-    
+    data = data.drop('date_year_month_hours', axis=1)
     
     return data
