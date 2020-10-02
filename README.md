@@ -15,3 +15,16 @@ Analyser les données des stations Vcub de Bordeaux afin de déterminer si la st
 
 [Wiki](https://github.com/armgilles/vcub_keeper/blob/master/data/wiki_data.md) des données utilisées.
 
+## WIP : 
+
+![image](https://user-images.githubusercontent.com/8374843/94968006-6d7d5000-0500-11eb-853b-7b944a11bb26.png)
+
+Dimension reduction and activity of a station (we can see the 7 days of the week).
+
+![image](https://user-images.githubusercontent.com/8374843/94968827-e630dc00-0501-11eb-9130-128679683423.png)
+
+As previous image but in 3D for better exploration.
+
+![image](https://user-images.githubusercontent.com/8374843/94968688-a8cc4e80-0501-11eb-8ad5-3c667ad730e5.png)
+
+Anomaly detection on station `Place de la Victoire`, green line is our Vcub keeper which launches the alert for abnormal activity.
