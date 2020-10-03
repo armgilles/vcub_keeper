@@ -48,7 +48,7 @@ Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les inf
    - Fonction de lecture : `/reader/reader.py read_meteo()`
 
 
-## Clean - Fichiers retravaillés
+### Clean - Fichiers retravaillés
 
 1. `time_serie_activity.h5` fichier retraillé à partir des données `raw` sur l'activité des stations. La lecture est assurée par la fonction  `vcub_keeper/reader/reader.py read_time_serie_activity()`. 
 
