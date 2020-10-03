@@ -35,7 +35,7 @@ Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les inf
 |  4 | 44.7821503,-0.5661566 | {"type": "Point", "coordinates": [-0.5661566, 44.7821503]} | VILLENAVE-D'ORNON      |            21 | Pont de la Maye (retirée le 19 novembre 2015 en raison des travaux d'extension du tram C) | VCUB    | face au 564 route de Toulouse     | VLS PLUS |           76 | 44.7822 | -0.566157 |
 
 
-1. `meteo.csv` Fichier météo qui indique différents indicateurs météo à l'heure.
+1. `meteo.csv` Fichier météo qui indique différents indicateurs météo à l'heure créer à partir de `vcub_keeper/create/creator.py create_meteo()`
 
 |       | date                |   temperature |   pressure |   humidity |   precipitation |   wind_speed |
 |------:|:--------------------|--------------:|-----------:|-----------:|----------------:|-------------:|
