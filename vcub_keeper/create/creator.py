@@ -233,7 +233,7 @@ def create_station_profilage_activity():
     profile_station = profile_station.sort_values('mean')
     # Classification en 3 activités (low / medium / hight)
     profile_station['profile_station_activity'] = \
-        pd.cut(profile_station['mean'], 3, labels=["low", "medium", "hight"])
+        pd.cut(profile_station['mean'], 3, labels=["low", "medium", "high"])
     
     ## Export
     profile_station.to_csv(ROOT_DATA_REF+'station_profile.csv',
