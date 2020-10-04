@@ -1,7 +1,5 @@
-import plotly.graph_objs as go
-from plotly.offline import init_notebook_mode, iplot, offline
-
-
+import matplotlib.pyplot as plt
+import seaborn as sns
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot, offline
 
@@ -92,3 +90,53 @@ def plot_station_activity(data, station_id,
     iplot(fig)
     if return_data is True:
         return temp
+
+
+def plot_station_activity(data, station_id, feature_to_plot, aggfunc='mean',
+                          filter_data=True, vmin=None):
+    """
+    Affiche un graphique permettant d'obversé l'activité de la semaine lié à la varible 
+    `feature_to_plot` suivant le jour et l'heure.
+    
+                      
+    ----------
+    data : pd.DataFrame
+        Tableau temporelle de l'activité des stations Vcub
+    station_id : Int
+        Numéro de la station de Vcub
+    feature_to_plot : str
+        Noms ds la colonne à afficher sur le graphique
+    aggfunc : str
+        Type d'aggrégation à faire sur feature_to_plot
+    filter_data : bool
+        Est ce que l'on filtre les donner selon la fonction reader/reader.py filter_periode
+    vmin : int
+        Valeur minimal pour la colormap
+    Returns
+    -------
+    None
+        
+    Examples
+    --------
+    
+    plot_station_activity(ts_activity, station_id=108, feature_to_plot='transactions_all',
+                          aggfunc='mean', filter_data=False)
+    """
+    
+    station = data[data['station_id'] == station_id].copy()
+    
+    if filter_data is True:
+        station = filter_periode(station)
+    
+    station['month'] = station['date'].dt.month
+    station['weekday'] = station['date'].dt.weekday
+    station['hours'] = station['date'].dt.hour
+    
+    pivot_station = station.pivot_table(index=["weekday"],
+                                        columns=["hours"],
+                                        values=feature_to_plot,
+                                        aggfunc=aggfunc)
+    
+    plt.subplots(figsize=(20, 5))
+    sns.heatmap(pivot_station, linewidths=.5, cmap="coolwarm", vmin=vmin)
+    plt.title("Profile d'activité de la station N°" + str(station_id) + ' / ' + feature_to_plot + ' (aggrégation : '+ aggfunc +')');
