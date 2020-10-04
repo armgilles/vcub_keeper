@@ -3,6 +3,8 @@ import seaborn as sns
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot, offline
 
+from vcub_keeper.reader.reader_utils import filter_periode
+
 def plot_station_activity(data, station_id,
                           features_to_plot=['available_stands'], 
                           date_col="date",
