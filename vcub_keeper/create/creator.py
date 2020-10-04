@@ -5,6 +5,7 @@ load_dotenv()
 
 from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_CLEAN, ROOT_DATA_REF
 from vcub_keeper.reader.reader import read_time_serie_activity
+from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.transform.features_factory import (get_transactions_in, get_transactions_out,
                                                     get_transactions_all, get_consecutive_no_transactions_out)
 
@@ -189,8 +190,8 @@ def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
 def create_station_profilage_activity():
     """
     Création d'un fichier classifiant les stations suivant leurs activités et 
-    leurs fréquences d'utilation
-    Création du fichier `station_profile.csv` dans ROOT_DATA_REF.
+    leurs fréquences d'utilation (données filtré par reader_utils.py filter_periode() )
+    Création du fichier `station_profile.csv` dans ROOT_DATA_REF
 
     Parameters
     ----------
@@ -214,6 +215,9 @@ def create_station_profilage_activity():
     ts_activity = get_transactions_out(ts_activity)
     ts_activity = get_transactions_all(ts_activity)
     ts_activity = get_consecutive_no_transactions_out(ts_activity)
+    
+    # Filter data with confinement & non use by consumer
+    ts_activity = filter_periode(ts_activity)
     
     # Aggrégation de l'activité par stations
     profile_station = \
