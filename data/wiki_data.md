@@ -1,13 +1,24 @@
 ## Informations sur les données du projet :
 
 Les fichiers de données sont organisés par répertoire : 
- - `Raw` : Fichiers sources bruts (non retravaillées).
- - `Ref` : Fichiers de référence (d'attributs).
- - `Clean` : Fichiers retravaillés provenant du répertoire `Raw`.
+ - `raw` : Fichiers sources bruts (non retravaillées).
+ - `ref` : Fichiers de référence (d'attributs).
+ - `clean` : Fichiers retravaillés provenant du répertoire `raw`.
 
 ### Raw - Fichiers sources
 
-1. TO DO
+1. `bordeaux-YYYY.csv` (YYYY étant l'année) : Fichiers d'activités des stations (un fichier égal à une année)
+
+|          |   id | status   |   available_stands |   available_bikes | timestamp           |
+|---------:|-----:|:---------|-------------------:|------------------:|:--------------------|
+|  9799112 |    1 | open     |                  8 |                25 | 2020-01-01 03:49:13 |
+|   462704 |    1 | open     |                  8 |                25 | 2020-01-01 03:54:13 |
+| 11305359 |    1 | open     |                  8 |                25 | 2020-01-01 03:57:13 |
+|  4283349 |    1 | open     |                  8 |                25 | 2020-01-01 04:02:13 |
+|  3945493 |    1 | open     |                  9 |                24 | 2020-01-01 04:08:13 |
+
+Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les informations sur le nombre d'ajouts ou de prises de vélo par station sur un temps de 5 minutes (fichiers sources) avant d'être resampler sur 10 minutes. Ces transformations sont assurées par la fonction `vcub_keeper/create/creator.py create_activity_time_series()` créant le fichier dans le répertoire `clean` nommé `time_serie_activity.h5`.
+
 
 ### Ref - Fichiers de références
 
@@ -23,6 +34,34 @@ Les fichiers de données sont organisés par répertoire :
 |  3 | 44.8492876,-0.4966899 | {"type": "Point", "coordinates": [-0.4966899, 44.8492876]} | ARTIGUES-PRES-BORDEAUX |            19 | Artigues Feydeau                                                                          | VCUB    | 22 Boulevard Feydeau              | VLS PLUS |          150 | 44.8493 | -0.49669  |
 |  4 | 44.7821503,-0.5661566 | {"type": "Point", "coordinates": [-0.5661566, 44.7821503]} | VILLENAVE-D'ORNON      |            21 | Pont de la Maye (retirée le 19 novembre 2015 en raison des travaux d'extension du tram C) | VCUB    | face au 564 route de Toulouse     | VLS PLUS |           76 | 44.7822 | -0.566157 |
 
-## Clean - Fichier retravaillés
 
-TO DO
+1. `meteo.csv` Fichier météo qui indique différents indicateurs météo à l'heure créer à partir de `vcub_keeper/create/creator.py create_meteo()`
+
+|       | date                |   temperature |   pressure |   humidity |   precipitation |   wind_speed |
+|------:|:--------------------|--------------:|-----------:|-----------:|----------------:|-------------:|
+| 15787 | 2020-09-17 19:00:00 |          26.4 |     1006.2 |         39 |               0 |          1.5 |
+| 15788 | 2020-09-17 20:00:00 |          24.2 |     1006.3 |         49 |               0 |          0.5 |
+| 15789 | 2020-09-17 21:00:00 |          23.9 |     1006.5 |         46 |               0 |          2.6 |
+| 15790 | 2020-09-17 22:00:00 |          24.4 |     1006.3 |         45 |               0 |          3.1 |
+| 15791 | 2020-09-17 23:00:00 |          24.4 |     1005.9 |         47 |               0 |          2.6 |
+
+   - Fonction de lecture : `/reader/reader.py read_meteo()`
+
+
+### Clean - Fichiers retravaillés
+
+1. `time_serie_activity.h5` fichier retraillé à partir des données `raw` sur l'activité des stations. La lecture est assurée par la fonction  `vcub_keeper/reader/reader.py read_time_serie_activity()`. 
+
+
+|          |   station_id | date                |   available_stands |   available_bikes |   status |   transactions_in |   transactions_out |   transactions_all |
+|---------:|-------------:|:--------------------|-------------------:|------------------:|---------:|------------------:|-------------------:|-------------------:|
+| 16564507 |          251 | 2020-08-28 11:10:00 |                 28 |                12 |        1 |                 0 |                  0 |                  0 |
+| 16564508 |          251 | 2020-08-28 11:20:00 |                 28 |                12 |        1 |                 0 |                  0 |                  0 |
+| 16564509 |          251 | 2020-08-28 11:30:00 |                 26 |                14 |        1 |                 2 |                  0 |                  2 |
+| 16564510 |          251 | 2020-08-28 11:40:00 |                 26 |                14 |        1 |                 0 |                  0 |                  0 |
+| 16564511 |          251 | 2020-08-28 11:50:00 |                 26 |                14 |        1 |                 0 |                  0 |                  0 |
+
+- `transactions_in` : Nombre d'ajouts de vélo qu'il y a eu pour une même station entre 2 points de données
+- `transactions_out` : Nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données 
+- `transactions_in` : Nombre de transactions de vélo (ajout et prise) qu'il y a eu pour une même
+    station entre 2 points de données
