@@ -170,3 +170,29 @@ def read_meteo(file_name='meteo.csv'):
     meteo = pd.read_csv(ROOT_DATA_REF+file_name, parse_dates=['date'])
     
     return meteo
+
+
+def read_station_profile(file_name='station_profile.csv'):
+    """
+    Lecture du fichier sur qui classifie les stations par rapport à leurs activité et 
+    fréquences d'utilisation.
+    Ce fichier est situé dans ROOT_DATA_REF
+    
+    Parameters
+    ----------
+    file_name : str
+        Nom du fichier
+    
+    Returns
+    -------
+    station_profile : DataFrame
+        
+    Examples
+    --------
+    
+    station_profile = read_station_profile()
+    """
+    station_profile = pd.read_csv(ROOT_DATA_REF+file_name, sep=',')
+    
+    return station_profile
+

@@ -3,9 +3,10 @@ import glob as glob
 from dotenv import load_dotenv
 load_dotenv()
 
-from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_CLEAN
+from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_CLEAN, ROOT_DATA_REF
+from vcub_keeper.reader.reader import read_time_serie_activity
 from vcub_keeper.transform.features_factory import (get_transactions_in, get_transactions_out,
-                                                    get_transactions_all)
+                                                    get_transactions_all, get_consecutive_no_transactions_out)
 
 
 def create_activity_time_series():
@@ -183,3 +184,53 @@ def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
     # export
     
     meteo_full.to_csv(ROOT_DATA_REF+'meteo.csv', index=False)
+
+
+def create_station_profilage_activity():
+    """
+    Création d'un fichier classifiant les stations suivant leurs activités et 
+    leurs fréquences d'utilation
+    Création du fichier `station_profile.csv` dans ROOT_DATA_REF.
+
+    Parameters
+    ----------
+    None
+    
+    Returns
+    -------
+    None
+        
+    Examples
+    --------
+    
+    create_station_profilage_activity()
+    """
+    
+    # Lecture du fichier activité
+    ts_activity = read_time_serie_activity()
+
+    # Some features
+    ts_activity = get_transactions_in(ts_activity)
+    ts_activity = get_transactions_out(ts_activity)
+    ts_activity = get_transactions_all(ts_activity)
+    ts_activity = get_consecutive_no_transactions_out(ts_activity)
+    
+    # Aggrégation de l'activité par stations
+    profile_station = \
+        ts_activity[ts_activity['status'] == 1].groupby('station_id', 
+                                                        as_index=False)['transactions_all'].agg({'total_point' : 'size',
+                                                                                                 'mean' : 'mean',
+                                                                                                 'median' : 'median',
+                                                                                                 'std' : 'std',
+                                                                                                 '95%': lambda x: x.quantile(0.95),
+                                                                                                 '98%': lambda x: x.quantile(0.98),
+                                                                                                 '99%': lambda x: x.quantile(0.99),
+                                                                                                 'max' : 'max'})
+    profile_station = profile_station.sort_values('mean')
+    # Classification en 3 activités (low / medium / hight)
+    profile_station['profile_station_activity'] = \
+        pd.cut(profile_station['mean'], 3, labels=["low", "medium", "hight"])
+    
+    ## Export
+    profile_station.to_csv(ROOT_DATA_REF+'station_profile.csv',
+                                                         index=False, encoding='utf-8')
