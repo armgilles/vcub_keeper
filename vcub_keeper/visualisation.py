@@ -94,7 +94,7 @@ def plot_station_activity(data, station_id,
         return temp
 
 
-def plot_station_activity(data, station_id, feature_to_plot, aggfunc='mean',
+def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
                           filter_data=True, vmin=None):
     """
     Affiche un graphique permettant d'obversé l'activité de la semaine lié à la varible 
@@ -121,7 +121,7 @@ def plot_station_activity(data, station_id, feature_to_plot, aggfunc='mean',
     Examples
     --------
     
-    plot_station_activity(ts_activity, station_id=108, feature_to_plot='transactions_all',
+    plot_profile_station(ts_activity, station_id=108, feature_to_plot='transactions_all',
                           aggfunc='mean', filter_data=False)
     """
     
