@@ -99,7 +99,7 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
     """
     Affiche un graphique permettant d'obversé l'activité de la semaine lié à la varible 
     `feature_to_plot` suivant le jour et l'heure.
-    
+    On prend uniquement les données lorsque la station est ouverte (status = 1)
                       
     ----------
     data : pd.DataFrame
@@ -129,15 +129,23 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
     
     if filter_data is True:
         station = filter_periode(station)
+
+    # station status == 1 (ok)
+    station = station[station['status'] == 1]
+
+    # Resample hours
+    station = station.set_index('date')
+    station_resample = \
+        station.resample('H', label='right').agg({feature_to_plot : 'sum'}).reset_index()
     
-    station['month'] = station['date'].dt.month
-    station['weekday'] = station['date'].dt.weekday
-    station['hours'] = station['date'].dt.hour
+    station_resample['month'] = station_resample['date'].dt.month
+    station_resample['weekday'] = station_resample['date'].dt.weekday
+    station_resample['hours'] = station_resample['date'].dt.hour
     
-    pivot_station = station.pivot_table(index=["weekday"],
-                                        columns=["hours"],
-                                        values=feature_to_plot,
-                                        aggfunc=aggfunc)
+    pivot_station = station_resample.pivot_table(index=["weekday"],
+                                                 columns=["hours"],
+                                                 values=feature_to_plot,
+                                                 aggfunc=aggfunc)
     
     plt.subplots(figsize=(20, 5))
     sns.heatmap(pivot_station, linewidths=.5, cmap="coolwarm", vmin=vmin)
