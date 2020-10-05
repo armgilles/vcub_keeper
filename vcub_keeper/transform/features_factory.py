@@ -121,6 +121,8 @@ def get_consecutive_no_transactions_out(data):
 
     Cet indicateur à aussi besoin que la station soit connecté (status == 1) afin de que le compteur
     avance (sinon = 0)
+    L'indicateur pour s'activer et continer à avancer dans le temps doit avoir des vélos disposibles en
+    station (plus de 2 vélos, possibilité vélo HS, borne HS...)
     
     Parameters
     ----------
@@ -144,6 +146,7 @@ def get_consecutive_no_transactions_out(data):
 
     data['consecutive_no_transactions_out'] = \
         data.groupby(['station_id',
+                      (data['available_bikes'] < 3).cumsum(), # 3 for 2 available_bikes
                       (data['have_data'] == 0).cumsum(),
                       (data['status'] == 0).cumsum(),
                       (data['transactions_out'] > 0).cumsum()]).cumcount()
