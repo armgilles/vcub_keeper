@@ -3,6 +3,7 @@
 *.bz2
 *.h5
 *.env
+model
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

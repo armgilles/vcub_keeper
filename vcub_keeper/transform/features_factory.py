@@ -215,3 +215,61 @@ def get_meteo(data):
     data = data.drop('date_year_month_hours', axis=1)
     
     return data
+
+
+def get_encoding_time(data, col_date, max_val):
+    """
+    Encoding time
+    
+    Parameters
+    ----------
+    data : DataFrame
+        Activité des stations Vcub
+    col_date : str
+        Nom de la colonne à encoder
+    max_val : int
+        Valeur maximal que la valeur peut avoir (ex 12 pour le mois)
+        
+    Returns
+    -------
+    data : DataFrame
+        Ajout de colonne Sin_[col_date] & Cos_[col_date]
+        
+    Examples
+    --------
+    data = get_encoding_time(data, 'month', max_val=12)
+    """
+
+    data['Sin_'+col_date] = np.sin(2 * np.pi * data[col_date]/max_val)
+    data['Cos_'+col_date] = np.cos(2 * np.pi * data[col_date]/max_val)
+    return data
+
+
+def process_data_cluster(data):
+    """
+    Process some Feature engineering
+    
+    Parameters
+    ----------
+    data : DataFrame
+        Activité des stations Vcub
+    
+    Returns
+    -------
+    data : DataFrame
+        Add some columns in DataFrame
+        
+    Examples
+    --------
+    data = process_data_cluster(data)
+    """
+    
+    #data['month'] = data['date'].dt.month
+    data['weekday'] = data['date'].dt.weekday
+    data['hours'] = data['date'].dt.hour
+    
+    #data = get_encoding_time(data, 'month', max_val=12)
+    data = get_encoding_time(data, 'weekday', max_val=7)
+    data = get_encoding_time(data, 'hours', max_val=24)
+    
+    return data
