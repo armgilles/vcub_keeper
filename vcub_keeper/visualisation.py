@@ -1,9 +1,11 @@
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot, offline
 
 from vcub_keeper.reader.reader_utils import filter_periode
+from vcub_keeper.ml.cluster import predict_anomalies_station
 
 def plot_station_activity(data, station_id,
                           features_to_plot=['available_stands'], 
@@ -150,3 +152,158 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
     plt.subplots(figsize=(20, 5))
     sns.heatmap(pivot_station, linewidths=.5, cmap="coolwarm", vmin=vmin)
     plt.title("Profile d'activité de la station N°" + str(station_id) + ' / ' + feature_to_plot + ' (aggrégation : '+ aggfunc +')');
+
+
+def plot_station_anomalies(data, clf, station_id,
+                   start_date='',
+                   end_date='',
+                   return_data=False,
+                   offline_plot=False):
+    """
+    Plot Time Series
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Tableau temporelle de l'activité des stations Vcub
+    clf : Pipeline Scikit Learn
+        Estimator already fit
+    station_id : Int
+        ID station
+    start_date : str [opt]
+        Date de début du graphique yyyy-mm-dd
+    end_date : str [opt]
+        Date de fin du graphique yyyy-mm-dd
+    return_data : bool [opt]
+        Retour le DataFrame lié à la station demandé et au contraintes de date si remplie.
+    offline_plot : bool [opt]
+        Pour exporter le graphique
+
+    Returns
+    -------
+    data : pd.DataFrame
+        Could return it if return_data is True.
+
+    Examples
+    --------
+
+    plot_station_anomalies(data=ts_activity, clf=clf, station_id=22)
+    """
+
+    # Filter on station_id
+    data_station = data[data['station_id'] == station_id].copy()
+
+    if 'consecutive_no_transactions_out' not in data.columns:
+        # Some features
+        data_station = get_transactions_in(data_station)
+        data_station = get_transactions_out(data_station)
+        data_station = get_transactions_all(data_station)
+        data_station = get_consecutive_no_transactions_out(data_station)
+
+    data_pred = predict_anomalies_station(data=data_station,
+                                             clf=clf,
+                                             station_id=station_id)
+
+    if start_date != '':
+        data_pred = data_pred[data_pred['date'] >= start_date]
+
+    if end_date != '':
+        data_pred = data_pred[data_pred['date'] <= end_date]
+
+    # Init list of trace
+    data_graph = []
+
+    # Axe 1
+    trace = go.Scatter(x=data_pred['date'],
+                       y=data_pred['available_bikes'],
+                       mode='lines',
+                       line= {'width': 2},
+                       name="Vélo disponible")
+    data_graph.append(trace)
+
+    # Axe 2
+    trace_ano = go.Scatter(x=data_pred['date'],
+                           y=data_pred['consecutive_no_transactions_out'],
+                           mode='lines',
+                           line= {'width': 1,
+                                  'dash': 'dot',
+                                  'color' : 'rgba(189,189,189,1)'},
+                           yaxis='y2',
+
+                           name='Absence consécutive de prise de vélo')
+    data_graph.append(trace_ano)
+
+    # For shape hoverdata anomaly
+    data_pred['ano_hover_text'] = np.NaN
+    data_pred.loc[data_pred['anomaly'] == -1,
+                 'ano_hover_text'] = data_pred['available_bikes']
+    trace_ano2 = go.Scatter(x=data_pred['date'],
+                            y=data_pred['ano_hover_text'],
+                            mode='lines',
+                            text='x',
+                            connectgaps=False,
+                            line= {'width': 2,
+                                   'color' : 'red'},
+                            name='anomaly')
+    data_graph.append(trace_ano2)
+
+    # Shapes anomaly
+    shapes = []
+    data_pred['date_day'] = data_pred['date'].dt.date
+    grp = \
+        data_pred[data_pred['anomaly'] == -1].groupby('date_day',
+                                                      as_index=False)['date'].agg({'min' : 'min',
+                                                                                   'max' : 'max'})
+
+    max_value = data_pred['available_bikes'].max()
+    for idx, row in grp.iterrows():
+        shapes.append(dict(type="rect",
+                           xref="x",
+                           yref="y",
+                           x0=row['min'],
+                           y0=0,
+                           x1=row['max'],
+                           y1=max_value,
+                           fillcolor="red",
+                           opacity=0.7,
+                           layer="below",
+                           line_width=0
+                      ))
+
+    data_pred = data_pred.drop('date_day', axis=1)
+
+    # Design graph
+    layout = dict(
+        title="Détection d'anomalies sur la stations N° " + str(station_id),
+        showlegend=True,
+        legend=dict(orientation="h",
+                    yanchor="top",
+                    xanchor="center",
+                    y=1.1,
+                    x=0.5
+                   ),
+        xaxis=dict(
+                rangeslider=dict(
+                    visible=True
+                ),
+                type='date',
+                tickformat='%a %Y-%m-%d %H:%M',
+        ),
+        yaxis=dict(
+            title='Valeurs'
+        ),
+        yaxis2={'overlaying': 'y',
+                'side': 'right',
+                'visible': False},
+        template='plotly_white',
+        hovermode='x',
+        shapes=shapes
+    )
+
+    fig = dict(data=data_graph, layout=layout)
+    if offline_plot is False:
+        iplot(fig)
+    else:
+        offline.plot(fig)
+
+    if return_data is True:
+        return data_pred
