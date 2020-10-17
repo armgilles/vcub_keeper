@@ -13,7 +13,7 @@ Il peut y avoir plusieurs problèmes (écran HS, application HS, problème dans 
 
 Analyser les données des stations Vcub de Bordeaux afin de déterminer si la station est hors service (impossibilité de prendre un vélo alors que des vélos sont disponibles) alors que cette station est active.
 
-Prévenir via twitter @TBM_V3 dès qu'une station est détecté comme HS (fonctionnalité dans une autre repo privé).
+Prévenir via twitter @TBM_V3 dès qu'une station est détecté comme HS (fonctionnalité dans un autre repo privé).
 
 ## Data :
 
