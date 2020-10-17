@@ -11,13 +11,15 @@ Il peut y avoir plusieurs problèmes (écran HS, application HS, problème dans 
 
 ## Objectif : 
 
-Analyser les données des stations Vcub de Bordeaux afin de déterminer si la station est hors service.
+Analyser les données des stations Vcub de Bordeaux afin de déterminer si la station est hors service (impossibilité de prendre un vélo alors que des vélos sont disponibles) alors que cette station est active.
 
 ## Data :
 
 [Wiki](https://github.com/armgilles/vcub_keeper/blob/master/data/wiki_data.md) des données utilisées.
 
 ## Études : 
+
+### Analyse exploratives : 
 
 ![image](https://user-images.githubusercontent.com/8374843/94968006-6d7d5000-0500-11eb-853b-7b944a11bb26.png)
 
@@ -26,6 +28,8 @@ Réduction de dimension (via `PCA`) sur l'activité d'une station avec plus d'un
 ![image](https://user-images.githubusercontent.com/8374843/94968827-e630dc00-0501-11eb-9130-128679683423.png)
 
 Identique à l'image précédente, mais en 3D afin de mieux observer certains phénomènes.
+
+### Prédictions : 
 
 ![image](https://user-images.githubusercontent.com/8374843/96337330-a2ec7680-1086-11eb-84ec-c42c4cd5f7f6.png)
 
