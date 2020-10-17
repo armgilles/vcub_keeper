@@ -52,7 +52,7 @@ def train_cluster_station(data, station_id):
     profile_station_activity = \
         station_profile[station_profile['station_id'] == station_id]['profile_station_activity'].values[0]
 
-    print('Profile de la station : ' + profile_station_activity)
+    print('Profile de la station N°' + str(station_id) + ' : ' + profile_station_activity)
 
     # Scaler
     clf_scaler = StandardScaler()
@@ -96,8 +96,10 @@ def predict_anomalies_station(data, clf, station_id):
         
     Examples
     --------
-    clf = train_cluster_station(data=ts_activity, station_id=110)
+    station_pred = predict_anomalies_station(data=ts_activity, clf=clf, station_id=106)
     """
+
+
     
     # Filter stations
     data_station = data[data['station_id'] == station_id].copy()

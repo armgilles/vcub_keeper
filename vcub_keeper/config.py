@@ -55,3 +55,7 @@ PROFILE_STATION_RULE = {'very high' : 36, # 6 heures
                         'medium' : 66,    # 11 heures
                         'low' : 144       # 24 heures
                        }
+
+# Utiliser dans ml/train_cluster.py. Permet d'apprendre uniquement les stations avec 
+# un certain niveau d'activité
+THRESHOLD_PROFILE_STATION = 0.3
