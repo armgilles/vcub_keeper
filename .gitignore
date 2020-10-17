@@ -4,6 +4,9 @@
 *.h5
 *.env
 model
+# Production & API privée
+notebooks/03_production/
+production/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
