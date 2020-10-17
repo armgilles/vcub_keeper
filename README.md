@@ -5,13 +5,15 @@ Analyse de l'activité des stations Vcub dans la métropole de Bordeaux afin de 
 
 Je suis un grand utilisateur du service Vcub (vélos en libre-service) à Bordeaux. Le problème c'est que trop souvent à mon gout, j'arrive à une station pour prendre un vélo et celle-ci est hors service ce qui provoque une certaine frustration...
 
-Il n'est pas question ici de prédire le nombre de vélos disponibles à la station afin de ne pas tomber sur une station vide, mais bien d'arriver à prédire le fait que la station soit HS avant que celle-ci soit déconnectée par TBC.
+Il n'est pas question ici de prédire le nombre de vélos disponibles à la station afin de ne pas tomber sur une station vide, mais bien d'arriver à prédire le fait que la station soit HS avant que celle-ci soit déconnectée par TBM.
 
 Il peut y avoir plusieurs problèmes (écran HS, application HS, problème dans l'API des cadenas...). Pourtant lorsque l'on a un peu d'expérience, on sait si celle-ci doit être presque vide ou pleine à une certaine heure. Par exemple si je regarde **la station des châtrons** le matin vers 9H, celle-ci doit être presque vide (en général 3 à 5 vélos disponibles) en semaine. Lorsque celle-ci est pleine le matin, je sais qu'il y a un problème sur cette station.
 
 ## Objectif : 
 
 Analyser les données des stations Vcub de Bordeaux afin de déterminer si la station est hors service (impossibilité de prendre un vélo alors que des vélos sont disponibles) alors que cette station est active.
+
+Prévenir via twitter @TBM_V3 dès qu'une station est détecté comme HS (fonctionnalité dans une autre repo privé).
 
 ## Data :
 
