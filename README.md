@@ -40,4 +40,4 @@ Identique à l'image précédente, mais en 3D afin de mieux observer certains ph
 
 ![image](https://user-images.githubusercontent.com/8374843/96337330-a2ec7680-1086-11eb-84ec-c42c4cd5f7f6.png)
 
-Détection d'anomalies sur la station `Rue de la Croix Blanche` à partir des données en temps réel de la station (l'API est privé et n'est pas présente dans le repo sorry ;) )
+Détection d'anomalies sur la station `Rue de la Croix Blanche` à partir des données en temps réel de la station.
