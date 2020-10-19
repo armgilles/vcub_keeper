@@ -22,6 +22,8 @@ Prévenir via twitter @TBM_V3 dès qu'une station est détecté comme HS (foncti
 
 [Wiki](https://github.com/armgilles/vcub_keeper/blob/master/data/wiki_data.md) des données utilisées.
 
+Les données proviennent du travail de [Damien Garaud](https://twitter.com/jazzydag) via le projet open-source [Jitenshea](https://github.com/garaud/jitenshea)
+
 ## Études : 
 
 ### Analyse exploratives : 
