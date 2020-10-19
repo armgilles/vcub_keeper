@@ -1,6 +1,9 @@
 # vcub_keeper
 Analyse de l'activité des stations Vcub dans la métropole de Bordeaux afin de détecter en amont les stations hors service
 
+![image](https://user-images.githubusercontent.com/8374843/96422013-ca168580-11f7-11eb-8939-d773b1a22953.png)
+_Impossible de valider la prise d'un vélo (absence de bouton "validation") sur une station quasi pleine._
+
 ## Problème : 
 
 Je suis un grand utilisateur du service Vcub (vélos en libre-service) à Bordeaux. Le problème c'est que trop souvent à mon gout, j'arrive à une station pour prendre un vélo et celle-ci est hors service ce qui provoque une certaine frustration...
