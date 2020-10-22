@@ -248,9 +248,12 @@ def plot_station_anomalies(data, clf, station_id,
 
     # Shapes anomaly
     shapes = []
-    data_pred['date_day'] = data_pred['date'].dt.date
+    # https://github.com/armgilles/vcub_keeper/issues/38
+    data_pred['no_anomalie'] = (data_pred['anomaly'] == 1)
+    data_pred['anomaly_grp'] = data_pred['no_anomalie'].cumsum()
+
     grp = \
-        data_pred[data_pred['anomaly'] == -1].groupby('date_day',
+        data_pred[data_pred['anomaly'] == -1].groupby('anomaly_grp', 
                                                       as_index=False)['date'].agg({'min' : 'min',
                                                                                    'max' : 'max'})
 
@@ -269,7 +272,7 @@ def plot_station_anomalies(data, clf, station_id,
                            line_width=0
                       ))
 
-    data_pred = data_pred.drop('date_day', axis=1)
+    data_pred = data_pred.drop(['no_anomalie', 'anomaly_grp'], axis=1)
 
     # Design graph
     layout = dict(
