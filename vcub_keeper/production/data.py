@@ -63,13 +63,12 @@ def transform_json_station_data_to_df(station_json):
     
     station_df = pd.DataFrame(station_json['data'][0])
     
-    # EN ATTENTE DE DONNEE SUR LE STATUT DE LA STATION VIA API
-    ## Status mapping
-    #status_dict = {'open' : 1,
-    #               'closed' : 0
-    #              }
-    #station_df['status'] = station_df['status'].map(status_dict)
-    #station_df['status'] = station_df['status'].astype('uint8')
+    # Status mapping
+    status_dict = {'open' : 1,
+                   'closed' : 0
+                  }
+    station_df['status'] = station_df['status'].map(status_dict)
+    station_df['status'] = station_df['status'].astype('uint8')
 
     # Naming
     station_df.rename(columns={'id':'station_id'}, inplace=True)
@@ -101,7 +100,7 @@ def transform_json_station_data_to_df(station_json):
                                                   label='right',
                                                  ).agg({'available_stands' : 'last',
                                                         'available_bikes' : 'last',
-                                                        #'status' : 'max', # Empeche les micro déconnection à la station
+                                                        'status' : 'max', # Empeche les micro déconnection à la station
                                                         'transactions_in' : 'sum',
                                                         'transactions_out' : 'sum',
                                                         'transactions_all' : 'sum'}).reset_index()
