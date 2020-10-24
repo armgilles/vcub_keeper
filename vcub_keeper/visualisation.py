@@ -158,7 +158,8 @@ def plot_station_anomalies(data, clf, station_id,
                    start_date='',
                    end_date='',
                    return_data=False,
-                   offline_plot=False):
+                   offline_plot=False,
+                   return_plot=False):
     """
     Plot Time Series
     Parameters
@@ -177,6 +178,8 @@ def plot_station_anomalies(data, clf, station_id,
         Retour le DataFrame lié à la station demandé et au contraintes de date si remplie.
     offline_plot : bool [opt]
         Pour exporter le graphique
+    offline_plot : bool [opt]
+        Pour retourner le graphique et l'utiliser dans une application
 
     Returns
     -------
@@ -303,6 +306,8 @@ def plot_station_anomalies(data, clf, station_id,
     )
 
     fig = dict(data=data_graph, layout=layout)
+    if return_plot is True:
+        return fig
     if offline_plot is False:
         iplot(fig)
     else:
