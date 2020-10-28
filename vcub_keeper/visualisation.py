@@ -284,7 +284,7 @@ def plot_station_anomalies(data, clf, station_id,
         legend=dict(orientation="h",
                     yanchor="top",
                     xanchor="center",
-                    y=1.1,
+                    y=1.2,
                     x=0.5
                    ),
         xaxis=dict(
