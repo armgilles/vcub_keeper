@@ -1,11 +1,13 @@
 import os
 import numpy as np
+from dotenv import load_dotenv
+load_dotenv()
 
 # Paths
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 # If package is install with pip, ROOT_DIR is bad
 if "site-packages" in ROOT_DIR:  # isntall via pip
-    ROOT_DIR = os.path.realpath("")
+    ROOT_DIR = os.environ.get("ROOT_DIR")
 
 ROOT_DATA_RAW = ROOT_DIR + '/data/raw/'
 ROOT_DATA_CLEAN = ROOT_DIR + '/data/clean/'
