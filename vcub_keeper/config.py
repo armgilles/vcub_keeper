@@ -4,7 +4,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Paths
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+try:
+    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+except:
+    print("Try to find environnement variable")
+    ROOT_DIR = os.environ.get("ROOT_DIR")
 # If package is install with pip, ROOT_DIR is bad
 if "site-packages" in ROOT_DIR:  # isntall via pip
     ROOT_DIR = os.environ.get("ROOT_DIR")
