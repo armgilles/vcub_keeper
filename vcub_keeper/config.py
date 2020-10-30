@@ -22,7 +22,7 @@ if "site-packages" in ROOT_DIR:  # isntall via pip
 
 # Sometime ROOT_DIR is None (install via pip)
 # https://github.com/armgilles/vcub_keeper/issues/42#issuecomment-718848126
-if ROOT_DIR is None
+if ROOT_DIR is None:
     # ROOT_DIR is None
     ROOT_DIR = os.environ.get('OLDPWD') # Working directory
 
