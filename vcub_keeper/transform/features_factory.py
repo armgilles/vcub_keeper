@@ -188,7 +188,7 @@ def get_meteo(data):
    ts_activity = get_meteo(ts_activity)
    """
    
-   def fast_parse_date_(s):
+    def fast_parse_date_(s):
        """
        This is an extremely fast approach to datetime parsing.
        For large data, the same dates are often repeated. Rather than
@@ -200,21 +200,21 @@ def get_meteo(data):
        dates = {date: date.strftime(format='%Y-%m-%d %H') for date in pd.Series(s.unique())}
        return s.apply(lambda v: dates[v])
 
-   # Lecture des données météo
-   meteo = read_meteo()
+    # Lecture des données météo
+    meteo = read_meteo()
    
-   # Creation des dates au format yyyy_mm avant jointure
-   data['date_year_month_hours'] = fast_parse_date_(data['date'])
-   meteo['date_year_month_hours'] = fast_parse_date_(meteo['date'])
+    # Creation des dates au format yyyy_mm avant jointure
+    data['date_year_month_hours'] = fast_parse_date_(data['date'])
+    meteo['date_year_month_hours'] = fast_parse_date_(meteo['date'])
    
-   # Jointure
-   data = data.merge(meteo.drop('date', axis=1),
-                     on='date_year_month_hours', how='left')
+    # Jointure
+    data = data.merge(meteo.drop('date', axis=1),
+                      on='date_year_month_hours', how='left')
    
-   # On supprime la colonne 'date_year_month'
-   data = data.drop('date_year_month_hours', axis=1)
-   
-   return data
+    # On supprime la colonne 'date_year_month'
+    data = data.drop('date_year_month_hours', axis=1)
+    
+    return data
 
 
 def get_encoding_time(data, col_date, max_val):
