@@ -14,12 +14,15 @@ except:
     print("Try to find environnement variable")
     ROOT_DIR = os.environ.get("ROOT_DIR")
     IS_PROD = True
-# If package is install with pip & in dev, ROOT_DIR is bad
-try:
-    if "site-packages" in ROOT_DIR:  # isntall via pip
-        ROOT_DIR = os.environ.get("ROOT_DIR") # with .env file
-        IS_PROD = True
-except:
+
+# If package is install with pip
+if "site-packages" in ROOT_DIR:  # isntall via pip
+    ROOT_DIR = os.environ.get("ROOT_DIR") # with .env file
+    IS_PROD = True
+
+# Sometime ROOT_DIR is None (install via pip)
+# https://github.com/armgilles/vcub_keeper/issues/42#issuecomment-718848126
+if ROOT_DIR is None
     # ROOT_DIR is None
     ROOT_DIR = os.environ.get('OLDPWD') # Working directory
 
