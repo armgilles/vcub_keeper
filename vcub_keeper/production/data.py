@@ -1,7 +1,9 @@
 import pandas as pd
 import requests
 
-from vcub_keeper.transform.features_factory import *
+from vcub_keeper.transform.features_factory import (get_transactions_in,
+                                                    get_transactions_out,
+                                                    get_transactions_all)
 
 def get_data_from_api_by_station(station_id, start_date, stop_date):
     """
