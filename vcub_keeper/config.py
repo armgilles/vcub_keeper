@@ -16,7 +16,7 @@ except:
     IS_PROD = True
 # If package is install with pip & in dev, ROOT_DIR is bad
 if "site-packages" in ROOT_DIR:  # isntall via pip
-    ROOT_DIR = os.environ.getenv("ROOT_DIR") # with .env file
+    ROOT_DIR = os.environ.get("ROOT_DIR") # with .env file
     IS_PROD = True
 
 ROOT_DATA_RAW = ROOT_DIR + '/data/raw/'
