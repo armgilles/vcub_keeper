@@ -15,9 +15,13 @@ except:
     ROOT_DIR = os.environ.get("ROOT_DIR")
     IS_PROD = True
 # If package is install with pip & in dev, ROOT_DIR is bad
-if "site-packages" in ROOT_DIR:  # isntall via pip
-    ROOT_DIR = os.environ.get("ROOT_DIR") # with .env file
-    IS_PROD = True
+try:
+    if "site-packages" in ROOT_DIR:  # isntall via pip
+        ROOT_DIR = os.environ.get("ROOT_DIR") # with .env file
+        IS_PROD = True
+except:
+    # ROOT_DIR is None
+    ROOT_DIR = os.environ.get('OLDPWD') # Working directory
 
 ROOT_DATA_RAW = ROOT_DIR + '/data/raw/'
 ROOT_DATA_CLEAN = ROOT_DIR + '/data/clean/'
