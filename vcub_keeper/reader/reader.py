@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_REF, ROOT_DATA_CLEAN
+from vcub_keeper.config import *
 
 
 def read_stations_attributes(file_name="tb_stvel_p.csv"):
