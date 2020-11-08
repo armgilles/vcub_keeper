@@ -162,7 +162,7 @@ def get_consecutive_no_transactions_out(data):
     return data
 
 # https://github.com/armgilles/vcub_keeper/issues/42#issuecomment-718848126
-def get_meteo(data):
+def get_meteo(data, meteo):
     """
     AJoute les données météo suivantes : 
         - 'temperature' 
@@ -172,20 +172,22 @@ def get_meteo(data):
        - 'precipitation' (mm/h)
        - 'wind_speed' (m/s)
 
-   Parameters
-   ----------
-   data : DataFrame
-       Activité des stations Vcub
-   
-   Returns
-   -------
-   data : DataFrame
+    Parameters
+    ----------
+    data : DataFrame
+        Activité des stations Vcub
+    meteo : DataFrame
+        Données météo
+
+    Returns
+    -------
+    data : DataFrame
        Ajout des colonnes météo
        
    Examples
    --------
    
-   ts_activity = get_meteo(ts_activity)
+   ts_activity = get_meteo(data=ts_activity, meteo=meteo)
    """
    
     def fast_parse_date_(s):
@@ -200,8 +202,6 @@ def get_meteo(data):
        dates = {date: date.strftime(format='%Y-%m-%d %H') for date in pd.Series(s.unique())}
        return s.apply(lambda v: dates[v])
 
-    # Lecture des données météo
-    meteo = read_meteo()
    
     # Creation des dates au format yyyy_mm avant jointure
     data['date_year_month_hours'] = fast_parse_date_(data['date'])

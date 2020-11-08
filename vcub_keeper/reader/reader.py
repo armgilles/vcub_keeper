@@ -4,7 +4,7 @@ import numpy as np
 from vcub_keeper.config import *
 
 
-def read_stations_attributes(file_name="tb_stvel_p.csv"):
+def read_stations_attributes(path_directory, file_name="tb_stvel_p.csv"):
     """
     Lecture du fichier sur les attributs des Vcub à Bordeaux.
     Ce fichier est situé dans ROOT_DATA_REF
@@ -16,6 +16,8 @@ def read_stations_attributes(file_name="tb_stvel_p.csv"):
     
     Parameters
     ----------
+    path_directory : str
+        chemin d'accès (ROOT_DATA_REF)
     file_name : str
         Nom du fichier
     
@@ -26,14 +28,14 @@ def read_stations_attributes(file_name="tb_stvel_p.csv"):
     Examples
     --------
     
-    stations = read_stations_attributes()
+    stations = read_stations_attributes(path_directory=ROOT_DATA_REF)
     """
     
     column_dtypes = {'NUMSTAT': 'uint8'}
     usecols = ['Geo Point', 'Geo Shape', 'COMMUNE', 'NBSUPPOR',
               'NOM', 'TYPEA', 'ADRESSE', 'TARIF', 'NUMSTAT']
     
-    stations = pd.read_csv(ROOT_DATA_REF+file_name, sep=';',
+    stations = pd.read_csv(path_directory+file_name, sep=';',
                            dtype=column_dtypes, usecols=usecols)
 
     # Naming
@@ -103,7 +105,8 @@ def read_activity_vcub(file_path = "../../data/bordeaux.csv"):
     return activite
 
 
-def read_time_serie_activity(file_name='time_serie_activity.h5',
+def read_time_serie_activity(path_directory,
+                             file_name='time_serie_activity.h5',
                              post_pressessing_status=True):
     """
     
@@ -111,6 +114,8 @@ def read_time_serie_activity(file_name='time_serie_activity.h5',
     dans le répertoire `/data/clean/`
     Parameters
     ----------
+    path_directory : str
+        chemin d'accès (ROOT_DATA_CLEAN)
     file_name : str
         Nom du fichier
     post_pressessing_status : Bool
@@ -124,10 +129,10 @@ def read_time_serie_activity(file_name='time_serie_activity.h5',
     Examples
     --------
     
-    ts_activity = read_time_serie_activity()
+    ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
     """
     
-    ts_activity = pd.read_hdf(ROOT_DATA_CLEAN + 'time_serie_activity.h5', parse_dates=['date'])
+    ts_activity = pd.read_hdf(path_directory + 'time_serie_activity.h5', parse_dates=['date'])
     
     if post_pressessing_status is True:
         ts_activity['status_shift'] = ts_activity['status'].shift(-1) 
@@ -149,11 +154,13 @@ def read_time_serie_activity(file_name='time_serie_activity.h5',
     return ts_activity
 
 
-def read_meteo(file_name='meteo.csv'):
+def read_meteo(path_directory, file_name='meteo.csv'):
     """
     Lecture du fichier météo dans le répertoire dans ROOT_DATA_REF
     Parameters
     ----------
+    path_directory : str
+        chemin d'accès (ROOT_DATA_REF)
     file_name : str
         Nom du fichier
 
@@ -164,15 +171,15 @@ def read_meteo(file_name='meteo.csv'):
     Examples
     --------
     
-    meteo = read_meteo()
+    meteo = read_meteo(path_directory=ROOT_DATA_REF)
     """
     
-    meteo = pd.read_csv(ROOT_DATA_REF+file_name, parse_dates=['date'])
+    meteo = pd.read_csv(path_directory + file_name, parse_dates=['date'])
     
     return meteo
 
 
-def read_station_profile(file_name='station_profile.csv'):
+def read_station_profile(path_directory, file_name='station_profile.csv'):
     """
     Lecture du fichier sur qui classifie les stations par rapport à leurs activité et 
     fréquences d'utilisation.
@@ -180,6 +187,8 @@ def read_station_profile(file_name='station_profile.csv'):
     
     Parameters
     ----------
+    path_directory : str
+        chemin d'accès (ROOT_DATA_REF)
     file_name : str
         Nom du fichier
     
@@ -190,9 +199,9 @@ def read_station_profile(file_name='station_profile.csv'):
     Examples
     --------
     
-    station_profile = read_station_profile()
+    station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
     """
-    station_profile = pd.read_csv(ROOT_DATA_REF+file_name, sep=',')
+    station_profile = pd.read_csv(path_directory+file_name, sep=',')
     
     return station_profile
 
