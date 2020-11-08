@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import requests
 
 from vcub_keeper.transform.features_factory import (get_transactions_in,
