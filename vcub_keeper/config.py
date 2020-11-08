@@ -1,5 +1,4 @@
 import os
-import numpy as np
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -19,14 +18,8 @@ except:
 if "site-packages" in ROOT_DIR:  # isntall via pip
     from dotenv import load_dotenv
     load_dotenv()
-    ROOT_DIR = os.environ.get("ROOT_DIR") # with .env file
+    ROOT_DIR = os.environ.get("ROOT_DIR")  # with .env file in preprod
     IS_PROD = True
-
-# Sometime ROOT_DIR is None (install via pip)
-# https://github.com/armgilles/vcub_keeper/issues/42#issuecomment-718848126
-if ROOT_DIR is None:
-    # ROOT_DIR is None
-    ROOT_DIR = os.environ.get('OLDPWD') # Working directory
 
 ROOT_DATA_RAW = ROOT_DIR + '/data/raw/'
 ROOT_DATA_CLEAN = ROOT_DIR + '/data/clean/'
@@ -69,17 +62,16 @@ NON_USE_STATION_ID = [244, 249, 250]
 # Features to use during clustering
 FEATURES_TO_USE_CLUSTER = ['consecutive_no_transactions_out', 
                            'Sin_weekday', 'Cos_weekday',
-                           'Sin_hours', 'Cos_hours',
-                          ]
+                           'Sin_hours', 'Cos_hours']
 
 # Station profile rules to determine contamination anomalies
 # based on ROOT_DATA_REF/station_profile.csv
-PROFILE_STATION_RULE = {'very high' : 36, # 6 heures
-                        'hight' : 54,     # 9 heures
-                        'medium' : 66,    # 11 heures
-                        'low' : 144       # 24 heures
-                       }
+PROFILE_STATION_RULE = {'very high': 36,  # 6 heures
+                        'hight': 54,      # 9 heures
+                        'medium': 66,     # 11 heures
+                        'low': 144        # 24 heures
+                        }
 
-# Utiliser dans ml/train_cluster.py. Permet d'apprendre uniquement les stations avec 
-# un certain niveau d'activité
+# Utiliser dans ml/train_cluster.py. Permet d'apprendre uniquement les stations
+# avec un certain niveau d'activité
 THRESHOLD_PROFILE_STATION = 0.3
