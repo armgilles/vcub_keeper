@@ -17,12 +17,14 @@ except:
 
 # If package is install with pip
 if "site-packages" in ROOT_DIR:  # isntall via pip
+    from dotenv import load_dotenv
+    load_dotenv()
     ROOT_DIR = os.environ.get("ROOT_DIR") # with .env file
     IS_PROD = True
 
 # Sometime ROOT_DIR is None (install via pip)
 # https://github.com/armgilles/vcub_keeper/issues/42#issuecomment-718848126
-if ROOT_DIR is None
+if ROOT_DIR is None:
     # ROOT_DIR is None
     ROOT_DIR = os.environ.get('OLDPWD') # Working directory
 
