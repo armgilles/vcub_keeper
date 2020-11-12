@@ -21,10 +21,14 @@ if "site-packages" in ROOT_DIR:  # isntall via pip
     ROOT_DIR = os.environ.get("ROOT_DIR")  # with .env file in preprod
     IS_PROD = True
 
-ROOT_DATA_RAW = ROOT_DIR + '/data/raw/'
-ROOT_DATA_CLEAN = ROOT_DIR + '/data/clean/'
-ROOT_DATA_REF = ROOT_DIR + '/data/ref/'
-ROOT_MODEL = ROOT_DIR + '/model/'
+# In case where ROOT_DIR is None (pre-prod) but we don't need these variables
+try:
+    ROOT_DATA_RAW = ROOT_DIR + '/data/raw/'
+    ROOT_DATA_CLEAN = ROOT_DIR + '/data/clean/'
+    ROOT_DATA_REF = ROOT_DIR + '/data/ref/'
+    ROOT_MODEL = ROOT_DIR + '/model/'
+except:
+    print("Can't have repository variables")
 
 
 # Only in dev
@@ -60,7 +64,7 @@ NON_USE_STATION_ID = [244, 249, 250]
 
 
 # Features to use during clustering
-FEATURES_TO_USE_CLUSTER = ['consecutive_no_transactions_out', 
+FEATURES_TO_USE_CLUSTER = ['consecutive_no_transactions_out',
                            'Sin_weekday', 'Cos_weekday',
                            'Sin_hours', 'Cos_hours']
 
