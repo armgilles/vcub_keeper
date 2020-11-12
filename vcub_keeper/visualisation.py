@@ -6,9 +6,15 @@ from plotly.offline import init_notebook_mode, iplot, offline
 
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.ml.cluster import predict_anomalies_station
+from vcub_keeper.transform.features_factory import (get_transactions_in,
+                                                    get_transactions_out,
+                                                    get_transactions_all,
+                                                    get_consecutive_no_transactions_out)
+from vcub_keeper.config import NON_USE_STATION_ID
+
 
 def plot_station_activity(data, station_id,
-                          features_to_plot=['available_stands'], 
+                          features_to_plot=['available_stands'],
                           date_col="date",
                           start_date='',
                           end_date='',
@@ -37,10 +43,10 @@ def plot_station_activity(data, station_id,
     -------
     data : pd.DataFrame
         Could return it if return_data is True.
-        
+
     Examples
     --------
-    
+
     plot_station_activity(activite, station_id=25, start_date='2017-08-28',
                           end_date='2017-09-02')
     """
@@ -54,14 +60,14 @@ def plot_station_activity(data, station_id,
 
     if station_id not in all_station_id:
         raise ValueError(str(station_id) + ' is not in a correct station_id.')
-        #print(station_id + ' is not in a correct station_id.')
-    
+        # print(station_id + ' is not in a correct station_id.')
+
     if start_date != '':
         data = data[data[date_col] >= start_date]
-        
+
     if end_date != '':
         data = data[data[date_col] <= end_date]
-        
+
     temp = data[data['station_id'] == station_id].copy()
 
     # Init list of trace
@@ -75,7 +81,7 @@ def plot_station_activity(data, station_id,
 
     # Design graph
     layout = dict(
-        title='Activité de la stations N° '+ str(station_id),
+        title='Activité de la stations N° ' + str(station_id),
         showlegend=True,
         xaxis=dict(
                 rangeslider=dict(
@@ -97,12 +103,12 @@ def plot_station_activity(data, station_id,
 
 
 def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
-                          filter_data=True, vmin=None):
+                         filter_data=True, vmin=None):
     """
-    Affiche un graphique permettant d'obversé l'activité de la semaine lié à la varible 
+    Affiche un graphique permettant d'obversé l'activité de la semaine lié à la varible
     `feature_to_plot` suivant le jour et l'heure.
     On prend uniquement les données lorsque la station est ouverte (status = 1)
-                      
+
     ----------
     data : pd.DataFrame
         Tableau temporelle de l'activité des stations Vcub
@@ -119,18 +125,18 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
     Returns
     -------
     None
-        
+
     Examples
     --------
-    
+
     plot_profile_station(ts_activity, station_id=108, feature_to_plot='transactions_all',
                           aggfunc='mean', filter_data=False)
     """
-    
+
     station = data[data['station_id'] == station_id].copy()
-    
+
     if filter_data is True:
-        station = filter_periode(station)
+        station = filter_periode(station, NON_USE_STATION_ID)
 
     # station status == 1 (ok)
     station = station[station['status'] == 1]
@@ -138,28 +144,28 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
     # Resample hours
     station = station.set_index('date')
     station_resample = \
-        station.resample('H', label='right').agg({feature_to_plot : 'sum'}).reset_index()
-    
+        station.resample('H', label='right').agg({feature_to_plot: 'sum'}).reset_index()
+
     station_resample['month'] = station_resample['date'].dt.month
     station_resample['weekday'] = station_resample['date'].dt.weekday
     station_resample['hours'] = station_resample['date'].dt.hour
-    
+
     pivot_station = station_resample.pivot_table(index=["weekday"],
                                                  columns=["hours"],
                                                  values=feature_to_plot,
                                                  aggfunc=aggfunc)
-    
+
     plt.subplots(figsize=(20, 5))
     sns.heatmap(pivot_station, linewidths=.5, cmap="coolwarm", vmin=vmin)
-    plt.title("Profile d'activité de la station N°" + str(station_id) + ' / ' + feature_to_plot + ' (aggrégation : '+ aggfunc +')');
+    plt.title("Profile d'activité de la station N°" + str(station_id) + ' / ' + feature_to_plot + ' (aggrégation : ' + aggfunc + ')');
 
 
 def plot_station_anomalies(data, clf, station_id,
-                   start_date='',
-                   end_date='',
-                   return_data=False,
-                   offline_plot=False,
-                   return_plot=False):
+                           start_date='',
+                           end_date='',
+                           return_data=False,
+                           offline_plot=False,
+                           return_plot=False):
     """
     Plot Time Series
     Parameters
@@ -203,8 +209,8 @@ def plot_station_anomalies(data, clf, station_id,
         data_station = get_consecutive_no_transactions_out(data_station)
 
     data_pred = predict_anomalies_station(data=data_station,
-                                             clf=clf,
-                                             station_id=station_id)
+                                          clf=clf,
+                                          station_id=station_id)
 
     if start_date != '':
         data_pred = data_pred[data_pred['date'] >= start_date]
@@ -219,7 +225,7 @@ def plot_station_anomalies(data, clf, station_id,
     trace = go.Scatter(x=data_pred['date'],
                        y=data_pred['available_bikes'],
                        mode='lines',
-                       line= {'width': 2},
+                       line={'width': 2},
                        name="Vélo disponible")
     data_graph.append(trace)
 
@@ -227,9 +233,9 @@ def plot_station_anomalies(data, clf, station_id,
     trace_ano = go.Scatter(x=data_pred['date'],
                            y=data_pred['consecutive_no_transactions_out'],
                            mode='lines',
-                           line= {'width': 1,
-                                  'dash': 'dot',
-                                  'color' : 'rgba(189,189,189,1)'},
+                           line={'width': 1,
+                                 'dash': 'dot',
+                                 'color': 'rgba(189,189,189,1)'},
                            yaxis='y2',
 
                            name='Absence consécutive de prise de vélo')
@@ -238,14 +244,14 @@ def plot_station_anomalies(data, clf, station_id,
     # For shape hoverdata anomaly
     data_pred['ano_hover_text'] = np.NaN
     data_pred.loc[data_pred['anomaly'] == -1,
-                 'ano_hover_text'] = data_pred['available_bikes']
+                  'ano_hover_text'] = data_pred['available_bikes']
     trace_ano2 = go.Scatter(x=data_pred['date'],
                             y=data_pred['ano_hover_text'],
                             mode='lines',
                             text='x',
                             connectgaps=False,
-                            line= {'width': 2,
-                                   'color' : 'red'},
+                            line={'width': 2,
+                                  'color': 'red'},
                             name='anomaly')
     data_graph.append(trace_ano2)
 
@@ -256,9 +262,9 @@ def plot_station_anomalies(data, clf, station_id,
     data_pred['anomaly_grp'] = data_pred['no_anomalie'].cumsum()
 
     grp = \
-        data_pred[data_pred['anomaly'] == -1].groupby('anomaly_grp', 
-                                                      as_index=False)['date'].agg({'min' : 'min',
-                                                                                   'max' : 'max'})
+        data_pred[data_pred['anomaly'] == -1].groupby('anomaly_grp',
+                                                      as_index=False)['date'].agg({'min': 'min',
+                                                                                   'max': 'max'})
 
     max_value = data_pred['available_bikes'].max()
     for idx, row in grp.iterrows():
@@ -273,7 +279,7 @@ def plot_station_anomalies(data, clf, station_id,
                            opacity=0.7,
                            layer="below",
                            line_width=0
-                      ))
+                           ))
 
     data_pred = data_pred.drop(['no_anomalie', 'anomaly_grp'], axis=1)
 
@@ -286,7 +292,7 @@ def plot_station_anomalies(data, clf, station_id,
                     xanchor="center",
                     y=1.2,
                     x=0.5
-                   ),
+                    ),
         xaxis=dict(
                 rangeslider=dict(
                     visible=True
