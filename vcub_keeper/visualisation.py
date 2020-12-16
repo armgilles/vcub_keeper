@@ -165,6 +165,7 @@ def plot_station_anomalies(data, clf, station_id,
                            end_date='',
                            return_data=False,
                            offline_plot=False,
+                           display_title=True,
                            return_plot=False):
     """
     Plot Time Series
@@ -184,6 +185,8 @@ def plot_station_anomalies(data, clf, station_id,
         Retour le DataFrame lié à la station demandé et au contraintes de date si remplie.
     offline_plot : bool [opt]
         Pour exporter le graphique
+    display_title : bool [opt]
+        Afin d'afficher le titre du graphique
     offline_plot : bool [opt]
         Pour retourner le graphique et l'utiliser dans une application
 
@@ -282,10 +285,15 @@ def plot_station_anomalies(data, clf, station_id,
                            ))
 
     data_pred = data_pred.drop(['no_anomalie', 'anomaly_grp'], axis=1)
+    
+    if display_title:
+        title = "Détection d'anomalies sur la stations N° " + str(station_id)
+    else:
+        title = None
 
     # Design graph
     layout = dict(
-        title="Détection d'anomalies sur la stations N° " + str(station_id),
+        title=title,
         showlegend=True,
         legend=dict(orientation="h",
                     yanchor="top",
