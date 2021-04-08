@@ -24,6 +24,17 @@ Prévenir via twitter @TBM_V3 dès qu'une station est détecté comme HS (foncti
 
 Les données proviennent du travail de [Damien Garaud](https://twitter.com/jazzydag) via le projet open-source [Jitenshea](https://github.com/garaud/jitenshea)
 
+## Installation : 
+
+Utiliser le fichier `requirements.txt` avec `pip` ou `environment_linux.yml` pour un environnement `conda` (tester uniquement sous Linux).
+
+### Variable :
+
+Creer un .env à la racine du projet avec :
+
+- API_METEO="YOUR TOKEN HERE" (finalement, la météo n'est plus utilisé dans le projet).
+- MAPBOX_TOKEN="YOUR TOKEN HERE" (pour l'utilisation des graphiques avec mapbox).
+
 ## Études : 
 
 ### Analyse exploratives : 
