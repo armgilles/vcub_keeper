@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot, offline
+from keplergl import KeplerGl
 
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.ml.cluster import predict_anomalies_station
@@ -10,7 +11,7 @@ from vcub_keeper.transform.features_factory import (get_transactions_in,
                                                     get_transactions_out,
                                                     get_transactions_all,
                                                     get_consecutive_no_transactions_out)
-from vcub_keeper.config import NON_USE_STATION_ID
+from vcub_keeper.config import NON_USE_STATION_ID, MAPBOX_TOKEN
 
 
 def plot_station_activity(data, station_id,
@@ -285,7 +286,7 @@ def plot_station_anomalies(data, clf, station_id,
                            ))
 
     data_pred = data_pred.drop(['no_anomalie', 'anomaly_grp'], axis=1)
-    
+
     if display_title:
         title = "Détection d'anomalies sur la stations N° " + str(station_id)
     else:
@@ -329,3 +330,362 @@ def plot_station_anomalies(data, clf, station_id,
 
     if return_data is True:
         return data_pred
+
+
+def plot_map_station_with_plotly(station_control,
+                                 station_id=None,
+                                 offline_plot=False):
+    """
+    Affiche une cartographie de l'agglomération de Bordeaux avec toutes les stations Vcub et leurs états
+    provenant des algorithmes (normal, inactive et anomaly).
+
+    Si "station_id" est indiqué, alors la cartographie est focus sur la lat / lon de station (Numéro)
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        En provenance de station_control.csv (vcub_watcher)
+    station_id : Int [opt]
+        Numéro de station que l'on souhaite voir (en focus) sur la cartographie.
+    offline_plot : bool [opt]
+        Pour retourner le graphique et l'utiliser dans une application
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+
+    plot_map_station_with_plotly(station_control=station_control, offline_plot=False)
+    """
+    # Param plot with a given station_id
+    if station_id is not None:
+        # On centre le graphique sur la lat / lon de la station
+        center_lat = \
+            station_control[station_control['station_id'] == station_id]['lat'].values[0]
+        center_lon = \
+            station_control[station_control['station_id'] == station_id]['lon'].values[0]
+        zoom_plot = 15
+    else:
+        center_lat = 44.837794
+        center_lon = -0.581662
+        zoom_plot = 11
+
+    # Preprocess avant graphique
+    station_control['etat'] = 'normal'
+
+    # En anoamlie (HS prediction)
+    station_control.loc[station_control['is_anomaly'] == 1, 'etat'] = 'anomaly'
+
+    # Inactive
+    station_control.loc[station_control['is_inactive'] == 1, 'etat'] = 'inactive'
+
+    # Transform date to string
+    station_control['anomaly_since_str'] = \
+        station_control['anomaly_since'].dt.strftime(date_format='%Y-%m-%d %H:%M')
+    station_control['anomaly_since_str'] = station_control['anomaly_since_str'].fillna('-')
+
+    # Color for etat
+    color_etat = {'anomaly': '#EB4D50',
+                  'inactive': '#5E9BE6',
+                  'normal': '#6DDE75'}
+
+    # To know when use add_trace after init fig
+    wtf_compteur = 0
+
+    for etat in station_control['etat'].unique():
+        # Filter
+        temp = station_control[station_control['etat'] == etat]
+
+        # Building text
+        texts = []
+        for idx, station in temp.iterrows():
+            text = str(station['NOM']) \
+                + " <br />" + "station N° : " + str(station['station_id']) \
+                + " <br />" + "Nombre de vélo dispo : " + str(station['available_bikes']) \
+                + " <br />" + "Activité suspecte depuis : " + str(station['anomaly_since_str'])
+            texts.append(text)
+
+        if wtf_compteur == 0:
+            fig = go.Figure(go.Scattermapbox(lat=temp['lat'],
+                                             lon=temp['lon'],
+                                             mode='markers',
+                                             hoverinfo='text',
+                                             hovertext=texts,
+                                             marker_size=9,
+                                             marker_color=color_etat[etat],
+                                             name=etat))
+        else:
+            fig.add_trace(go.Scattermapbox(lat=temp['lat'],
+                                           lon=temp['lon'],
+                                           mode='markers',
+                                           hoverinfo='text',
+                                           hovertext=texts,
+                                           marker_size=9,
+                                           marker_color=color_etat[etat],
+                                           name=etat))
+
+        wtf_compteur = 1
+
+    fig.update_layout(mapbox=dict(center=dict(lat=center_lat, lon=center_lon),
+                                  accesstoken=MAPBOX_TOKEN,
+                                  zoom=zoom_plot,
+                                  style="light"),
+                      showlegend=True,
+                      legend=dict(orientation="h",
+                                  yanchor="top",
+                                  xanchor="center",
+                                  y=1.1,
+                                  x=0.5
+                                  ))
+    if offline_plot is False:
+        iplot(fig)
+    else:
+        offline.plot(fig)
+
+
+def plot_map_station_with_kepler(station_control, station_id=None):
+    """
+    Affiche une cartographie de l'agglomération de Bordeaux avec toutes les stations Vcub et leurs états
+     provenant des algorithmes (normal, inactive et anomaly).
+
+    Si "station_id" est indiqué, alors la cartographie est focus sur la lat / lon de station (Numéro)
+
+    Export la cartographie sous le nom :
+        - "keplergl_map_global.html" si "station_id" n'est pas indiqué.
+        - "keplergl_map_station.html" si "station_id" est indiqué.
+
+    Ouvrir ensuite le fichier sur le browser.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        En provenance de station_control.csv (vcub_watcher)
+    station_id : Int [opt]
+        Numéro de station que l'on souhaite voir (en focus) sur la cartographie.
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+
+    plot_map_station_with_kepler(station_control=station_control, station_id=6)
+    """
+
+    # Global config plot
+    config_global = {
+      "version": "v1",
+      "config": {
+        "visState": {
+          "filters": [],
+          "layers": [
+            {
+              "id": "fmdzqhw",
+              "type": "point",
+              "config": {
+                "dataId": "data_1",
+                "label": "Station Vcub",
+                "color": [
+                  18,
+                  147,
+                  154
+                ],
+                "columns": {
+                  "lat": "lat",
+                  "lng": "lon",
+                  "altitude": None
+                },
+                "isVisible": True,
+                "visConfig": {
+                  "radius": 12,
+                  "fixedRadius": False,
+                  "opacity": 0.8,
+                  "outline": False,
+                  "thickness": 2,
+                  "strokeColor": None,
+                  "colorRange": {
+                    "name": "Custom Palette",
+                    "type": "custom",
+                    "category": "Custom",
+                    "colors": [
+                      "#EB4D50",
+                      "#5E9BE6",
+                      "#6DDE75"
+                    ]
+                  },
+                  "strokeColorRange": {
+                    "name": "Global Warming",
+                    "type": "sequential",
+                    "category": "Uber",
+                    "colors": [
+                      "#5A1846",
+                      "#900C3F",
+                      "#C70039",
+                      "#E3611C",
+                      "#F1920E",
+                      "#FFC300"
+                    ]
+                  },
+                  "radiusRange": [
+                    0,
+                    50
+                  ],
+                  "filled": True
+                },
+                "hidden": False,
+                "textLabel": [
+                  {
+                    "field": None,
+                    "color": [
+                      255,
+                      255,
+                      255
+                    ],
+                    "size": 18,
+                    "offset": [
+                      0,
+                      0
+                    ],
+                    "anchor": "start",
+                    "alignment": "center"
+                  }
+                ]
+              },
+              "visualChannels": {
+                "colorField": {
+                  "name": "etat",
+                  "type": "string"
+                },
+                "colorScale": "ordinal",
+                "strokeColorField": None,
+                "strokeColorScale": "quantile",
+                "sizeField": None,
+                "sizeScale": "linear"
+              }
+            }
+          ],
+          "interactionConfig": {
+            "tooltip": {
+              "fieldsToShow": {
+                "data_1": [
+                  {
+                    "name": "station_id",
+                    "format": None
+                  },
+                  {
+                    "name": "NOM",
+                    "format": None
+                  },
+                  {
+                    "name": "etat",
+                    "format": None
+                  },
+                  {
+                    "name": "available_bikes",
+                    "format": None
+                  },
+                  {
+                    "name": "anomaly_since_str",
+                    "format": None
+                  }
+                ]
+              },
+              "compareMode": True,
+              "compareType": "absolute",
+              "enabled": True
+            },
+            "brush": {
+              "size": 0.5,
+              "enabled": False
+            },
+            "geocoder": {
+              "enabled": False
+            },
+            "coordinate": {
+              "enabled": False
+            }
+          },
+          "layerBlending": "normal",
+          "splitMaps": [],
+          "animationConfig": {
+            "currentTime": None,
+            "speed": 1
+          }
+        },
+        "mapState": {
+          "bearing": 0,
+          "dragRotate": False,
+          "latitude": 44.85169239146265,
+          "longitude": -0.5868239240658858,
+          "pitch": 0,
+          "zoom": 11.452871077625481,
+          "isSplit": False
+        },
+        "mapStyle": {
+          "styleType": "muted",
+          "topLayerGroups": {
+            "water": False
+          },
+          "visibleLayerGroups": {
+            "label": True,
+            "road": True,
+            "border": False,
+            "building": True,
+            "water": True,
+            "land": True,
+            "3d building": False
+          },
+          "threeDBuildingColor": [
+            137,
+            137,
+            137
+          ],
+          "mapStyles": {}
+        }
+      }
+    }
+
+    # Preprocess avant graphique
+    station_control['etat'] = 'normal'
+
+    # En anoamlie (HS prediction)
+    station_control.loc[station_control['is_anomaly'] == 1, 'etat'] = 'anomaly'
+
+    # Inactive
+    station_control.loc[station_control['is_inactive'] == 1, 'etat'] = 'inactive'
+
+    # Transform date to string
+    station_control['anomaly_since_str'] = \
+        station_control['anomaly_since'].dt.strftime(date_format='%Y-%m-%d %H:%M')
+    station_control['anomaly_since_str'] = station_control['anomaly_since_str'].fillna('-')
+
+    # Drop date for Kepler
+    station_control_kepler = station_control.drop(['last_date_anomaly', 'anomaly_since'], axis=1)
+
+    # Param plot with a given station_id
+    if station_id is not None:
+        # On centre le graphique sur la lat / lon de la station
+        center_lat = \
+            station_control[station_control['station_id'] == station_id]['lat'].values[0]
+        center_lon = \
+            station_control[station_control['station_id'] == station_id]['lon'].values[0]
+
+        config_global['config']['mapState']['latitude'] = center_lat
+        config_global['config']['mapState']['longitude'] = center_lon
+        config_global['config']['mapState']['zoom'] = 15.3
+        config_global['config']['mapState']['bearing'] = 24
+        config_global['config']['mapState']['dragRotate'] = True
+        config_global['config']['mapState']['pitch'] = 54
+        # Building 3D
+        config_global['config']['mapStyle']['visibleLayerGroups']['3d building'] = True
+        file_name = 'keplergl_map_station.html'
+    else:
+        file_name = 'keplergl_map_global.html'
+
+    # Load kepler.gl with map data and config
+    map_kepler = KeplerGl(height=400, data={"data_1": station_control_kepler}, config=config_global)
+
+    # Export
+    map_kepler.save_to_html(file_name=file_name)
