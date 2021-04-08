@@ -57,6 +57,8 @@ SEED = 2020
 
 # Key api meteo
 API_METEO = os.getenv("API_METEO")
+# Key api mapbox
+MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
 
 # Station Vcub ID non user
 # https://github.com/armgilles/vcub_keeper/issues/29#issuecomment-703246491
