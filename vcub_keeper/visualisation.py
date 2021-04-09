@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -11,7 +12,8 @@ from vcub_keeper.transform.features_factory import (get_transactions_in,
                                                     get_transactions_out,
                                                     get_transactions_all,
                                                     get_consecutive_no_transactions_out)
-from vcub_keeper.config import NON_USE_STATION_ID, MAPBOX_TOKEN
+from vcub_keeper.config import (NON_USE_STATION_ID, MAPBOX_TOKEN,
+                                THRESHOLD_PROFILE_STATION)
 
 
 def plot_station_activity(data, station_id,
@@ -375,6 +377,10 @@ def plot_map_station_with_plotly(station_control,
     # Preprocess avant graphique
     station_control['etat'] = 'normal'
 
+    # Non monitoré
+    station_control.loc[station_control['mean_activity'] < THRESHOLD_PROFILE_STATION,
+                        'etat'] = 'non surveillée'
+
     # En anoamlie (HS prediction)
     station_control.loc[station_control['is_anomaly'] == 1, 'etat'] = 'anomaly'
 
@@ -389,7 +395,8 @@ def plot_map_station_with_plotly(station_control,
     # Color for etat
     color_etat = {'anomaly': '#EB4D50',
                   'inactive': '#5E9BE6',
-                  'normal': '#6DDE75'}
+                  'normal': '#6DDE75',
+                  'non surveillée': '#696A6A'}
 
     # To know when use add_trace after init fig
     wtf_compteur = 0
@@ -452,12 +459,6 @@ def plot_map_station_with_kepler(station_control, station_id=None):
 
     Si "station_id" est indiqué, alors la cartographie est focus sur la lat / lon de station (Numéro)
 
-    Export la cartographie sous le nom :
-        - "keplergl_map_global.html" si "station_id" n'est pas indiqué.
-        - "keplergl_map_station.html" si "station_id" est indiqué.
-
-    Ouvrir ensuite le fichier sur le browser.
-
     Parameters
     ----------
     data : pd.DataFrame
@@ -466,12 +467,12 @@ def plot_map_station_with_kepler(station_control, station_id=None):
         Numéro de station que l'on souhaite voir (en focus) sur la cartographie.
     Returns
     -------
-    None
+    map_kepler : Graphique
 
     Examples
     --------
 
-    plot_map_station_with_kepler(station_control=station_control, station_id=6)
+    map_kepler = plot_map_station_with_kepler(data=station_control, station_id=6)
     """
 
     # Global config plot
@@ -510,9 +511,10 @@ def plot_map_station_with_kepler(station_control, station_id=None):
                     "type": "custom",
                     "category": "Custom",
                     "colors": [
+                      "#696A6A",
+                      "#6DDE75",
                       "#EB4D50",
-                      "#5E9BE6",
-                      "#6DDE75"
+                      "#5E9BE6"
                     ]
                   },
                   "strokeColorRange": {
@@ -555,8 +557,8 @@ def plot_map_station_with_kepler(station_control, station_id=None):
               },
               "visualChannels": {
                 "colorField": {
-                  "name": "etat",
-                  "type": "string"
+                  "name": "etat_id_sort",
+                  "type": "integer"
                 },
                 "colorScale": "ordinal",
                 "strokeColorField": None,
@@ -650,6 +652,10 @@ def plot_map_station_with_kepler(station_control, station_id=None):
     # Preprocess avant graphique
     station_control['etat'] = 'normal'
 
+    # Non monitoré
+    station_control.loc[station_control['mean_activity'] < THRESHOLD_PROFILE_STATION,
+                        'etat'] = 'non surveillée'
+
     # En anoamlie (HS prediction)
     station_control.loc[station_control['is_anomaly'] == 1, 'etat'] = 'anomaly'
 
@@ -662,7 +668,32 @@ def plot_map_station_with_kepler(station_control, station_id=None):
     station_control['anomaly_since_str'] = station_control['anomaly_since_str'].fillna('-')
 
     # Drop date for Kepler
-    station_control_kepler = station_control.drop(['last_date_anomaly', 'anomaly_since'], axis=1)
+    station_control = station_control.drop(['last_date_anomaly', 'anomaly_since'], axis=1)
+
+    # Add fake stations to have every type of etat (anomaly / normal / inactive
+    # & non surveillée) to match with fill color in plot
+
+    fake_station_every_etat = \
+        [[990, 0.4, 1, 0, 35, 60.9616624, -39.1527227, 'Station fake anomaly',
+            'anomaly', '2021-04-07 09:00'],
+         [991, 0.42, 1, 0, 21, 60.9616624, -39.1527227, 'Station fake normal',
+          'normal', '-'],
+         [992, 0.36, 0, 1, 22, 60.9616624, -39.1527227, 'Station fake inactive',
+            'inactive', '-'],
+         [993, 0.0, 0, 0, 22, 60.9616624, -39.1527227, 'Station non surveillée',
+            'non surveillée', '-']]
+
+    fake_station_every_etat_df = pd.DataFrame(fake_station_every_etat, columns=station_control.columns)
+    station_control = pd.concat([station_control, fake_station_every_etat_df])
+
+    # Sorting DataFrame to fill color in correct order
+    etat_id_sort = {'non surveillée': 0,
+                    'normal': 1,
+                    'anomaly': 2,
+                    'inactive': 3}
+
+    station_control['etat_id_sort'] = station_control['etat'].map(etat_id_sort)
+    station_control = station_control.sort_values('etat_id_sort')
 
     # Param plot with a given station_id
     if station_id is not None:
@@ -680,12 +711,14 @@ def plot_map_station_with_kepler(station_control, station_id=None):
         config_global['config']['mapState']['pitch'] = 54
         # Building 3D
         config_global['config']['mapStyle']['visibleLayerGroups']['3d building'] = True
-        file_name = 'keplergl_map_station.html'
+        # file_name = 'keplergl_map_station.html'
     else:
-        file_name = 'keplergl_map_global.html'
+        # file_name = 'keplergl_map_global.html'
+        pass
 
     # Load kepler.gl with map data and config
-    map_kepler = KeplerGl(height=400, data={"data_1": station_control_kepler}, config=config_global)
+    map_kepler = KeplerGl(height=400, data={"data_1": station_control}, config=config_global)
 
     # Export
-    map_kepler.save_to_html(file_name=file_name)
+    # map_kepler.save_to_html(file_name=file_name) # No more export
+    return map_kepler
