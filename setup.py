@@ -10,7 +10,8 @@ setup(
         'requests==2.24.0',
         'plotly==4.9.0',
         'matplotlib==3.3.1',
-        'seaborn==0.11.0'
+        'seaborn==0.11.0',
+        'keplergl==0.2.2'
     ],
     description="Alerter les stations Vcub qui sont hors service",
     url="https://github.com/armgilles/vcub_keeper",
