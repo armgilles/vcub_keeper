@@ -22,20 +22,20 @@ Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les inf
 
 ### Ref - Fichiers de références
 
-1. `tb_stvel_p.csv` Fichier de référence sur les stations Vcub de Bordeaux provenant du portail open-data de [bordeaux-metropole](https://opendata.bordeaux-metropole.fr/explore/dataset/tb_stvel_p/information/?sort=-gid&q=croix+blanche).
+1. `station_attribute.csv` Fichier de référence sur les stations Vcub de Bordeaux provenant du portail open-data de [bordeaux-metropole](https://opendata.bordeaux-metropole.fr/explore/dataset/ci_vcub_p/table/). Celui-ci peut etre créé à partir de `/create/creator.py create_station_attribute()`
    - Le fichier est légèrement modifié (changement de nom de colonnes, filtre sur les colonnes).
    - Fonction de lecture : `/reader/reader.py read_stations_attributes()`
   
-|    | Geo Point             | Geo Shape                                                  | COMMUNE                |   total_stand | NOM                                                                                       | TYPEA   | ADRESSE                           | TARIF    |   station_id |     lat |       lon |
-|---:|:----------------------|:-----------------------------------------------------------|:-----------------------|--------------:|:------------------------------------------------------------------------------------------|:--------|:----------------------------------|:---------|-------------:|--------:|----------:|
-|  0 | 44.8351755,-0.5720497 | {"type": "Point", "coordinates": [-0.5720497, 44.8351755]} | BORDEAUX               |            17 | Grosse Cloche (fermée depuis le 26/09/2016. Réouverture prévue septembre 2017)            | VCUB    | 12 place de la Ferme de Richemont | VLS      |          104 | 44.8352 | -0.57205  |
-|  1 | 44.8723721,-0.5906954 | {"type": "Point", "coordinates": [-0.5906954, 44.8723721]} | BRUGES                 |            20 | Bruges La Vache                                                                           | VCUB    | Rue Léopold Laplante              | VLS PLUS |          169 | 44.8724 | -0.590695 |
-|  2 | 44.8500962,-0.5855819 | {"type": "Point", "coordinates": [-0.5855819, 44.8500962]} | BORDEAUX               |            16 | Place Marie Brizard (supprimée le 11 mars 2016 en raison des travaux tram D)              | VCUB    | 209 rue Fondaudège                | VLS      |           35 | 44.8501 | -0.585582 |
-|  3 | 44.8492876,-0.4966899 | {"type": "Point", "coordinates": [-0.4966899, 44.8492876]} | ARTIGUES-PRES-BORDEAUX |            19 | Artigues Feydeau                                                                          | VCUB    | 22 Boulevard Feydeau              | VLS PLUS |          150 | 44.8493 | -0.49669  |
-|  4 | 44.7821503,-0.5661566 | {"type": "Point", "coordinates": [-0.5661566, 44.7821503]} | VILLENAVE-D'ORNON      |            21 | Pont de la Maye (retirée le 19 novembre 2015 en raison des travaux d'extension du tram C) | VCUB    | face au 564 route de Toulouse     | VLS PLUS |           76 | 44.7822 | -0.566157 |
+|    | Geo Point           | Geo Shape                                                | COMMUNE   |   total_stand | NOM              | TYPEA   |   station_id |     lat |       lon |
+|---:|:--------------------|:---------------------------------------------------------|:----------|--------------:|:-----------------|:--------|-------------:|--------:|----------:|
+|  0 | 44.83803,-0.58437   | {"type": "Point", "coordinates": [-0.58437, 44.83803]}   | Bordeaux  |            33 | Meriadeck        | VLS     |            1 | 44.838  | -0.58437  |
+|  1 | 44.83784,-0.59028   | {"type": "Point", "coordinates": [-0.59028, 44.83784]}   | Bordeaux  |            20 | St Bruno         | VLS     |            2 | 44.8378 | -0.59028  |
+|  2 | 44.840813,-0.593233 | {"type": "Point", "coordinates": [-0.593233, 44.840813]} | Bordeaux  |            28 | Piscine Judaique | VLS     |            3 | 44.8408 | -0.593233 |
+|  3 | 44.84221,-0.58482   | {"type": "Point", "coordinates": [-0.58482, 44.84221]}   | Bordeaux  |            20 | St Seurin        | VLS     |            4 | 44.8422 | -0.58482  |
+|  4 | 44.840712,-0.581124 | {"type": "Point", "coordinates": [-0.581124, 44.840712]} | Bordeaux  |            40 | Place Gambetta   | VLS     |            5 | 44.8407 | -0.581124 |
 
 
-1. `meteo.csv` Fichier météo qui indique différents indicateurs météo à l'heure créer à partir de `vcub_keeper/create/creator.py create_meteo()`
+1. `meteo.csv` Fichier météo qui indique différents indicateurs météo à l'heure créer à partir de `vcub_keeper/create/creator.py create_meteo()`. Ce fichier n'est pas utilisé dans la partie Machine Learning.
 
 |       | date                |   temperature |   pressure |   humidity |   precipitation |   wind_speed |
 |------:|:--------------------|--------------:|-----------:|-----------:|----------------:|-------------:|
