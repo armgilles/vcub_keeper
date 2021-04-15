@@ -238,3 +238,64 @@ def create_station_profilage_activity():
     ## Export
     profile_station.to_csv(ROOT_DATA_REF+'station_profile.csv',
                                                          index=False, encoding='utf-8')
+
+
+def create_station_attribute(path_directory):
+    """
+    Création du fichier de référence des attributs des stations Vcub de l'agglomération de Bordeaux
+    suite à la modification de l'accès open-data des données précédentes
+    (https://github.com/armgilles/vcub_keeper/issues/50).
+    Export le fichier dans "path_directory" en .csv.
+
+    Parameters
+    ----------
+    path_directory : str
+        chemin d'accès (ROOT_DATA_REF)
+
+    Returns
+    -------
+    None
+    Examples
+    --------
+
+    create_station_attribute(path_directory=ROOT_DATA_REF)
+    """
+
+    URL_DATA_STATION = "https://opendata.bordeaux-metropole.fr/explore/dataset/ci_vcub_p/download/?format=csv&timezone=Europe/Berlin&lang=fr&use_labels_for_header=true&csv_separator=%3B"
+
+    # Lecture des données via URL
+    column_dtypes = {'IDENT': 'uint8'}
+    usecols = ['Geo Point', 'Geo Shape', 'commune', 'IDENT',
+               'TYPE', 'NOM', 'NBPLACES', 'NBVELOS']
+
+    stations = pd.read_csv(URL_DATA_STATION, sep=";",
+                           dtype=column_dtypes, usecols=usecols)
+
+    # Calcul du nombre de stand par station
+    stations['total_stand'] = stations['NBPLACES'] + stations['NBVELOS']
+
+    # Create lon / lat
+    stations['lat'] = stations['Geo Point'].apply(lambda x: x.split(',')[0])
+    stations['lat'] = stations['lat'].astype(float)
+    stations['lon'] = stations['Geo Point'].apply(lambda x: x.split(',')[1])
+    stations['lon'] = stations['lon'].astype(float)
+
+    # Naming
+    # commune -> COMMUNE
+    stations.rename(columns={'commune': 'COMMUNE'}, inplace=True)
+
+    # IDENT -> station_id
+    stations.rename(columns={'IDENT': 'station_id'}, inplace=True)
+
+    # TYPE -> TYPEA
+    stations.rename(columns={'TYPE': 'TYPEA'}, inplace=True)
+
+    # Filter columns
+    col_to_export = ['Geo Point', 'Geo Shape', 'COMMUNE', 'total_stand', 'NOM', 'TYPEA',
+                     'station_id', 'lat', 'lon']
+
+    stations = stations[col_to_export]
+
+    # Export
+    file_export = "station_attribute.csv"
+    stations.to_csv(ROOT_DATA_REF+file_export, index=False, encoding='UTF-8')

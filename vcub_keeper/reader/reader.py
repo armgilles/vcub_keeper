@@ -4,50 +4,33 @@ import numpy as np
 from vcub_keeper.config import *
 
 
-def read_stations_attributes(path_directory, file_name="tb_stvel_p.csv"):
+def read_stations_attributes(path_directory, file_name="station_attribute.csv"):
     """
-    Lecture du fichier sur les attributs des Vcub à Bordeaux.
-    Ce fichier est situé dans ROOT_DATA_REF
-    Modification par rapport au fichier original : 
-        - Changement de nom des colonnnes :
-            - NBSUPPOR -> total_stand
-            - NUMSTAT -> station_id
-        - Création des features lon & lat features from 'Geo Point'
-    
+    Lecture du fichier sur les attributs des Vcub à Bordeaux. Ce fichier provient de
+    create.creator.py - create_station_attribute()
+
     Parameters
     ----------
     path_directory : str
         chemin d'accès (ROOT_DATA_REF)
     file_name : str
         Nom du fichier
-    
+
     Returns
     -------
     activite : DataFrame
-        
+
     Examples
     --------
-    
+
     stations = read_stations_attributes(path_directory=ROOT_DATA_REF)
     """
-    
-    column_dtypes = {'NUMSTAT': 'uint8'}
-    usecols = ['Geo Point', 'Geo Shape', 'COMMUNE', 'NBSUPPOR',
-              'NOM', 'TYPEA', 'ADRESSE', 'TARIF', 'NUMSTAT']
-    
-    stations = pd.read_csv(path_directory+file_name, sep=';',
-                           dtype=column_dtypes, usecols=usecols)
 
-    # Naming
-    stations.rename(columns={'NBSUPPOR': 'total_stand'}, inplace=True)
-    stations.rename(columns={'NUMSTAT': 'station_id'}, inplace=True)
+    column_dtypes = {'station_id': 'uint8'}
 
-    # Create lon / lat
-    stations['lat'] = stations['Geo Point'].apply(lambda x : x.split(',')[0])
-    stations['lat'] = stations['lat'].astype(float)
-    stations['lon'] = stations['Geo Point'].apply(lambda x : x.split(',')[1])
-    stations['lon'] = stations['lon'].astype(float)
-    
+    stations = pd.read_csv(path_directory+file_name, sep=',',
+                           dtype=column_dtypes)
+
     return stations
 
 
