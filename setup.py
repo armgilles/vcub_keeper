@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name='vcub_keeper',
     packages=find_packages(),
-    version='1.0',
+    version='1.1',
     install_requires=[
         'pandas==1.1.1',
         'scikit-learn==0.23.2',
