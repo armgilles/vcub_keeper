@@ -1,4 +1,7 @@
 from setuptools import find_packages, setup
+import vcub_keeper
+
+VERSION = vcub_keeper.__version__
 
 setup(
     name='vcub_keeper',
