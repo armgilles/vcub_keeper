@@ -388,9 +388,14 @@ def plot_map_station_with_plotly(station_control,
     station_control.loc[station_control['is_inactive'] == 1, 'etat'] = 'inactive'
 
     # Transform date to string
-    station_control['anomaly_since_str'] = \
-        station_control['anomaly_since'].dt.strftime(date_format='%Y-%m-%d %H:%M')
-    station_control['anomaly_since_str'] = station_control['anomaly_since_str'].fillna('-')
+    try:
+        station_control['anomaly_since_str'] = \
+            station_control['anomaly_since'].dt.strftime(date_format='%Y-%m-%d %H:%M')
+    except KeyError:
+        # Pour vcub_watcher intégration
+        # https://github.com/armgilles/vcub_keeper/issues/49#issuecomment-822504771
+        station_control['anomaly_since_str'] = \
+            station_control['En anomalie depuis'].dt.strftime(date_format='%Y-%m-%d %H:%M')
 
     # Color for etat
     color_etat = {'anomaly': '#EB4D50',
@@ -663,9 +668,14 @@ def plot_map_station_with_kepler(station_control, station_id=None):
     station_control.loc[station_control['is_inactive'] == 1, 'etat'] = 'inactive'
 
     # Transform date to string
-    station_control['anomaly_since_str'] = \
-        station_control['anomaly_since'].dt.strftime(date_format='%Y-%m-%d %H:%M')
-    station_control['anomaly_since_str'] = station_control['anomaly_since_str'].fillna('-')
+    try:
+        station_control['anomaly_since_str'] = \
+            station_control['anomaly_since'].dt.strftime(date_format='%Y-%m-%d %H:%M')
+    except KeyError:
+        # Pour vcub_watcher intégration
+        # https://github.com/armgilles/vcub_keeper/issues/49#issuecomment-822504771
+        station_control['anomaly_since_str'] = \
+            station_control['En anomalie depuis'].dt.strftime(date_format='%Y-%m-%d %H:%M')
 
     # Drop date for Kepler
     station_control = station_control.drop(['last_date_anomaly', 'anomaly_since'], axis=1)
