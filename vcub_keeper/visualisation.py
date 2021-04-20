@@ -336,8 +336,10 @@ def plot_station_anomalies(data, clf, station_id,
 
 def plot_map_station_with_plotly(station_control,
                                  station_id=None,
+                                 width=800,
+                                 height=600,
                                  offline_plot=False,
-                                 return_plot=False):
+                                 return_plot=False,):
     """
     Affiche une cartographie de l'agglomération de Bordeaux avec toutes les stations Vcub et leurs états
     provenant des algorithmes (normal, inactive et anomaly).
@@ -350,6 +352,10 @@ def plot_map_station_with_plotly(station_control,
         En provenance de station_control.csv (vcub_watcher)
     station_id : Int [opt]
         Numéro de station que l'on souhaite voir (en focus) sur la cartographie.
+    width : int [opt]
+        Largeur du graphique (en px).
+    height : int [opt]
+        Longeur du graphique (en px).
     offline_plot : bool [opt]
         Pour retourner le graphique et l'utilisé dans une application
     return_plot : bool [opt]
