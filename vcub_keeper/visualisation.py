@@ -336,7 +336,8 @@ def plot_station_anomalies(data, clf, station_id,
 
 def plot_map_station_with_plotly(station_control,
                                  station_id=None,
-                                 offline_plot=False):
+                                 offline_plot=False,
+                                 return_plot=False):
     """
     Affiche une cartographie de l'agglomération de Bordeaux avec toutes les stations Vcub et leurs états
     provenant des algorithmes (normal, inactive et anomaly).
@@ -350,7 +351,9 @@ def plot_map_station_with_plotly(station_control,
     station_id : Int [opt]
         Numéro de station que l'on souhaite voir (en focus) sur la cartographie.
     offline_plot : bool [opt]
-        Pour retourner le graphique et l'utiliser dans une application
+        Pour retourner le graphique et l'utilisé dans une application
+    return_plot : bool [opt]
+        Retourne le graphique pour être utilisé par le front.
 
     Returns
     -------
@@ -396,6 +399,8 @@ def plot_map_station_with_plotly(station_control,
         # https://github.com/armgilles/vcub_keeper/issues/49#issuecomment-822504771
         station_control['anomaly_since_str'] = \
             station_control['En anomalie depuis'].dt.strftime(date_format='%Y-%m-%d %H:%M')
+
+    station_control['anomaly_since_str'] = station_control['anomaly_since_str'].fillna('-')
 
     # Color for etat
     color_etat = {'anomaly': '#EB4D50',
@@ -451,6 +456,10 @@ def plot_map_station_with_plotly(station_control,
                                   y=1.1,
                                   x=0.5
                                   ))
+    # To get map on Front
+    if return_plot is True:
+        return fig
+
     if offline_plot is False:
         iplot(fig)
     else:
