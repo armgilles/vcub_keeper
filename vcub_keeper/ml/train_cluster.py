@@ -1,5 +1,5 @@
 from vcub_keeper.config import (ROOT_DATA_CLEAN, ROOT_DATA_REF,
-                                ROOT_MODEL,
+                                ROOT_MODEL, NON_USE_STATION_ID,
                                 THRESHOLD_PROFILE_STATION)
 from vcub_keeper.reader.reader import *
 from vcub_keeper.visualisation import *
@@ -23,6 +23,9 @@ def run_train_cluster():
 
     stations_id_to_fit = \
         station_profile[station_profile['mean'] >= THRESHOLD_PROFILE_STATION]['station_id'].unique()
+
+    # Filter station we don't want to use
+    stations_id_to_fit = [station for station in stations_id_to_fit if station not in NON_USE_STATION_ID]
 
     # Pour chaque station, on fit le cluster
     for station_id in stations_id_to_fit:
