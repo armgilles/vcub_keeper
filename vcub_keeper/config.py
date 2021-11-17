@@ -74,7 +74,7 @@ FEATURES_TO_USE_CLUSTER = ['consecutive_no_transactions_out',
 # based on ROOT_DATA_REF/station_profile.csv
 PROFILE_STATION_RULE = {'very high': 36,  # 6 heures
                         'hight': 54,      # 9 heures
-                        'medium': 66,     # 11 heures
+                        'medium': 72,     # 12 heures
                         'low': 144        # 24 heures
                         }
 
