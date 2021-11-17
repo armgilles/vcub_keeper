@@ -1,4 +1,5 @@
-from vcub_keeper.config import FEATURES_TO_USE_CLUSTER, PROFILE_STATION_RULE, SEED
+from vcub_keeper.config import (FEATURES_TO_USE_CLUSTER, PROFILE_STATION_RULE, SEED,
+                                NON_USE_STATION_ID, ROOT_DATA_REF)
 from vcub_keeper.transform.features_factory import process_data_cluster
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.reader.reader import read_station_profile
@@ -42,13 +43,13 @@ def train_cluster_station(data, station_id):
     data_station = process_data_cluster(data_station)
 
     # Filter data based on time & event
-    data_station = filter_periode(data_station)
+    data_station = filter_periode(data_station, NON_USE_STATION_ID=NON_USE_STATION_ID)
     
     # on prend uniquement la station quand satus ==1
     data_station_ok = data_station[data_station['status'] == 1].copy()
 
     # Lecture du profile activité des stations
-    station_profile = read_station_profile()
+    station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
     profile_station_activity = \
         station_profile[station_profile['station_id'] == station_id]['profile_station_activity'].values[0]
 
