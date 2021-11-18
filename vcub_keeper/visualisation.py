@@ -159,7 +159,7 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc='mean',
                                                  aggfunc=aggfunc)
 
     plt.subplots(figsize=(20, 5))
-    sns.heatmap(pivot_station, linewidths=.5, cmap="coolwarm", vmin=vmin)
+    sns.heatmap(pivot_station, linewidths=.5, cmap="coolwarm", vmin=vmin, annot=True)
     plt.title("Profile d'activité de la station N°" + str(station_id) + ' / ' + feature_to_plot + ' (aggrégation : ' + aggfunc + ')');
 
 
