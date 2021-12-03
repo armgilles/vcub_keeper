@@ -208,7 +208,7 @@ def create_station_profilage_activity():
     """
     
     # Lecture du fichier activité
-    ts_activity = read_time_serie_activity()
+    ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
 
     # Some features
     ts_activity = get_transactions_in(ts_activity)
@@ -220,24 +220,26 @@ def create_station_profilage_activity():
     ts_activity = filter_periode(ts_activity)
     
     # Aggrégation de l'activité par stations
+    
     profile_station = \
-        ts_activity[ts_activity['status'] == 1].groupby('station_id', 
-                                                        as_index=False)['transactions_all'].agg({'total_point' : 'size',
-                                                                                                 'mean' : 'mean',
-                                                                                                 'median' : 'median',
-                                                                                                 'std' : 'std',
-                                                                                                 '95%': lambda x: x.quantile(0.95),
-                                                                                                 '98%': lambda x: x.quantile(0.98),
-                                                                                                 '99%': lambda x: x.quantile(0.99),
-                                                                                                 'max' : 'max'})
+    ts_activity[(ts_activity['status'] == 1) & 
+                (ts_activity['consecutive_no_transactions_out'] <= 144)].groupby('station_id', 
+                                                                                 as_index=False)['transactions_out'].agg({'total_point' : 'size',
+                                                                                                                           'mean' : 'mean',
+                                                                                                                           'median' : 'median',
+                                                                                                                           'std' : 'std',
+                                                                                                                           '95%': lambda x: x.quantile(0.95),
+                                                                                                                           '98%': lambda x: x.quantile(0.98),
+                                                                                                                           '99%': lambda x: x.quantile(0.99),
+                                                                                                                           'max' : 'max'})
     profile_station = profile_station.sort_values('mean')
     # Classification en 3 activités (low / medium / hight)
     profile_station['profile_station_activity'] = \
-        pd.cut(profile_station['mean'], 3, labels=["low", "medium", "high"])
+        pd.cut(profile_station['mean'], 4, labels=["low", "medium", "hight", 'very high'])
     
     ## Export
     profile_station.to_csv(ROOT_DATA_REF+'station_profile.csv',
-                                                         index=False, encoding='utf-8')
+                           index=False, encoding='utf-8')
 
 
 def create_station_attribute(path_directory):
