@@ -29,7 +29,7 @@ try:
     ROOT_MODEL = ROOT_DIR + '/model/'
 except:
     print("Can't have repository variables")
-
+    ROOT_DATA_REF = "" # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
 
 # Only in dev
 if IS_PROD is False:
