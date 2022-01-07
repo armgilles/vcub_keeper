@@ -4,6 +4,8 @@ python:
   - "3.8"
 
 cache: pip
+env:
+  - ROOT_DATA_REF="" # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
 
 before_install:
   - "python setup.py install"
