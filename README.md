@@ -1,3 +1,6 @@
+![Travis (.org) branch](https://img.shields.io/travis/armgilles/vcub_keeper/master)
+
+
 # vcub_keeper
 Analyse de l'activité des stations Vcub dans la métropole de Bordeaux afin de détecter en amont les stations hors service
 
