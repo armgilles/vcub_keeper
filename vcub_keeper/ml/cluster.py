@@ -10,7 +10,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.pipeline import Pipeline
 from scipy import stats
 
-def train_cluster_station(data, station_id):
+def train_cluster_station(data, station_id, profile_station_activity=None):
     """
     Train estimator on a single station_id Time Serie.
     Process some features.
@@ -25,6 +25,8 @@ def train_cluster_station(data, station_id):
         Activité des stations Vcub
     station_id : int
         ID Station
+    profile_station_activity : str
+        Profile type of station (ex: "very high")
     
     Returns
     -------
@@ -49,9 +51,12 @@ def train_cluster_station(data, station_id):
     data_station_ok = data_station[data_station['status'] == 1].copy()
 
     # Lecture du profile activité des stations
-    station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
-    profile_station_activity = \
-        station_profile[station_profile['station_id'] == station_id]['profile_station_activity'].values[0]
+    if profile_station_activity is None:
+        station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
+        profile_station_activity = \
+            station_profile[station_profile['station_id'] == station_id]['profile_station_activity'].values[0]
+    else:
+        print("Using specifique profile station activity : " + profile_station_activity)
 
     print('Profile de la station N°' + str(station_id) + ' : ' + profile_station_activity)
 
