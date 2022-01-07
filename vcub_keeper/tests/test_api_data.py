@@ -28,7 +28,7 @@ def test_get_api_data_one_station():
 
 def test_get_api_data_many_station():
     """
-    On test les données de l'API afin d'obtenir des informations sur UNE station
+    On test les données de l'API afin d'obtenir des informations sur plusieurs stations
     """
 
     station_id=[106, 3]
