@@ -120,3 +120,4 @@ Werkzeug==1.0.1
 wheel==0.34.2
 widgetsnbextension==3.5.1
 zipp==3.3.1
+pytest==6.2.5
