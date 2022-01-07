@@ -1,0 +1,2 @@
+[run]
+omit = vcub_keeper/visualisation.py
