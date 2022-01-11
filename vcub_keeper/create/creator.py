@@ -3,7 +3,7 @@ import glob as glob
 from dotenv import load_dotenv
 load_dotenv()
 
-from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_CLEAN, ROOT_DATA_REF
+from vcub_keeper.config import ROOT_DATA_RAW, ROOT_DATA_CLEAN, ROOT_DATA_REF, NON_USE_STATION_ID
 from vcub_keeper.reader.reader import read_time_serie_activity
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.transform.features_factory import (get_transactions_in, get_transactions_out,
@@ -217,7 +217,7 @@ def create_station_profilage_activity():
     ts_activity = get_consecutive_no_transactions_out(ts_activity)
     
     # Filter data with confinement & non use by consumer
-    ts_activity = filter_periode(ts_activity)
+    ts_activity = filter_periode(ts_activity, NON_USE_STATION_ID=NON_USE_STATION_ID)
     
     # Aggrégation de l'activité par stations
     
