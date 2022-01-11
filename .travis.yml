@@ -14,6 +14,6 @@ install:
   - pip install -r requirements.txt
 
 script: 
-  - overage run -m pytest
+  - coverage run -m pytest
   - coverage report -m
 after_success: bash <(curl -s https://codecov.io/bash)
