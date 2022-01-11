@@ -6,8 +6,9 @@ python:
 cache: pip
 
 before_install:
-  - "python setup.py install"
   - pip install pytest-cov
+  - python setup.py install
+
 
 install:
   - pip install -r requirements.txt
