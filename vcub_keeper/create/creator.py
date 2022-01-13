@@ -218,20 +218,22 @@ def create_station_profilage_activity():
     
     # Filter data with confinement & non use by consumer
     ts_activity = filter_periode(ts_activity, NON_USE_STATION_ID=NON_USE_STATION_ID)
+
+    # On regarde si il y a eu une prise de vélo ou non toutes les 10 min
+    ts_activity['transactions_out_bool'] = ts_activity['transactions_out'].clip(0, 1)
     
     # Aggrégation de l'activité par stations
-    
     profile_station = \
     ts_activity[(ts_activity['status'] == 1) & 
                 (ts_activity['consecutive_no_transactions_out'] <= 144)].groupby('station_id', 
-                                                                                 as_index=False)['transactions_out'].agg({'total_point' : 'size',
-                                                                                                                           'mean' : 'mean',
-                                                                                                                           'median' : 'median',
-                                                                                                                           'std' : 'std',
-                                                                                                                           '95%': lambda x: x.quantile(0.95),
-                                                                                                                           '98%': lambda x: x.quantile(0.98),
-                                                                                                                           '99%': lambda x: x.quantile(0.99),
-                                                                                                                           'max' : 'max'})
+                                                                                 as_index=False)['transactions_out_bool'].agg({'total_point' : 'size',
+                                                                                                                               'mean' : 'mean',
+                                                                                                                               'median' : 'median',
+                                                                                                                               'std' : 'std',
+                                                                                                                               '95%': lambda x: x.quantile(0.95),
+                                                                                                                               '98%': lambda x: x.quantile(0.98),
+                                                                                                                               '99%': lambda x: x.quantile(0.99),
+                                                                                                                               'max' : 'max'})
     profile_station = profile_station.sort_values('mean')
     # Classification en 3 activités (low / medium / hight)
     profile_station['profile_station_activity'] = \
