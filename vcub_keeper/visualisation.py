@@ -4,16 +4,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode, iplot, offline
+from plotly.subplots import make_subplots
 from keplergl import KeplerGl
 
 from vcub_keeper.reader.reader_utils import filter_periode
-from vcub_keeper.ml.cluster import predict_anomalies_station
+from vcub_keeper.ml.cluster import predict_anomalies_station, logistic_predict_proba_from_model
 from vcub_keeper.transform.features_factory import (get_transactions_in,
                                                     get_transactions_out,
                                                     get_transactions_all,
                                                     get_consecutive_no_transactions_out)
 from vcub_keeper.config import (NON_USE_STATION_ID, MAPBOX_TOKEN,
-                                THRESHOLD_PROFILE_STATION)
+                                THRESHOLD_PROFILE_STATION, FEATURES_TO_USE_CLUSTER)
 
 
 def plot_station_activity(data, station_id,
@@ -749,3 +750,224 @@ def plot_map_station_with_kepler(station_control, station_id=None):
     # Export
     # map_kepler.save_to_html(file_name=file_name) # No more export
     return map_kepler
+
+
+def plot_station_anomalies_with_score(data, clf, station_id,
+                           start_date='',
+                           end_date='',
+                           return_data=False,
+                           offline_plot=False,
+                           display_title=True,
+                           return_plot=False):
+    """
+    Plot Time Series activty and anomaly score
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Tableau temporelle de l'activité des stations Vcub
+    clf : Pipeline Scikit Learn
+        Estimator already fit
+    station_id : Int
+        ID station
+    start_date : str [opt]
+        Date de début du graphique yyyy-mm-dd
+    end_date : str [opt]
+        Date de fin du graphique yyyy-mm-dd
+    return_data : bool [opt]
+        Retour le DataFrame lié à la station demandé et au contraintes de date si remplie.
+    offline_plot : bool [opt]
+        Pour exporter le graphique
+    display_title : bool [opt]
+        Afin d'afficher le titre du graphique
+    offline_plot : bool [opt]
+        Pour retourner le graphique et l'utiliser dans une application
+
+    Returns
+    -------
+    data : pd.DataFrame
+        Could return it if return_data is True.
+
+    Examples
+    --------
+
+    plot_station_anomalies_with_score(data=ts_activity, clf=clf, station_id=22)
+    """
+
+    # Filter on station_id
+    data_station = data[data['station_id'] == station_id].copy()
+
+    if 'consecutive_no_transactions_out' not in data.columns:
+        # Some features
+        data_station = get_transactions_in(data_station)
+        data_station = get_transactions_out(data_station)
+        data_station = get_transactions_all(data_station)
+        data_station = get_consecutive_no_transactions_out(data_station)
+
+    data_pred = predict_anomalies_station(data=data_station,
+                                          clf=clf,
+                                          station_id=station_id)
+    
+    data_pred['anomaly_score'] = \
+        logistic_predict_proba_from_model(clf.decision_function(data_pred[FEATURES_TO_USE_CLUSTER])) * 100
+
+    if start_date != '':
+        data_pred = data_pred[data_pred['date'] >= start_date]
+
+    if end_date != '':
+        data_pred = data_pred[data_pred['date'] <= end_date]
+        
+    # Figure
+    
+    if display_title:
+        title = "Détection d'anomalies sur la stations N° " + str(station_id)
+    else:
+        title = None
+    
+    fig = make_subplots(rows=2, cols=1,
+                        shared_xaxes=True,
+                        specs=[[{"secondary_y": True}],
+                               [{"secondary_y": True}]],
+                        row_heights=[0.82, 0.18],
+                        vertical_spacing=0.01,
+                        x_title=title,
+                       )
+    # Row 1
+
+    # Axe 1
+    fig.add_trace(go.Scatter(x=data_pred['date'],
+                             y=data_pred['available_bikes'],
+                             mode='lines',
+                             line={'width': 2},
+                             name="Vélo disponible"),
+                  row=1, col=1)
+                
+
+    # Axe 2
+    fig.add_trace(go.Scatter(x=data_pred['date'],
+                             y=data_pred['consecutive_no_transactions_out'],
+                             mode='lines',
+                             line={'width': 1,
+                                   'dash': 'dot',
+                                   'color': 'rgba(189,189,189,1)'},
+                             #yaxis='y2',
+                             name='Absence consécutive de prise de vélo'),
+                  row=1, col=1, secondary_y=True)
+
+    # For shape hoverdata anomaly
+    data_pred['ano_hover_text'] = np.NaN
+    data_pred.loc[data_pred['anomaly'] == -1,
+                  'ano_hover_text'] = data_pred['available_bikes']
+    fig.add_trace(go.Scatter(x=data_pred['date'],
+                             y=data_pred['ano_hover_text'],
+                             mode='lines',
+                             text='x',
+                             connectgaps=False,
+                             line={'width': 2,
+                                   'color': 'red'},
+                             name='anomaly'),
+                 row=1, col=1) 
+    
+    # Row 2
+    fig.add_trace(go.Scatter(x=data_pred['date'],
+                             y=data_pred['anomaly_score'],
+                             line={'width': 1, 'color': 'black'},
+                             fill="tozeroy",
+                             mode='lines', #'lines' #'none'
+                             name="Score d'anomalie"),
+                  row=2, col=1)
+
+    # Shapes anomaly
+    shapes = []
+    # https://github.com/armgilles/vcub_keeper/issues/38
+    data_pred['no_anomalie'] = (data_pred['anomaly'] == 1)
+    data_pred['anomaly_grp'] = data_pred['no_anomalie'].cumsum()
+
+    grp = \
+        data_pred[data_pred['anomaly'] == -1].groupby('anomaly_grp',
+                                                      as_index=False)['date'].agg({'min': 'min',
+                                                                                   'max': 'max'})
+
+    max_value = data_pred['available_bikes'].max()
+    for idx, row in grp.iterrows():
+        shapes.append(dict(type="rect",
+                           xref="x",
+                           yref="y",
+                           x0=row['min'],
+                           y0=0,
+                           x1=row['max'],
+                           y1=max_value,
+                           fillcolor="red",
+                           opacity=0.7,
+                           layer="below",
+                           line_width=0
+                           ))
+
+    data_pred = data_pred.drop(['no_anomalie', 'anomaly_grp'], axis=1)
+
+
+    # Design graph
+    layout = dict(
+        showlegend=True,
+        legend=dict(orientation="h",
+                    yanchor="top",
+                    xanchor="center",
+                    y=1.2,
+                    x=0.5
+                    ),
+        xaxis=dict(
+                rangeslider=dict(
+                    visible=False
+                ),
+                type='date',
+                tickformat='%a %Y-%m-%d %H:%M',
+        ),
+        yaxis={'title': 'Nombre de vélo disponible',
+               'title_font': {'color': 'rgba(100, 111, 251, 1)'},
+               'tickfont': {'color': 'rgba(100, 111, 251, 1)'}
+                },
+        yaxis2={'title': 'Absence consécutive de prise de vélo',
+                'title_font': {'color': 'rgba(122, 122, 122, 1)'},
+                #'overlaying': 'y',
+                'side': 'right',
+                'showgrid': False,
+                'visible': True,
+                'tickfont': {'color': 'rgba(122, 122, 122, 1)'}
+               },
+        yaxis3={'title': 'Score',
+                'title_font': {'color': 'rgba(0, 0, 0, 0.8)'},
+                'range': [0, 100],
+                #'gridwidth': 25
+                'tickmode': 'linear',
+                'tick0': 0.0,
+                'dtick': 25
+               },
+        template='plotly_white',
+        hovermode='x',
+        shapes=shapes
+    )
+
+    fig.update_layout(layout)
+    
+    # Horizontal line for anomaly score
+    fig.add_shape(go.layout.Shape(type="line",
+                                  name='test',
+                                  x0=data_pred['date'].min(),
+                                  y0=50,
+                                  x1=data_pred['date'].max(),
+                                  y1=50,
+                                  line=dict(color='Red', width=1,
+                                            dash='dot'),
+                                  #xref='x',
+                                  #yref='y'
+                                 ),
+                    row=2, col=1)
+    
+    if return_plot is True:
+        return fig
+    if offline_plot is False:
+        iplot(fig)
+    else:
+        offline.plot(fig)
+
+    if return_data is True:
+        return data_pred
