@@ -66,8 +66,9 @@ def train_cluster_station(data, station_id, profile_station_activity=None):
 
     # Cluster
     contaminsation_station = \
-        1 - stats.percentileofscore(data_station_ok['consecutive_no_transactions_out'],
-                                    PROFILE_STATION_RULE[profile_station_activity]) / 100
+    1 - stats.percentileofscore(data_station_ok[(data_station_ok['status'] == 1) & 
+                                                (data_station_ok['consecutive_no_transactions_out'] <= 144)]['consecutive_no_transactions_out'],
+                                PROFILE_STATION_RULE[profile_station_activity]) / 100
     print('Contamination de la station : ' + str(contaminsation_station))
     
     clf_cluster = IsolationForest(n_estimators=50, random_state=SEED,n_jobs=-1,
