@@ -9,6 +9,7 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.pipeline import Pipeline
 from scipy import stats
+import numpy as np
 
 def train_cluster_station(data, station_id, profile_station_activity=None):
     """
