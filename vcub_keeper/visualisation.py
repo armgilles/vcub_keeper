@@ -753,12 +753,12 @@ def plot_map_station_with_kepler(station_control, station_id=None):
 
 
 def plot_station_anomalies_with_score(data, clf, station_id,
-                           start_date='',
-                           end_date='',
-                           return_data=False,
-                           offline_plot=False,
-                           display_title=True,
-                           return_plot=False):
+                                      start_date='',
+                                      end_date='',
+                                      return_data=False,
+                                      offline_plot=False,
+                                      display_title=True,
+                                      return_plot=False):
     """
     Plot Time Series activty and anomaly score
     Parameters
@@ -920,6 +920,7 @@ def plot_station_anomalies_with_score(data, clf, station_id,
                 ),
                 type='date',
                 tickformat='%a %Y-%m-%d %H:%M',
+                hoverformat='%a %Y-%m-%d %H:%M'
         ),
         yaxis={'title': 'Nombre de vélo disponible',
                'title_font': {'color': 'rgba(100, 111, 251, 1)'},
@@ -933,6 +934,13 @@ def plot_station_anomalies_with_score(data, clf, station_id,
                 'visible': True,
                 'tickfont': {'color': 'rgba(122, 122, 122, 1)'}
                },
+        xaxis2=dict(
+                rangeslider=dict(
+                    visible=False
+                ),
+                type='date',
+                hoverformat='%a %Y-%m-%d %H:%M'
+        ),
         yaxis3={'title': 'Score',
                 'title_font': {'color': 'rgba(0, 0, 0, 0.8)'},
                 'range': [0, 100],
