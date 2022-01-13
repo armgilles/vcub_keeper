@@ -115,3 +115,34 @@ def predict_anomalies_station(data, clf, station_id):
     
     data_station['anomaly'] = clf.predict(data_station[FEATURES_TO_USE_CLUSTER])
     return data_station
+
+
+def logistic_predict_proba_from_model(x, k=20):
+    """
+    Logistic function apply to Isolation Forest decision_function 
+    (https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html#sklearn.ensemble.IsolationForest.decision_function)
+    
+    From https://en.wikipedia.org/wiki/Logistic_function
+    
+    Note : inverse de x (- decision_function)
+    
+    Parameters
+    ----------
+    x : int / Pd.Series
+        Résultat de l'Isolation Forest decision fonction
+    k : frein et une capacité d'accueil de la fonction logistique.
+        Plus k est grand, plus les valeurs extrème de decision_function seront proche de 0 & 1.
+    
+     Returns
+    -------
+    data : int / pd.Series
+        
+
+    Examples
+    --------
+
+    data['anomaly_score'] = \
+        logistic_predict_proba_from_model(clf.decision_function(data[FEATURES_TO_USE_CLUSTER])) * 100
+
+    """
+    return 1/(1 + np.exp( -k * -x))
