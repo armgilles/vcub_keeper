@@ -262,10 +262,12 @@ def process_data_cluster(data):
     data = process_data_cluster(data)
     """
 
+    data['quarter'] = data['date'].dt.quarter
     # data['month'] = data['date'].dt.month
     data['weekday'] = data['date'].dt.weekday
     data['hours'] = data['date'].dt.hour
 
+    data = get_encoding_time(data, 'quarter', max_val=4)
     # data = get_encoding_time(data, 'month', max_val=12)
     data = get_encoding_time(data, 'weekday', max_val=7)
     data = get_encoding_time(data, 'hours', max_val=24)
