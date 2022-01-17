@@ -67,6 +67,7 @@ NON_USE_STATION_ID = [244, 249, 250, 138]
 
 # Features to use during clustering
 FEATURES_TO_USE_CLUSTER = ['consecutive_no_transactions_out',
+                           'Sin_quarter', 'Cos_quarter', 
                            'Sin_weekday', 'Cos_weekday',
                            'Sin_hours', 'Cos_hours']
 
@@ -80,4 +81,4 @@ PROFILE_STATION_RULE = {'very high': 36,  # 6 heures
 
 # Utiliser dans ml/train_cluster.py. Permet d'apprendre uniquement les stations
 # avec un certain niveau d'activité
-THRESHOLD_PROFILE_STATION = 0.3
+THRESHOLD_PROFILE_STATION = 0.12
