@@ -19,19 +19,19 @@ def create_activity_time_series():
     Parameters
     ----------
     None
-    
+
     Returns
     -------
     None
-        
+
     Examples
     --------
-    
+
     create_activity_time_series()
     """
-    
+
     ## Lecture de tous les fichiers
-    
+
     # Init DataFrame
     activite_full = pd.DataFrame()
 
@@ -55,73 +55,73 @@ def create_activity_time_series():
     ## Travail sur le fichier final (concatenation de l'ensemble des fichiers)
 
     # Status mapping
-    status_dict = {'open' : 1,
-                   'closed' : 0
-                  }
+    status_dict = {'open': 1,
+                   'closed': 0}
     activite_full['status'] = activite_full['status'].map(status_dict)
     activite_full['status'] = activite_full['status'].astype('uint8')
 
     # Naming
-    activite_full.rename(columns={'id':'station_id'}, inplace=True)
-    activite_full.rename(columns={'timestamp':'date'}, inplace=True)
+    activite_full.rename(columns={'id': 'station_id'}, inplace=True)
+    activite_full.rename(columns={'timestamp': 'date'}, inplace=True)
 
     # Sorting DataFrame on station_id & date
     activite_full = activite_full.sort_values(['station_id', 'date'], ascending=[1, 1])
 
     # Reset index
     activite_full = activite_full.reset_index(drop=True)
-    
+
     # Dropduplicate station_id / date rows
     activite_full = activite_full.drop_duplicates(subset=['station_id', 'date']).reset_index(drop=True)
-    
+
     # Create features
     activite_full = get_transactions_in(activite_full)
     activite_full = get_transactions_out(activite_full)
     activite_full = get_transactions_all(activite_full)
-    
+
     ## Resampling
-    
+
     # cf Bug Pandas : https://github.com/pandas-dev/pandas/issues/33548
     activite_full = activite_full.set_index('date')
-    
+
     activite_full_resample = \
         activite_full.groupby('station_id').resample('10T', 
                                                      label='right',
-                                                    ).agg({'available_stands' : 'last',
-                                                           'available_bikes' : 'last',
-                                                           'status' : 'max', # Empeche les micro déconnection à la station
-                                                           'transactions_in' : 'sum',
-                                                           'transactions_out' : 'sum',
-                                                           'transactions_all' : 'sum'}).reset_index()
-    
+                                                    ).agg({'available_stands': 'last',
+                                                           'available_bikes': 'last',
+                                                           'status': 'max', # Empeche les micro déconnection à la station
+                                                           'transactions_in': 'sum',
+                                                           'transactions_out': 'sum',
+                                                           'transactions_all': 'sum'}).reset_index()
+
     # Export
-    activite_full_resample.to_hdf(ROOT_DATA_CLEAN + 'time_serie_activity.h5', key='ts_activity')
+    activite_full_resample.to_hdf(ROOT_DATA_CLEAN + 'time_serie_activity.h5',
+                                  key='ts_activity')
 
 
 def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
     """
     Multiple call API afin de créer un fichier et d'exporte celui-ci
     dans ROOT_DATA_REF/meteo.csv
-    
+
     Parameters
     ----------
     min_date_history : str
         date du début de l'historique (format 'yyyy-mm-dd')
     max_date_history : str
         date de fin de l'historique (format 'yyyy-mm-dd')
-    
+
     Returns
     -------
     None
-        
+
     Examples
     --------
-    
+
     create_meteo(min_date_history="2018-12-01", max_date_history='2021-03-18')
     """
     api = Api(API_METEO)
     api.set_granularity('hourly')
-    
+
     # Init DataFrame
     meteo_full = pd.DataFrame()
 
@@ -147,24 +147,24 @@ def create_meteo(min_date_history="2018-12-01", max_date_history='2020-09-18'):
             print(exception)
 
     # Naming DataFrame
-    
+
     # Accumulated precipitation (default mm)
-    meteo_full.rename(columns = {'precip':'precipitation'}, inplace = True)
+    meteo_full.rename(columns={'precip': 'precipitation'}, inplace=True)
     # Average temperature
-    meteo_full.rename(columns = {'temp':'temperature'}, inplace = True)
+    meteo_full.rename(columns={'temp': 'temperature'}, inplace=True)
     # Average relative humidity (%)
-    meteo_full.rename(columns = {'rh':'humidity'}, inplace = True)
+    meteo_full.rename(columns={'rh': 'humidity'}, inplace=True)
     # Average pressure (mb)
-    meteo_full.rename(columns = {'pres':'pressure'}, inplace = True)
+    meteo_full.rename(columns={'pres': 'pressure'}, inplace=True)
     # Wind_speed (m/s)
-    meteo_full.rename(columns = {'wind_spd':'wind_speed'}, inplace = True)
+    meteo_full.rename(columns={'wind_spd': 'wind_speed'}, inplace=True)
     # date
-    meteo_full.rename(columns = {'datetime':'date'}, inplace = True)
+    meteo_full.rename(columns={'datetime': 'date'}, inplace=True)
 
     meteo_full = meteo_full[['date', 'temperature',
                              'pressure', 'humidity',
                              'precipitation', 'wind_speed']]
-    
+
     # Check
     min_date = meteo_full.date.min()
     max_date = meteo_full.date.max()
