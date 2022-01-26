@@ -3,7 +3,7 @@
 Analyse de l'activité des stations Vcub dans la métropole de Bordeaux afin de détecter en amont les stations hors service
 -----------------
 
-[![Travis](https://img.shields.io/travis/armgilles/vcub_keeper/master)](https://app.travis-ci.com/github/armgilles/vcub_keeper)
+[![CI](https://github.com/armgilles/vcub_keeper/actions/workflows/CI.yml/badge.svg)](https://github.com/armgilles/vcub_keeper/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/armgilles/vcub_keeper/branch/master/graph/badge.svg?token=UUWBDZWV7T)](https://codecov.io/gh/armgilles/vcub_keeper)
 
 ![image](https://user-images.githubusercontent.com/8374843/96422013-ca168580-11f7-11eb-8939-d773b1a22953.png)
