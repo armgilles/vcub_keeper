@@ -6,7 +6,7 @@ VERSION = vcub_keeper.__version__
 setup(
     name='vcub_keeper',
     packages=find_packages(),
-    version='1.1',
+    version=VERSION,
     install_requires=[
         'pandas==1.1.1',
         'scikit-learn==0.23.2',
