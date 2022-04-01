@@ -20,6 +20,10 @@ jobs:
       run: |
         python setup.py install
         pip install -r requirements.txt
+    - name: Create env file
+        run: |
+          touch .env
+          echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
     - name: Run tests
       run: coverage run -m pytest
     - name: "Upload coverage to Codecov"
