@@ -21,6 +21,8 @@ jobs:
         python setup.py install
         pip install -r requirements.txt
     - name: Create env file
+    # Création d'un fichier .env durant le process de CI
+    # Cf https://github.com/armgilles/vcub_keeper/issues/65
       run: |
           touch .env
           echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
