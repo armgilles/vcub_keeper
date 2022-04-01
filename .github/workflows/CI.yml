@@ -21,7 +21,7 @@ jobs:
         python setup.py install
         pip install -r requirements.txt
     - name: Create env file
-        run: |
+      run: |
           touch .env
           echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
     - name: Run tests
