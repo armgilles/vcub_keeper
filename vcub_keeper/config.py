@@ -59,6 +59,9 @@ SEED = 2020
 API_METEO = os.getenv("API_METEO")
 # Key api mapbox
 MAPBOX_TOKEN = os.getenv("MAPBOX_TOKEN")
+# Key Open Data Bordeaux
+# https://opendata.bordeaux-metropole.fr/explore/dataset/ci_vcub_p/information/
+KEY_API_BDX = os.getenv("KEY_API_BDX")
 
 # Station Vcub ID non user
 # https://github.com/armgilles/vcub_keeper/issues/29#issuecomment-703246491
