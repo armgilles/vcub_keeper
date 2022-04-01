@@ -68,4 +68,4 @@ Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les inf
 
 ## API de données : 
 
-Les données live sont obtenu par le projet [Jitenshea](https://github.com/garaud/jitenshea)
+Les données live sont obtenu par le projet [Jitenshea](https://github.com/garaud/jitenshea) ou à partir de l'open data de [Bordeaux](https://opendata.bordeaux-metropole.fr/explore/dataset/ci_vcub_p/information/) 
