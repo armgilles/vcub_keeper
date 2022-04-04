@@ -224,7 +224,7 @@ def transform_json_api_bdx_station_data_to_df(station_json):
     # Status mapping
     status_dict = {'CONNECTEE' : 1,
                    'DECONNECTEE' : 0}
-    station_df['status'] = station_df['status'].map(status_dict)
+    station_df['status'] = station_df['status'].map(status_dict).fillna(0)
     station_df['status'] = station_df['status'].astype('uint8')
 
     # Casting & sorting DataFrame on station_id & date
