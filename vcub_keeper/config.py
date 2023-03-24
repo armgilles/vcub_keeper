@@ -27,6 +27,7 @@ try:
     ROOT_DATA_CLEAN = ROOT_DIR + '/data/clean/'
     ROOT_DATA_REF = ROOT_DIR + '/data/ref/'
     ROOT_MODEL = ROOT_DIR + '/model/'
+    ROOT_TESTS_DATA = ROOT_DIR + '/vcub_keeper/tests/data_for_tests/'
 except:
     print("Can't have repository variables")
     ROOT_DATA_REF = "" # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
@@ -52,6 +53,11 @@ if IS_PROD is False:
     if not os.path.exists(ROOT_MODEL):
         os.mkdir(ROOT_MODEL)
         print('Create '+ROOT_MODEL)
+        
+    # ROOT_TESTS_DATA
+    if not os.path.exists(ROOT_TESTS_DATA):
+        os.mkdir(ROOT_TESTS_DATA)
+        print('Create '+ROOT_TESTS_DATA)
 
 SEED = 2020
 
