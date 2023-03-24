@@ -4,6 +4,7 @@
 *.h5
 *.env
 model
+*.html
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
