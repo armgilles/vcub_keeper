@@ -64,8 +64,8 @@ Jinja2==2.11.2
 joblib==0.17.0
 jsonschema==3.2.0
 jupyter==1.0.0
-jupyter-client==6.1.7
-jupyter-console==6.6.3
+jupyter-client
+jupyter-console
 jupyter-contrib-core==0.3.3
 jupyter-contrib-nbextensions==0.5.1
 jupyter-core==4.6.3
@@ -100,7 +100,7 @@ numba==0.55.1
 numexpr==2.7.1
 numpy==1.19.1
 orderedmultidict==1.0.1
-packaging==20.4
+packaging
 pandas==1.1.1
 pandocfilters==1.4.2
 parso==0.7.1
