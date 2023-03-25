@@ -5,6 +5,8 @@
 *.env
 model
 *.html
+# test data for CI
+!*/tests/data_for_tests/*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
