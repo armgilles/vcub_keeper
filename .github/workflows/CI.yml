@@ -34,4 +34,6 @@ jobs:
       uses: CodSpeedHQ/action@v1
       with:
         token: ${{ secrets.CODSPEED_TOKEN }}
-        run: pytest vcub_keeper/tests/benchmarks/ --codspeed
+        run: |
+          python setup.py install
+          pytest vcub_keeper/tests/benchmarks/ --codspeed
