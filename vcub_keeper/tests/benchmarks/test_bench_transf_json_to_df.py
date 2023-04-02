@@ -1,8 +1,8 @@
 import pytest
 import json
 
-from vcub_keeper.config import ROOT_TESTS_DATA
 from vcub_keeper.production.data import transform_json_api_bdx_station_data_to_df
+from vcub_keeper.config import ROOT_TESTS_DATA
 
 def read_json_data(file_name='data_test_api_from_bdx.json'):
     """
