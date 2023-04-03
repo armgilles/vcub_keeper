@@ -28,6 +28,7 @@ try:
     ROOT_DATA_REF = ROOT_DIR + '/data/ref/'
     ROOT_MODEL = ROOT_DIR + '/model/'
     ROOT_TESTS_DATA = ROOT_DIR + '/vcub_keeper/tests/data_for_tests/'
+    print('printint ROOT_TESTS_DATA : ' + ROOT_TESTS_DATA)
 except:
     print("Can't have repository variables")
     ROOT_DATA_REF = "" # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
