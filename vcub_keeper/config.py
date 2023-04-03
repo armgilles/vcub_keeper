@@ -19,6 +19,12 @@ if "site-packages" in ROOT_DIR:  # isntall via pip
     from dotenv import load_dotenv
     load_dotenv()
     ROOT_DIR = os.environ.get("ROOT_DIR")  # with .env file in preprod
+    if ROOT_DIR is None:
+        print("ROOT_DIR is None !!!")
+        ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        print("New ROOT_DIR is : " + ROOT_DIR)
+    else:
+        print("Current ROOT_DIR is : " + ROOT_DIR)
     IS_PROD = True
 
 # In case where ROOT_DIR is None (pre-prod) but we don't need these variables
@@ -28,7 +34,6 @@ try:
     ROOT_DATA_REF = ROOT_DIR + '/data/ref/'
     ROOT_MODEL = ROOT_DIR + '/model/'
     ROOT_TESTS_DATA = ROOT_DIR + '/vcub_keeper/tests/data_for_tests/'
-    print('printint ROOT_TESTS_DATA : ' + ROOT_TESTS_DATA)
 except:
     print("Can't have repository variables")
     ROOT_DATA_REF = "" # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
