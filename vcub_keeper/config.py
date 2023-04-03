@@ -31,6 +31,7 @@ try:
 except:
     print("Can't have repository variables")
     ROOT_DATA_REF = "" # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
+    ROOT_TESTS_DATA = ROOT_DIR
 
 # Only in dev
 if IS_PROD is False:
