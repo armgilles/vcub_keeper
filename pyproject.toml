@@ -32,27 +32,24 @@ dev = [
     "pre-commit",
     "ruff",
     "seaborn==0.13.2",
+    "python-dotenv==1.0.1",
 ]
 
 all = ["vcub_keeper[test,dev]"]
 
 [tool.setuptools]
-package-dir = {"" = "vcub_keeper"}
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
-where = ["vcub_keeper"]
+where = ["src"]
 exclude = ["notebooks", "tests"]
-
+ 
 [tool.setuptools.package-data]
 "*" = ["config*.yml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "--cov --ignore=tests/dev"
-
-[tool.mypy]
-exclude = ["dev", "tests"]
-ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 120
