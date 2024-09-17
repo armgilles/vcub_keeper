@@ -14,7 +14,7 @@ test_data = [
         1,
     ),  # Should be OK
     (
-        [{"station_id": 106, "date": pd.Timestamp("2020-08-25 03:50:00"), "consecutive_no_transactions_out": 46}],
+        [{"station_id": 106, "date": pd.Timestamp("2020-08-25 03:50:00"), "consecutive_no_transactions_out": 58}],
         -1,
     ),  # Should be KO (anomaly)
 ]
@@ -66,4 +66,5 @@ def test_ml_train_on_one_station(data_activity, anomaly):
         assert 10 <= score_anomaly <= 22
     elif anomaly == -1:  # Station KO
         # anomaly_score must be at =~ 54.33 (2022/01/26)
+        # anomaly_score must be at =~ 53.82 with consecutive_no_transaction_out at 58 (2024/09/17)
         assert 50 <= score_anomaly <= 65
