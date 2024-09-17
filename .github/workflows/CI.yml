@@ -9,6 +9,10 @@ jobs:
   test:
 
     runs-on: ubuntu-22.04
+    
+    env:
+      ROOT_DIR: ${{ github.workspace }}
+      ROOT_TESTS_DATA: ${{ github.workspace }}/tests/data_for_tests
 
     steps:
     - uses: actions/checkout@v3
