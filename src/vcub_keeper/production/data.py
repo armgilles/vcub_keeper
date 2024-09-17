@@ -121,7 +121,7 @@ def transform_json_station_data_to_df(station_json):
     station_df_resample = (
         station_df.groupby("station_id")
         .resample(
-            "10T",
+            "10min",
             label="right",
         )
         .agg(
@@ -287,7 +287,7 @@ def transform_json_api_bdx_station_data_to_df(station_json):
     station_df_resample = (
         station_df.groupby("station_id")
         .resample(
-            "10T",
+            "10min",
             label="right",
         )
         .agg(
