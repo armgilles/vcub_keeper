@@ -25,12 +25,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools
         pip install -e .[all]
-    # - name: Create env file
-    # # Création d'un fichier .env durant le process de CI
-    # # Cf https://github.com/armgilles/vcub_keeper/issues/65
-    #   run: |
-    #       touch .env
-    #       echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
+    - name: Create env file
+    # Création d'un fichier .env durant le process de CI
+    # Cf https://github.com/armgilles/vcub_keeper/issues/65
+      run: |
+          touch .env
+          echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
     - name: Copy test data
       run: cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/
     - name: Run tests
