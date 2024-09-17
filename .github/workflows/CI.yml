@@ -33,7 +33,7 @@ jobs:
           echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
     - name: Copy test data
       run: |
-        cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/
+        cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/data_for_tests/
         ls -la ${{ github.workspace }}/tests/data_for_tests/
     - name: Run tests
       run: coverage run -m pytest
