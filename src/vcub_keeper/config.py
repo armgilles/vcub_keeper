@@ -10,7 +10,6 @@ IS_PROD = False
 # Paths
 try:
     ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-    print("ROOT_DIR:", ROOT_DIR)
 except:  # noqa: E722
     # Case of heroku env var
     print("Try to find environnement variable")
