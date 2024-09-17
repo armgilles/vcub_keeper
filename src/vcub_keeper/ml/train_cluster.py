@@ -1,17 +1,12 @@
-from vcub_keeper.config import (ROOT_DATA_CLEAN, ROOT_DATA_REF,
-                                ROOT_MODEL, NON_USE_STATION_ID,
-                                THRESHOLD_PROFILE_STATION)
-from vcub_keeper.reader.reader import *
-from vcub_keeper.visualisation import *
-from vcub_keeper.transform.features_factory import *
+from vcub_keeper.config import NON_USE_STATION_ID, ROOT_DATA_CLEAN, ROOT_DATA_REF, ROOT_MODEL, THRESHOLD_PROFILE_STATION
 from vcub_keeper.ml.cluster import train_cluster_station
 from vcub_keeper.ml.cluster_utils import export_model
+from vcub_keeper.reader.reader import read_station_profile, read_time_serie_activity
+from vcub_keeper.transform.features_factory import get_consecutive_no_transactions_out
 
 
 def run_train_cluster():
-    """
-
-    """
+    """ """
 
     # Lecture du fichier activité
     ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
@@ -21,8 +16,7 @@ def run_train_cluster():
     # Lecture de profile des stations pour connaitre ceux que l'on clusterise
     station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
 
-    stations_id_to_fit = \
-        station_profile[station_profile['mean'] >= THRESHOLD_PROFILE_STATION]['station_id'].unique()
+    stations_id_to_fit = station_profile[station_profile["mean"] >= THRESHOLD_PROFILE_STATION]["station_id"].unique()
 
     # Filter station we don't want to use
     stations_id_to_fit = [station for station in stations_id_to_fit if station not in NON_USE_STATION_ID]
@@ -38,5 +32,5 @@ def run_train_cluster():
     print("Fin d'apprentissage des cluster par station ID.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_train_cluster()
