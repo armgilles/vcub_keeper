@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vcub_keeper"
+version = "1.2.1"
+requires-python = ">=3.12"
+readme = "README.md"
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "pandas==2.2.2",
+    "scikit-learn==1.5.2",
+    "requests==2.32.3",
+    "plotly==5.24.1",
+    "plotly-express==0.4.1",
+    "keplergl==0.3.2",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "pre-commit",
+    "ruff",
+    "seaborn==0.13.2",
+    "python-dotenv==1.0.1",
+]
+
+all = ["vcub_keeper[test,dev]"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["notebooks", "tests"]
+ 
+[tool.setuptools.package-data]
+"*" = ["config*.yml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov --ignore=tests/dev"
+
+[tool.ruff]
+line-length = 120
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+ignore = ["E501", "D2", "D3", "D4", "D104", "D100", "D106", "S311"]
+extend-select = [
+    "UP",  # pyupgrade"
+    "S",   # flake8-bandit,
+    "B",   # flake8-bugbear
+    "I",   # isort
+    "D",   # pydocstyle
+    "NPY", # NumPy-specific rules
+]
+exclude = ["tests/*"]
+
+[tool.ruff.format]
+docstring-code-format = true

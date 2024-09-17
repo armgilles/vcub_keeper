@@ -31,7 +31,7 @@ Les données proviennent du travail de [Damien Garaud](https://twitter.com/jazzy
 
 ## Installation : 
 
-Utiliser le fichier `requirements.txt` avec `pip` ou `environment_linux.yml` pour un environnement `conda` (tester uniquement sous Linux).
+```pip insatll vcun_keeper```
 
 ### Variable :
 
