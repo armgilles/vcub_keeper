@@ -1,20 +1,20 @@
-from vcub_keeper.config import (
-    FEATURES_TO_USE_CLUSTER,
-    PROFILE_STATION_RULE,
-    SEED,
-    NON_USE_STATION_ID,
-    ROOT_DATA_REF,
-)
-from vcub_keeper.transform.features_factory import process_data_cluster
-from vcub_keeper.reader.reader_utils import filter_periode
-from vcub_keeper.reader.reader import read_station_profile
-
-from sklearn.preprocessing import StandardScaler
+import numpy as np
+from scipy import stats
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.pipeline import Pipeline
-from scipy import stats
-import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+from vcub_keeper.config import (
+    FEATURES_TO_USE_CLUSTER,
+    NON_USE_STATION_ID,
+    PROFILE_STATION_RULE,
+    ROOT_DATA_REF,
+    SEED,
+)
+from vcub_keeper.reader.reader import read_station_profile
+from vcub_keeper.reader.reader_utils import filter_periode
+from vcub_keeper.transform.features_factory import process_data_cluster
 
 
 def train_cluster_station(data, station_id, profile_station_activity=None):
@@ -60,15 +60,13 @@ def train_cluster_station(data, station_id, profile_station_activity=None):
     # Lecture du profile activité des stations
     if profile_station_activity is None:
         station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
-        profile_station_activity = station_profile[
-            station_profile["station_id"] == station_id
-        ]["profile_station_activity"].values[0]
+        profile_station_activity = station_profile[station_profile["station_id"] == station_id][
+            "profile_station_activity"
+        ].values[0]
     else:
         print("Using specifique profile station activity : " + profile_station_activity)
 
-    print(
-        "Profile de la station N°" + str(station_id) + " : " + profile_station_activity
-    )
+    print("Profile de la station N°" + str(station_id) + " : " + profile_station_activity)
 
     # Scaler
     clf_scaler = StandardScaler()
@@ -78,8 +76,7 @@ def train_cluster_station(data, station_id, profile_station_activity=None):
         1
         - stats.percentileofscore(
             data_station_ok[
-                (data_station_ok["status"] == 1)
-                & (data_station_ok["consecutive_no_transactions_out"] <= 144)
+                (data_station_ok["status"] == 1) & (data_station_ok["consecutive_no_transactions_out"] <= 144)
             ]["consecutive_no_transactions_out"],
             PROFILE_STATION_RULE[profile_station_activity],
         )

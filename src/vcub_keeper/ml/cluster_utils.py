@@ -23,7 +23,7 @@ def export_model(clf, station_id, path_directory):
     export_model(clf, station_id=110, path_directory=ROOT_MODEL)
 
     """
-    dump(clf, path_directory+'model_station_' + str(station_id) + '.joblib')
+    dump(clf, path_directory + "model_station_" + str(station_id) + ".joblib")
 
 
 def load_model(station_id, path_directory):
@@ -47,5 +47,5 @@ def load_model(station_id, path_directory):
     clf = load_model(station_id=110, path_directory=ROOT_MODEL)
 
     """
-    clf = load(path_directory+'model_station_' + str(station_id) + '.joblib')
+    clf = load(path_directory + "model_station_" + str(station_id) + ".joblib")
     return clf

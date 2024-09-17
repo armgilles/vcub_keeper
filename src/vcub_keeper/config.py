@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,7 +10,8 @@ IS_PROD = False
 # Paths
 try:
     ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-except:
+    print("ROOT_DIR:", ROOT_DIR)
+except:  # noqa: E722
     # Case of heroku env var
     print("Try to find environnement variable")
     ROOT_DIR = os.environ.get("ROOT_DIR")
@@ -30,7 +32,7 @@ try:
     ROOT_DATA_REF = ROOT_DIR + "/data/ref/"
     ROOT_MODEL = ROOT_DIR + "/model/"
     ROOT_TESTS_DATA = ROOT_DIR + "/tests/data_for_tests/"
-except:
+except:  # noqa: E722
     print("Can't have repository variables")
     ROOT_DATA_REF = ""  # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
 
