@@ -1,27 +1,27 @@
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+import numpy as np
+import pandas as pd
 import plotly.graph_objs as go
+import seaborn as sns
+from keplergl import KeplerGl
 from plotly.offline import init_notebook_mode, iplot, offline
 from plotly.subplots import make_subplots
-from keplergl import KeplerGl
 
+from vcub_keeper.config import FEATURES_TO_USE_CLUSTER, MAPBOX_TOKEN, NON_USE_STATION_ID, THRESHOLD_PROFILE_STATION
+from vcub_keeper.ml.cluster import logistic_predict_proba_from_model, predict_anomalies_station
 from vcub_keeper.reader.reader_utils import filter_periode
-from vcub_keeper.ml.cluster import predict_anomalies_station, logistic_predict_proba_from_model
 from vcub_keeper.transform.features_factory import (
+    get_consecutive_no_transactions_out,
+    get_transactions_all,
     get_transactions_in,
     get_transactions_out,
-    get_transactions_all,
-    get_consecutive_no_transactions_out,
 )
-from vcub_keeper.config import NON_USE_STATION_ID, MAPBOX_TOKEN, THRESHOLD_PROFILE_STATION, FEATURES_TO_USE_CLUSTER
 
 
 def plot_station_activity(
     data,
     station_id,
-    features_to_plot=["available_stands"],
+    features_to_plot=None,
     date_col="date",
     start_date="",
     end_date="",
@@ -58,6 +58,9 @@ def plot_station_activity(
     plot_station_activity(activite, station_id=25, start_date='2017-08-28',
                           end_date='2017-09-02')
     """
+
+    if features_to_plot is None:
+        features_to_plot = ["available_stands"]
 
     if not isinstance(features_to_plot, list):
         raise TypeError("features_to_plot should be a list")
@@ -250,7 +253,7 @@ def plot_station_anomalies(
     data_graph.append(trace_ano)
 
     # For shape hoverdata anomaly
-    data_pred["ano_hover_text"] = np.NaN
+    data_pred["ano_hover_text"] = np.nan
     data_pred.loc[data_pred["anomaly"] == -1, "ano_hover_text"] = data_pred["available_bikes"]
     trace_ano2 = go.Scatter(
         x=data_pred["date"],
@@ -276,7 +279,7 @@ def plot_station_anomalies(
     )
 
     max_value = data_pred["available_bikes"].max()
-    for idx, row in grp.iterrows():
+    for _idx, row in grp.iterrows():
         shapes.append(
             dict(
                 type="rect",
@@ -416,7 +419,7 @@ def plot_map_station_with_plotly(
 
         # Building text
         texts = []
-        for idx, station in temp.iterrows():
+        for _idx, station in temp.iterrows():
             text = (
                 str(station["NOM"])
                 + " <br />"
@@ -800,7 +803,7 @@ def plot_station_anomalies_with_score(
     )
 
     # For shape hoverdata anomaly
-    data_pred["ano_hover_text"] = np.NaN
+    data_pred["ano_hover_text"] = np.nan
     data_pred.loc[data_pred["anomaly"] == -1, "ano_hover_text"] = data_pred["available_bikes"]
     fig.add_trace(
         go.Scatter(
@@ -843,7 +846,7 @@ def plot_station_anomalies_with_score(
     )
 
     max_value = data_pred["available_bikes"].max()
-    for idx, row in grp.iterrows():
+    for _idx, row in grp.iterrows():
         shapes.append(
             dict(
                 type="rect",
