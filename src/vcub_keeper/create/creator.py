@@ -1,23 +1,18 @@
-import pandas as pd
 import glob as glob
+
+import pandas as pd
 from dotenv import load_dotenv
-
-load_dotenv()
-
-from vcub_keeper.config import (
-    ROOT_DATA_RAW,
-    ROOT_DATA_CLEAN,
-    ROOT_DATA_REF,
-    NON_USE_STATION_ID,
-)
+from vcub_keeper.config import NON_USE_STATION_ID, ROOT_DATA_CLEAN, ROOT_DATA_RAW, ROOT_DATA_REF
 from vcub_keeper.reader.reader import read_time_serie_activity
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.transform.features_factory import (
+    get_consecutive_no_transactions_out,
+    get_transactions_all,
     get_transactions_in,
     get_transactions_out,
-    get_transactions_all,
-    get_consecutive_no_transactions_out,
 )
+
+load_dotenv()
 
 
 def create_activity_time_series():
@@ -56,9 +51,7 @@ def create_activity_time_series():
             "available_stands": "uint8",
             "available_bikes": "uint8",
         }
-        activite_temp = pd.read_csv(
-            ROOT_DATA_RAW + file_name, parse_dates=["timestamp"], dtype=column_dtypes
-        )
+        activite_temp = pd.read_csv(ROOT_DATA_RAW + file_name, parse_dates=["timestamp"], dtype=column_dtypes)
         print(activite_temp.shape)
 
         # Concact
@@ -82,9 +75,7 @@ def create_activity_time_series():
     activite_full = activite_full.reset_index(drop=True)
 
     # Dropduplicate station_id / date rows
-    activite_full = activite_full.drop_duplicates(
-        subset=["station_id", "date"]
-    ).reset_index(drop=True)
+    activite_full = activite_full.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
 
     # Create features
     activite_full = get_transactions_in(activite_full)
@@ -116,101 +107,95 @@ def create_activity_time_series():
     )
 
     # Export
-    activite_full_resample.to_hdf(
-        ROOT_DATA_CLEAN + "time_serie_activity.h5", key="ts_activity"
-    )
+    activite_full_resample.to_hdf(ROOT_DATA_CLEAN + "time_serie_activity.h5", key="ts_activity")
 
 
-def create_meteo(min_date_history="2018-12-01", max_date_history="2020-09-18"):
-    """
-    Multiple call API afin de créer un fichier et d'exporte celui-ci
-    dans ROOT_DATA_REF/meteo.csv
+# def create_meteo(min_date_history="2018-12-01", max_date_history="2020-09-18"):
+#     """
+#     Multiple call API afin de créer un fichier et d'exporte celui-ci
+#     dans ROOT_DATA_REF/meteo.csv
 
-    Parameters
-    ----------
-    min_date_history : str
-        date du début de l'historique (format 'yyyy-mm-dd')
-    max_date_history : str
-        date de fin de l'historique (format 'yyyy-mm-dd')
+#     Parameters
+#     ----------
+#     min_date_history : str
+#         date du début de l'historique (format 'yyyy-mm-dd')
+#     max_date_history : str
+#         date de fin de l'historique (format 'yyyy-mm-dd')
 
-    Returns
-    -------
-    None
+#     Returns
+#     -------
+#     None
 
-    Examples
-    --------
+#     Examples
+#     --------
 
-    create_meteo(min_date_history="2018-12-01", max_date_history='2021-03-18')
-    """
-    api = Api(API_METEO)
-    api.set_granularity("hourly")
+#     create_meteo(min_date_history="2018-12-01", max_date_history='2021-03-18')
+#     """
+#     api = Api(API_METEO)
+#     api.set_granularity("hourly")
 
-    # Init DataFrame
-    meteo_full = pd.DataFrame()
+#     # Init DataFrame
+#     meteo_full = pd.DataFrame()
 
-    # Calls API
-    date_list = pd.date_range(start=min_date_history, end=max_date_history)
-    for date in date_list:
-        # Date processing
-        date_minus_one_day = date - datetime.timedelta(days=1)
-        date_str = date.strftime(format="%Y-%m-%d")
-        date_minus_one_day_str = date_minus_one_day.strftime(format="%Y-%m-%d")
-        print(date_minus_one_day_str + " " + date_str)
+#     # Calls API
+#     date_list = pd.date_range(start=min_date_history, end=max_date_history)
+#     for date in date_list:
+#         # Date processing
+#         date_minus_one_day = date - datetime.timedelta(days=1)
+#         date_str = date.strftime(format="%Y-%m-%d")
+#         date_minus_one_day_str = date_minus_one_day.strftime(format="%Y-%m-%d")
+#         print(date_minus_one_day_str + " " + date_str)
 
-        # Call API
-        try:
-            history = api.get_history(
-                city="Bordeaux",
-                country="FR",
-                start_date=date_minus_one_day_str,
-                end_date=date_str,
-            )
-            meteo_day = pd.DataFrame(
-                history.get_series(["temp", "precip", "rh", "pres", "wind_spd"])
-            )
-            meteo_full = pd.concat([meteo_full, meteo_day])
-        except requests.HTTPError as exception:
-            print(exception)
+#         # Call API
+#         try:
+#             history = api.get_history(
+#                 city="Bordeaux",
+#                 country="FR",
+#                 start_date=date_minus_one_day_str,
+#                 end_date=date_str,
+#             )
+#             meteo_day = pd.DataFrame(history.get_series(["temp", "precip", "rh", "pres", "wind_spd"]))
+#             meteo_full = pd.concat([meteo_full, meteo_day])
+#         except requests.HTTPError as exception:
+#             print(exception)
 
-    # Naming DataFrame
+#     # Naming DataFrame
 
-    # Accumulated precipitation (default mm)
-    meteo_full.rename(columns={"precip": "precipitation"}, inplace=True)
-    # Average temperature
-    meteo_full.rename(columns={"temp": "temperature"}, inplace=True)
-    # Average relative humidity (%)
-    meteo_full.rename(columns={"rh": "humidity"}, inplace=True)
-    # Average pressure (mb)
-    meteo_full.rename(columns={"pres": "pressure"}, inplace=True)
-    # Wind_speed (m/s)
-    meteo_full.rename(columns={"wind_spd": "wind_speed"}, inplace=True)
-    # date
-    meteo_full.rename(columns={"datetime": "date"}, inplace=True)
+#     # Accumulated precipitation (default mm)
+#     meteo_full.rename(columns={"precip": "precipitation"}, inplace=True)
+#     # Average temperature
+#     meteo_full.rename(columns={"temp": "temperature"}, inplace=True)
+#     # Average relative humidity (%)
+#     meteo_full.rename(columns={"rh": "humidity"}, inplace=True)
+#     # Average pressure (mb)
+#     meteo_full.rename(columns={"pres": "pressure"}, inplace=True)
+#     # Wind_speed (m/s)
+#     meteo_full.rename(columns={"wind_spd": "wind_speed"}, inplace=True)
+#     # date
+#     meteo_full.rename(columns={"datetime": "date"}, inplace=True)
 
-    meteo_full = meteo_full[
-        ["date", "temperature", "pressure", "humidity", "precipitation", "wind_speed"]
-    ]
+#     meteo_full = meteo_full[["date", "temperature", "pressure", "humidity", "precipitation", "wind_speed"]]
 
-    # Check
-    min_date = meteo_full.date.min()
-    max_date = meteo_full.date.max()
-    date_ref = pd.date_range(start=min_date, end=max_date, freq="h")
+#     # Check
+#     min_date = meteo_full.date.min()
+#     max_date = meteo_full.date.max()
+#     date_ref = pd.date_range(start=min_date, end=max_date, freq="h")
 
-    # Si le référenciel n'a pas toutes les dates dans Timestamp
-    assert date_ref.isin(meteo_full["date"]).all() == True
+#     # Si le référenciel n'a pas toutes les dates dans Timestamp
+#     assert date_ref.isin(meteo_full["date"]).all() == True
 
-    # Si il n'y a pas de différence symetrique entre les 2 séries de dates
-    assert len(date_ref.symmetric_difference(meteo_full["date"])) == 0
+#     # Si il n'y a pas de différence symetrique entre les 2 séries de dates
+#     assert len(date_ref.symmetric_difference(meteo_full["date"])) == 0
 
-    # Si il y a des doublons
-    assert meteo_full["date"].is_unique == True
+#     # Si il y a des doublons
+#     assert meteo_full["date"].is_unique == True
 
-    # Si les date augmentent
-    assert meteo_full["date"].is_monotonic_increasing == True
+#     # Si les date augmentent
+#     assert meteo_full["date"].is_monotonic_increasing == True
 
-    # export
+#     # export
 
-    meteo_full.to_csv(ROOT_DATA_REF + "meteo.csv", index=False)
+#     meteo_full.to_csv(ROOT_DATA_REF + "meteo.csv", index=False)
 
 
 def create_station_profilage_activity():
@@ -250,10 +235,7 @@ def create_station_profilage_activity():
 
     # Aggrégation de l'activité par stations
     profile_station = (
-        ts_activity[
-            (ts_activity["status"] == 1)
-            & (ts_activity["consecutive_no_transactions_out"] <= 144)
-        ]
+        ts_activity[(ts_activity["status"] == 1) & (ts_activity["consecutive_no_transactions_out"] <= 144)]
         .groupby("station_id", as_index=False)["transactions_out_bool"]
         .agg(
             {
@@ -275,9 +257,7 @@ def create_station_profilage_activity():
     )
 
     ## Export
-    profile_station.to_csv(
-        ROOT_DATA_REF + "station_profile.csv", index=False, encoding="utf-8"
-    )
+    profile_station.to_csv(ROOT_DATA_REF + "station_profile.csv", index=False, encoding="utf-8")
 
 
 def create_station_attribute(path_directory):
@@ -316,9 +296,7 @@ def create_station_attribute(path_directory):
         "NBVELOS",
     ]
 
-    stations = pd.read_csv(
-        URL_DATA_STATION, sep=";", dtype=column_dtypes, usecols=usecols
-    )
+    stations = pd.read_csv(URL_DATA_STATION, sep=";", dtype=column_dtypes, usecols=usecols)
 
     # Calcul du nombre de stand par station
     stations["total_stand"] = stations["NBPLACES"] + stations["NBVELOS"]
