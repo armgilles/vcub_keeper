@@ -181,7 +181,7 @@ def get_data_from_api_bdx_by_station(station_id, start_date, stop_date):
             + str(station_id)
             + "]}}&rangeEnd="
             + str(stop_date)
-            + '&rangeStep=5min&attributes={"nom": "mode", "etat": "mode", "nbplaces": "max", "nbvelos": "max"}'
+            + '&rangeStep=5min&attributes={"nom": "mode", "etat": "mode", "nbplaces": "max", "nbvelos": "max", "ident": "min"}'
         )
     # Si une seul station_id
     else:
@@ -194,7 +194,7 @@ def get_data_from_api_bdx_by_station(station_id, start_date, stop_date):
             + str(station_id)
             + "}&rangeEnd="
             + str(stop_date)
-            + '&rangeStep=5min&attributes={"nom": "mode", "etat": "mode", "nbplaces": "max", "nbvelos": "max"}'
+            + '&rangeStep=5min&attributes={"nom": "mode", "etat": "mode", "nbplaces": "max", "nbvelos": "max", "ident": "min"}'
         )
 
     response = requests.get(url)  # noqa: S113
@@ -234,7 +234,7 @@ def transform_json_api_bdx_station_data_to_df(station_json):
 
     # Naming from JSON DataFrame
     station_df.rename(columns={"properties.time": "time"}, inplace=True)
-    station_df.rename(columns={"properties.gid": "gid"}, inplace=True)
+    station_df.rename(columns={"properties.ident": "ident"}, inplace=True)
     station_df.rename(columns={"properties.nom": "nom"}, inplace=True)
     station_df.rename(columns={"properties.etat": "etat"}, inplace=True)
     station_df.rename(columns={"properties.nbplaces": "nbplaces"}, inplace=True)
@@ -243,7 +243,7 @@ def transform_json_api_bdx_station_data_to_df(station_json):
     # naming api Bdx to vanilla api (get_data_from_api_by_station) from DataFrame
     # Naming
     station_df.rename(columns={"time": "date"}, inplace=True)
-    station_df.rename(columns={"gid": "station_id"}, inplace=True)
+    station_df.rename(columns={"ident": "station_id"}, inplace=True)
     station_df.rename(columns={"nom": "name"}, inplace=True)
     station_df.rename(columns={"etat": "status"}, inplace=True)
     station_df.rename(columns={"nbvelos": "available_bikes"}, inplace=True)
