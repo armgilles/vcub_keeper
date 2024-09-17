@@ -34,7 +34,7 @@ jobs:
     - name: Copy test data
       run: |
         cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/
-        ls -la ${{ github.workspace }}/tests/
+        ls -la ${{ github.workspace }}/tests/data_for_tests/
     - name: Run tests
       run: coverage run -m pytest
     - name: "Upload coverage to Codecov"
