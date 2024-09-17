@@ -8,25 +8,25 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.8.5
+    - name: Set up Python 3.12
       uses: actions/setup-python@v3
       with:
-        python-version: 3.8.5
+        python-version: 3.12
     - name: Install
       run: |
         python setup.py install
-        pip install -r requirements.txt
-    - name: Create env file
-    # Création d'un fichier .env durant le process de CI
-    # Cf https://github.com/armgilles/vcub_keeper/issues/65
-      run: |
-          touch .env
-          echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
-    - name: Run tests
+    #     pip install -r requirements.txt
+    # - name: Create env file
+    # # Création d'un fichier .env durant le process de CI
+    # # Cf https://github.com/armgilles/vcub_keeper/issues/65
+    #   run: |
+    #       touch .env
+    #       echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
+    # - name: Run tests
       run: coverage run -m pytest
     - name: "Upload coverage to Codecov"
       uses: codecov/codecov-action@v1
