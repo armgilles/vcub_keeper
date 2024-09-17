@@ -8,24 +8,33 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
+    
+    env:
+      ROOT_DIR: ${{ github.workspace }}
+      ROOT_TESTS_DATA: ${{ github.workspace }}/tests/data_for_tests
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.8.5
+    - name: Set up Python 3.12
       uses: actions/setup-python@v3
       with:
-        python-version: 3.8.5
+        python-version: 3.12
     - name: Install
       run: |
-        python setup.py install
-        pip install -r requirements.txt
+        python -m pip install --upgrade pip
+        pip install setuptools
+        pip install -e .[all]
     - name: Create env file
     # Création d'un fichier .env durant le process de CI
     # Cf https://github.com/armgilles/vcub_keeper/issues/65
       run: |
           touch .env
           echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
+    - name: Copy test data
+      run: |
+        cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/
+        ls -la ${{ github.workspace }}/tests/
     - name: Run tests
       run: coverage run -m pytest
     - name: "Upload coverage to Codecov"
