@@ -17,7 +17,10 @@ jobs:
       with:
         python-version: 3.12
     - name: Install
-      run: python setup.py install
+      run: |
+        python -m pip install --upgrade pip
+        pip install setuptools
+        pip install -e .[all]
     # - name: Create env file
     # # Création d'un fichier .env durant le process de CI
     # # Cf https://github.com/armgilles/vcub_keeper/issues/65
