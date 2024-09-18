@@ -14,9 +14,6 @@ def read_activity_data(file_name="activite_data.csv"):
     return read_activity_vcub(ROOT_TESTS_DATA + file_name)
 
 
-activite_data = read_activity_data()
-
-
 @pytest.mark.benchmark
 def test_benchmark_get_transaction_out(activite_data=activite_data):
     """
