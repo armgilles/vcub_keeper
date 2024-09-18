@@ -33,7 +33,7 @@ jobs:
         cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/
     - name: Run tests
       run: pytest --cov=api.calculator --cov-report=xml
-    - name: "Upload coverage to Codecov"
+    - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4.3.0
       env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
