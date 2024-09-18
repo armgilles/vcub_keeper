@@ -6,18 +6,15 @@ name: CI
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  test:
-
+  buil_and_test:
     runs-on: ubuntu-22.04
-    
     env:
       ROOT_DIR: ${{ github.workspace }}
       ROOT_TESTS_DATA: ${{ github.workspace }}/tests/data_for_tests
-
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.12
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: 3.12
     - name: Install
@@ -34,8 +31,10 @@ jobs:
     - name: Copy test data
       run: |
         cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/
-        ls -la ${{ github.workspace }}/tests/
     - name: Run tests
-      run: coverage run -m pytest
+      run: pytest --cov=api.calculator --cov-report=xml
     - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v4
+      env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          
