@@ -38,7 +38,7 @@ jobs:
       env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Run benchmarks
-        uses: CodSpeedHQ/action@v3
-        with:
+      uses: CodSpeedHQ/action@v3
+      with:
           token: ${{ secrets.CODSPEED_TOKEN }}
-          run: "<Insert your benchmark command here>" 
+          run: pytest tests/ --codspeed
