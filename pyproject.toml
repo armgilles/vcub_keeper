@@ -27,6 +27,7 @@ dependencies = [
 test = [
     "pytest",
     "pytest-cov",
+    "pytest-codspeed",
 ]
 dev = [
     "pre-commit",
