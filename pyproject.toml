@@ -21,6 +21,7 @@ dependencies = [
     "plotly==5.24.1",
     "plotly-express==0.4.1",
     "keplergl==0.3.2",
+    "tables==3.10.1",
 ]
 
 [project.optional-dependencies]
