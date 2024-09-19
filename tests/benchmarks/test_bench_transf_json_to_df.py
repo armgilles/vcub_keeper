@@ -8,6 +8,7 @@ from vcub_keeper.config import ROOT_TESTS_DATA
 def read_json_data(file_name="data_test_api_from_bdx.json"):
     """
     Read test json data
+    From notebooks/04_tests/03_test_data_activite.ipynb
     """
 
     # Loading data from data test (.json)
