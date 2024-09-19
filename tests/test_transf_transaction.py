@@ -1,7 +1,12 @@
 import pytest
 import pandas as pd
 
-from vcub_keeper.transform.features_factory import get_transactions_out, get_transactions_in, get_transactions_all
+from vcub_keeper.transform.features_factory import (
+    get_transactions_out,
+    get_transactions_in,
+    get_transactions_all,
+    get_consecutive_no_transactions_out,
+)
 
 
 def test_get_transactions_out():
@@ -157,6 +162,60 @@ def test_get_transactions_all():
     df_activite = df_activite.drop(columns=["transactions_all"], axis=1)
 
     result = get_transactions_all(df_activite)
+
+    expected = pd.DataFrame(data)
+
+    pd.testing.assert_frame_equal(result, expected)
+
+
+def test_get_consecutive_no_transactions_out():
+    """
+    test de la fonction get_consecutive_no_transactions_out()
+    """
+    data = {
+        "station_id": [1] * 11 + [22] * 11,
+        "date": [
+            pd.Timestamp("2018-12-01 00:10:00"),
+            pd.Timestamp("2018-12-01 00:20:00"),
+            pd.Timestamp("2018-12-01 00:30:00"),
+            pd.Timestamp("2018-12-01 00:40:00"),
+            pd.Timestamp("2018-12-01 00:50:00"),
+            pd.Timestamp("2018-12-01 01:00:00"),
+            pd.Timestamp("2018-12-01 01:10:00"),
+            pd.Timestamp("2018-12-01 01:20:00"),
+            pd.Timestamp("2018-12-01 01:30:00"),
+            pd.Timestamp("2018-12-01 01:40:00"),
+            pd.Timestamp("2018-12-01 01:50:00"),
+        ]
+        + [
+            pd.Timestamp("2018-12-01 00:10:00"),
+            pd.Timestamp("2018-12-01 00:20:00"),
+            pd.Timestamp("2018-12-01 00:30:00"),
+            pd.Timestamp("2018-12-01 00:40:00"),
+            pd.Timestamp("2018-12-01 00:50:00"),
+            pd.Timestamp("2018-12-01 01:00:00"),
+            pd.Timestamp("2018-12-01 01:10:00"),
+            pd.Timestamp("2018-12-01 01:20:00"),
+            pd.Timestamp("2018-12-01 01:30:00"),
+            pd.Timestamp("2018-12-01 01:40:00"),
+            pd.Timestamp("2018-12-01 01:50:00"),
+        ],
+        "available_stands": [28.0, 28.0, 28.0, 27.0, 27.0, 28.0, 28.0, 28.0, 28.0, 29.0, 29.0]
+        + [2.0, 6.0, 9.0, 9.0, 11.0, 13.0, 13.0, 13.0, 17.0, 18.0, 20.0],
+        "available_bikes": [4.0, 4.0, 4.0, 5.0, 5.0, 4.0, 4.0, 4.0, 4.0, 3.0, 3.0]
+        + [31.0, 27.0, 24.0, 24.0, 22.0, 20.0, 20.0, 20.0, 16.0, 15.0, 13.0],
+        "status": [1] * 11 + [1] * 11,
+        "transactions_out": [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+        + [0.0, 4.0, 3.0, 0.0, 2.0, 2.0, 0.0, 0.0, 4.0, 1.0, 2.0],
+        "consecutive_no_transactions_out": [0, 1, 2, 3, 4, 0, 1, 2, 3, 0, 1] + [0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
+    }
+
+    df_activite = pd.DataFrame(data)
+    # drop columns we want to test.
+    df_activite = df_activite.drop(columns=["transactions_out", "consecutive_no_transactions_out"], axis=1)
+
+    result = get_transactions_out(df_activite)
+    result = get_consecutive_no_transactions_out(result)
 
     expected = pd.DataFrame(data)
 
