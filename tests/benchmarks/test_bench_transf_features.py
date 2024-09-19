@@ -1,6 +1,13 @@
 import pytest
+import json
 
-from vcub_keeper.transform.features_factory import get_transactions_out, get_transactions_in, get_transactions_all
+from vcub_keeper.transform.features_factory import (
+    get_transactions_out,
+    get_transactions_in,
+    get_transactions_all,
+    get_consecutive_no_transactions_out,
+)
+from vcub_keeper.production.data import transform_json_api_bdx_station_data_to_df
 from vcub_keeper.reader.reader import read_activity_vcub
 from vcub_keeper.config import ROOT_TESTS_DATA
 
@@ -14,7 +21,22 @@ def read_activity_data(file_name="activite_data.csv"):
     return read_activity_vcub(ROOT_TESTS_DATA + file_name)
 
 
+def read_json_data(file_name="data_test_api_from_bdx.json"):
+    """
+    Read test json data for bench get_consecutive_no_transactions_out()
+    """
+
+    # Loading data from data test (.json)
+    with open(ROOT_TESTS_DATA + file_name) as f:
+        station_json_loaded = json.load(f)
+    return station_json_loaded
+
+
 activite_data = read_activity_data()
+
+# To test get_consecutive_no_transactions_out() function
+station_json_loaded = read_json_data()
+station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded)
 
 
 @pytest.mark.benchmark
@@ -42,3 +64,12 @@ def test_benchmark_get_transaction_all(activite_data=activite_data):
     """
 
     activity_data_feature = get_transactions_all(activite_data)
+
+
+@pytest.mark.benchmark
+def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=station_df_from_json):
+    """
+    Benchmark for transforming some feature (get_transactions_all)
+    """
+
+    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json)
