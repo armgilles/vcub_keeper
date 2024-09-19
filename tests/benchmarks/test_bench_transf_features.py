@@ -6,6 +6,7 @@ from vcub_keeper.transform.features_factory import (
     get_transactions_in,
     get_transactions_all,
     get_consecutive_no_transactions_out,
+    process_data_cluster,
 )
 from vcub_keeper.production.data import transform_json_api_bdx_station_data_to_df
 from vcub_keeper.reader.reader import read_activity_vcub
@@ -24,6 +25,7 @@ def read_activity_data(file_name="activite_data.csv"):
 def read_json_data(file_name="data_test_api_from_bdx.json"):
     """
     Read test json data for bench get_consecutive_no_transactions_out()
+    From notebooks/04_tests/03_test_data_activite.ipynb
     """
 
     # Loading data from data test (.json)
@@ -73,3 +75,13 @@ def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=stat
     """
 
     station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json)
+
+
+@pytest.mark.benchmark
+def test_benchmark_process_data_cluster(activite_data=activite_data):
+    """
+    Benchmark for transforming some features with process_data_cluster()
+    calling multiple time get_encoding_time() function
+    """
+
+    activite_data_feature = process_data_cluster(activite_data)
