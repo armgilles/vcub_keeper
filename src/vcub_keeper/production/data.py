@@ -233,21 +233,16 @@ def transform_json_api_bdx_station_data_to_df(station_json):
     station_df = pd.json_normalize(station_json, record_path=["features"])
 
     # Naming from JSON DataFrame
-    station_df.rename(columns={"properties.time": "time"}, inplace=True)
-    station_df.rename(columns={"properties.ident": "ident"}, inplace=True)
-    station_df.rename(columns={"properties.nom": "nom"}, inplace=True)
-    station_df.rename(columns={"properties.etat": "etat"}, inplace=True)
-    station_df.rename(columns={"properties.nbplaces": "nbplaces"}, inplace=True)
-    station_df.rename(columns={"properties.nbvelos": "nbvelos"}, inplace=True)
-
-    # naming api Bdx to vanilla api (get_data_from_api_by_station) from DataFrame
-    # Naming
-    station_df.rename(columns={"time": "date"}, inplace=True)
-    station_df.rename(columns={"ident": "station_id"}, inplace=True)
-    station_df.rename(columns={"nom": "name"}, inplace=True)
-    station_df.rename(columns={"etat": "status"}, inplace=True)
-    station_df.rename(columns={"nbvelos": "available_bikes"}, inplace=True)
-    station_df.rename(columns={"nbplaces": "available_stands"}, inplace=True)
+    station_df = station_df.rename(
+        columns={
+            "properties.time": "date",
+            "properties.ident": "station_id",
+            "properties.nom": "name",
+            "properties.etat": "status",
+            "properties.nbplaces": "available_stands",
+            "properties.nbvelos": "available_bikes",
+        }
+    )
 
     # Status mapping
     status_dict = {"CONNECTEE": 1, "DECONNECTEE": 0}
@@ -255,21 +250,16 @@ def transform_json_api_bdx_station_data_to_df(station_json):
     station_df["status"] = station_df["status"].astype("uint8")
 
     # Casting & sorting DataFrame on station_id & date
-    station_df["date"] = pd.to_datetime(station_df["date"])
-    try:
-        station_df["date"] = pd.to_datetime(station_df["date"])
-    except:  # Changemnent d'horraire https://github.com/armgilles/vcub_watcher/issues/44  # noqa: E722
-        station_df["date"] = pd.to_datetime(station_df["date"], utc=True)
+    station_df["date"] = pd.to_datetime(station_df["date"], utc=True)
+
+    # Convert to Europe/Paris TZ
     try:
         station_df["date"] = station_df["date"].dt.tz_localize("Europe/Paris")
-    except:  # try to convert TZ  # noqa: E722
+    except TypeError:  # try to convert TZ
         station_df["date"] = station_df["date"].dt.tz_convert("Europe/Paris")
 
     station_df["station_id"] = station_df["station_id"].astype(int)
     station_df = station_df.sort_values(["station_id", "date"], ascending=[1, 1])
-
-    # Reset index
-    station_df = station_df.reset_index(drop=True)
 
     # Dropduplicate station_id / date rows
     station_df = station_df.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
