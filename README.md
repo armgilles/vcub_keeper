@@ -2,10 +2,17 @@
 # vcub_keeper
 Analyse de l'activité des stations Vcub dans la métropole de Bordeaux afin de détecter en amont les stations hors service
 -----------------
-
+_Le gardien des vélos en libre service (Vcub) sur Bordeaux_
 [![CI](https://github.com/armgilles/vcub_keeper/actions/workflows/CI.yml/badge.svg)](https://github.com/armgilles/vcub_keeper/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/armgilles/vcub_keeper/branch/master/graph/badge.svg?token=UUWBDZWV7T)](https://codecov.io/gh/armgilles/vcub_keeper)
 [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/armgilles/vcub_keeper)
+
+
+## Interface : 
+
+Vous pouvez vous rendre directement sur le site [vcub_watcher](https://vcubwatcher.herokuapp.com/) pour visualiser les données en temps réel. Ce package est utilisé en tant que socle pour l'application web et assure l'ensemble des traitements liés à la récupération des données, la visualisation et la prédiction des stations hors service.
+
+Il y a aussi un compte [Twitter](https://x.com/BotVcub) qui prévient en temps réel des stations hors service, ne faites pas attention aux tweets, ils sont générés par un robot qui a un sens de l'humour douteux !
 
 ![image](https://user-images.githubusercontent.com/8374843/96422013-ca168580-11f7-11eb-8939-d773b1a22953.png)
 _Impossible de valider la prise d'un vélo (absence de bouton "validation") sur une station quasi pleine._
@@ -22,21 +29,21 @@ Il peut y avoir plusieurs problèmes (écran HS, application HS, problème dans 
 
 Analyser les données des stations Vcub de Bordeaux afin de déterminer si la station est hors service (impossibilité de prendre un vélo alors que des vélos sont disponibles) alors que cette station est active.
 
-Prévenir via twitter @TBM_V3 dès qu'une station est détecté comme HS (fonctionnalité dans un autre repo privé).
+Prévenir via twitter @TBM_V3 dès qu'une station est détectée comme HS (fonctionnalité dans un autre repo privé). Malheureusement, suite à des plaintes de la part de TBM, le bot ne ping plus le compte de TBM (sic).
 
 ## Data :
 
 [Wiki](https://github.com/armgilles/vcub_keeper/blob/master/data/wiki_data.md) des données utilisées.
 
-Les données proviennent du travail de [Damien Garaud](https://twitter.com/jazzydag) via le projet open-source [Jitenshea](https://github.com/garaud/jitenshea)
+Les données proviennent du travail de [Damien Garaud](https://twitter.com/jazzydag) ainsi que de l'API [open data de Bordeaux Métropole](https://data.bordeaux-metropole.fr)
 
 ## Installation : 
 
-```pip insatll vcun_keeper```
+```pip install vcun_keeper[all]```
 
 ### Variable :
 
-Creer un .env à la racine du projet avec :
+Créer un .env à la racine du projet avec :
 
 - API_METEO="YOUR TOKEN HERE" (finalement, la météo n'est plus utilisé dans le projet).
 - MAPBOX_TOKEN="YOUR TOKEN HERE" (pour l'utilisation des graphiques avec mapbox).
