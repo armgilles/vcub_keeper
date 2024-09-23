@@ -3,6 +3,7 @@
 Analyse de l'activité des stations Vcub dans la métropole de Bordeaux afin de détecter en amont les stations hors service
 -----------------
 _Le gardien des vélos en libre service (Vcub) sur Bordeaux_
+
 [![CI](https://github.com/armgilles/vcub_keeper/actions/workflows/CI.yml/badge.svg)](https://github.com/armgilles/vcub_keeper/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/armgilles/vcub_keeper/branch/master/graph/badge.svg?token=UUWBDZWV7T)](https://codecov.io/gh/armgilles/vcub_keeper)
 [![CodSpeed Badge](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://codspeed.io/armgilles/vcub_keeper)
@@ -10,7 +11,7 @@ _Le gardien des vélos en libre service (Vcub) sur Bordeaux_
 
 ## Interface : 
 
-Vous pouvez vous rendre directement sur le site [vcub_watcher](https://vcubwatcher.herokuapp.com/) pour visualiser les données en temps réel. Ce package est utilisé en tant que socle pour l'application web et assure l'ensemble des traitements liés à la récupération des données, la visualisation et la prédiction des stations hors service.
+Vous pouvez vous rendre directement sur le site [vcub_watcher](https://vcubwatcher.herokuapp.com/) pour visualiser les données en temps réel. Ce package (_vcub_keeper_) est utilisé en tant que socle pour l'application web et assure l'ensemble des traitements liés à la récupération des données, la visualisation et la prédiction des stations de l'agglométation de Bordeaux.
 
 Il y a aussi un compte [Twitter](https://x.com/BotVcub) qui prévient en temps réel des stations hors service, ne faites pas attention aux tweets, ils sont générés par un robot qui a un sens de l'humour douteux !
 
