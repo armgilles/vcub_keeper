@@ -272,11 +272,7 @@ def plot_station_anomalies(
     data_pred["no_anomalie"] = data_pred["anomaly"] == 1
     data_pred["anomaly_grp"] = data_pred["no_anomalie"].cumsum()
 
-    grp = (
-        data_pred[data_pred["anomaly"] == -1]
-        .groupby("anomaly_grp", as_index=False)["date"]
-        .agg({"min": "min", "max": "max"})
-    )
+    grp = data_pred[data_pred["anomaly"] == -1].groupby("anomaly_grp", as_index=False)["date"].agg({"min", "max"})
 
     max_value = data_pred["available_bikes"].max()
     for _idx, row in grp.iterrows():
@@ -839,11 +835,7 @@ def plot_station_anomalies_with_score(
     data_pred["no_anomalie"] = data_pred["anomaly"] == 1
     data_pred["anomaly_grp"] = data_pred["no_anomalie"].cumsum()
 
-    grp = (
-        data_pred[data_pred["anomaly"] == -1]
-        .groupby("anomaly_grp", as_index=False)["date"]
-        .agg({"min": "min", "max": "max"})
-    )
+    grp = data_pred[data_pred["anomaly"] == -1].groupby("anomaly_grp", as_index=False)["date"].agg(["min", "max"])
 
     max_value = data_pred["available_bikes"].max()
     for _idx, row in grp.iterrows():
