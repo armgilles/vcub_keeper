@@ -7,13 +7,19 @@ import requests
 from requests.exceptions import ChunkedEncodingError, Timeout
 
 from vcub_keeper.config import KEY_API_BDX
-from vcub_keeper.transform.features_factory import get_transactions_all, get_transactions_in, get_transactions_out
+from vcub_keeper.transform.features_factory import (
+    get_transactions_all,
+    get_transactions_in,
+    get_transactions_out,
+)
 
 
 #############################################
 ###            API Oslandia
 #############################################
-def get_data_from_api_by_station(station_id: str | list, start_date: str, stop_date: str) -> dict:
+def get_data_from_api_by_station(
+    station_id: str | list, start_date: str, stop_date: str
+) -> dict:
     """
     Permet d'obtenir les données d'activité d'une station via une API d'Oslandia
 
@@ -84,29 +90,43 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.LazyFrame:
 
     # Si il y a plusieurs stations dans le json
     station_df = (
-        pl.DataFrame(station_json["data"]).explode("available_bikes", "available_stands", "status", "ts").lazy()
+        pl.DataFrame(station_json["data"])
+        .explode("available_bikes", "available_stands", "status", "ts")
+        .lazy()
     )
 
     # Status mapping
     status_dict = {"open": 1, "closed": 0}
-    station_df = station_df.with_columns(status=pl.col("status").replace_strict(status_dict, default=0).cast(pl.UInt8))
+    station_df = station_df.with_columns(
+        status=pl.col("status").replace_strict(status_dict, default=0).cast(pl.UInt8)
+    )
 
     # Naming
     station_df = station_df.rename({"id": "station_id", "ts": "date"})
 
     # Casting & sorting DataFrame on station_id & date
-    station_df = station_df.with_columns(station_id=pl.col("station_id").cast(pl.Int32()))
-    station_df = station_df.with_columns(date=pl.col("date").str.to_datetime(format="%Y-%m-%dT%H:%M:%S"))
+    station_df = station_df.with_columns(
+        station_id=pl.col("station_id").cast(pl.Int32())
+    )
+    station_df = station_df.with_columns(
+        date=pl.col("date").str.to_datetime(format="%Y-%m-%dT%H:%M:%S")
+    )
 
     station_df = station_df.unique(subset=["station_id", "date"])
     station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    station_df = station_df.pipe(get_transactions_in).pipe(get_transactions_out).pipe(get_transactions_all)
+    station_df = (
+        station_df.pipe(get_transactions_in)
+        .pipe(get_transactions_out)
+        .pipe(get_transactions_all)
+    )
 
     ## Resampling
     station_df_resample = (
-        station_df.group_by_dynamic("date", group_by="station_id", every="10m", label="right")
+        station_df.group_by_dynamic(
+            "date", group_by="station_id", every="10m", label="right"
+        )
         .agg(
             pl.col("available_stands").last(),
             pl.col("available_bikes").last(),
@@ -122,7 +142,9 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.LazyFrame:
         .upsample("date", every="10m", group_by="station_id")
         .lazy()
     )
-    station_df_resample = station_df_resample.with_columns(station_id=pl.col.station_id.forward_fill())
+    station_df_resample = station_df_resample.with_columns(
+        station_id=pl.col.station_id.forward_fill()
+    )
     station_df_resample = station_df_resample.with_columns(
         transactions_in=pl.col.transactions_in.fill_null(0),
         transactions_out=pl.col.transactions_out.fill_null(0),
@@ -230,15 +252,17 @@ def get_data_from_api_bdx_by_station(
     while attempts < max_retries:
         try:
             # Si beaucoup de stations, on les découpe en chunks
-            if (isinstance(station_id, list) or isinstance(station_id, np.ndarray)) and len(
-                station_id
-            ) >= chunk_size_station:
+            if (
+                isinstance(station_id, list) or isinstance(station_id, np.ndarray)
+            ) and len(station_id) >= chunk_size_station:
                 total_chunks = len(list(chunk_list_(station_id, chunk_size_station)))
 
                 for chunk_index, station_id_list_chunk in enumerate(
                     chunk_list_(station_id, chunk_size_station), start=1
                 ):
-                    print(f"Récupération des données pour le chunk {chunk_index} / {total_chunks}")
+                    print(
+                        f"Récupération des données pour le chunk {chunk_index} / {total_chunks}"
+                    )
                     try:
                         station_json_chunk = get_data_from_api_bdx_by_station(
                             station_id=station_id_list_chunk,
@@ -249,9 +273,13 @@ def get_data_from_api_bdx_by_station(
                         if "station_json" not in locals():
                             station_json = station_json_chunk
                         else:
-                            station_json["features"].extend(station_json_chunk["features"])
+                            station_json["features"].extend(
+                                station_json_chunk["features"]
+                            )
                     except Exception as e:
-                        print(f"Erreur lors de la récupération des données pour le chunk {station_id_list_chunk}: {e}")
+                        print(
+                            f"Erreur lors de la récupération des données pour le chunk {station_id_list_chunk}: {e}"
+                        )
                 return station_json
 
             else:
@@ -261,7 +289,9 @@ def get_data_from_api_bdx_by_station(
         except (Timeout, ChunkedEncodingError) as e:
             attempts += 1
             time.sleep(10)  # Aout d'une time.sleep de 10 secondes
-            print(f"Tentative {attempts}/{max_retries} échouée avec l'erreur : {e}. Nouvelle tentative...")
+            print(
+                f"Tentative {attempts}/{max_retries} échouée avec l'erreur : {e}. Nouvelle tentative..."
+            )
             if attempts == max_retries:
                 raise Exception(
                     f"Erreur lors de la récupération des données après {max_retries} tentatives : {url}\n{e}"
@@ -316,9 +346,13 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.LazyFram
 
     # Status mapping
     status_dict = {"CONNECTEE": 1, "DECONNECTEE": 0, "MAINTENANCE": 0}
-    station_df = station_df.with_columns(status=pl.col("status").replace_strict(status_dict, default=0).cast(pl.UInt8))
+    station_df = station_df.with_columns(
+        status=pl.col("status").replace_strict(status_dict, default=0).cast(pl.UInt8)
+    )
 
-    station_df = station_df.with_columns(station_id=pl.col("station_id").cast(pl.Int32()))
+    station_df = station_df.with_columns(
+        station_id=pl.col("station_id").cast(pl.Int32())
+    )
     station_df = station_df.with_columns(
         # cast into datetime with tz_aware to Paris to none
         date=pl.col("date")
@@ -330,11 +364,17 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.LazyFram
     station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    station_df = station_df.pipe(get_transactions_in).pipe(get_transactions_out).pipe(get_transactions_all)
+    station_df = (
+        station_df.pipe(get_transactions_in)
+        .pipe(get_transactions_out)
+        .pipe(get_transactions_all)
+    )
 
     ## Resampling
 
-    station_df_resample = station_df.group_by_dynamic("date", group_by="station_id", every="10m", label="right").agg(
+    station_df_resample = station_df.group_by_dynamic(
+        "date", group_by="station_id", every="10m", label="right"
+    ).agg(
         pl.col("available_stands").last(),
         pl.col("available_bikes").last(),
         pl.col("status").max(),  # Empeche les micro déconnection à la station
