@@ -102,9 +102,6 @@ def transform_json_station_data_to_df(station_json):
     station_df["station_id"] = station_df["station_id"].astype(int)
     station_df = station_df.sort_values(["station_id", "date"], ascending=[1, 1])
 
-    # Reset index
-    station_df = station_df.reset_index(drop=True)
-
     # Dropduplicate station_id / date rows
     station_df = station_df.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
 

@@ -17,7 +17,7 @@ except:  # noqa: E722
     IS_PROD = True
 
 # If package is install with pip
-if "site-packages" in ROOT_DIR:  # isntall via pip
+if "site-packages" in os.path.dirname(os.path.dirname(os.path.realpath(__file__))):  # install via pip
     from dotenv import load_dotenv
 
     load_dotenv()
