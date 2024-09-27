@@ -13,13 +13,13 @@ from vcub_keeper.reader.reader import read_activity_vcub
 from vcub_keeper.config import ROOT_TESTS_DATA
 
 
-def read_activity_data(file_name="activite_data.csv"):
+def read_activity_data(file_name="activite_data.csv", output_type=None):
     """
     Read test csv activity station's data.
     From notebooks/04_tests/03_test_data_activite.ipynb
     """
 
-    return read_activity_vcub(ROOT_TESTS_DATA + file_name)
+    return read_activity_vcub(ROOT_TESTS_DATA + file_name, output_type=output_type)
 
 
 def read_json_data(file_name="data_test_api_from_bdx.json"):
