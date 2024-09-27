@@ -52,7 +52,7 @@ def test_benchmark_get_transaction_out(activite_data=activite_data):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_in(activite_data=activite_data_pandas):
+def test_benchmark_get_transaction_in(activite_data=activite_data):
     """
     Benchmark for transforming some feature (get_transactions_in)
     """
