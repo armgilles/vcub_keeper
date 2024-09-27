@@ -33,7 +33,7 @@ def read_stations_attributes(path_directory, file_name="station_attribute.csv"):
 
 
 def read_activity_vcub(
-    file_path: str = "../../data/bordeaux.csv", output_type: str = "pandas"
+    file_path: str = "../../data/bordeaux.csv", output_type: str | None = None
 ) -> pl.DataFrame | pd.DataFrame:
     """
     Lecture du fichier temporelle sur l'activité des Vcub à Bordeaux
@@ -67,8 +67,8 @@ def read_activity_vcub(
         "type": pl.Categorical,
         "name": pl.Utf8,
         "state": pl.String,
-        "available_stands": pl.UInt8,
-        "available_bikes": pl.UInt8,
+        "available_stands": pl.Int8,
+        "available_bikes": pl.Int8,
     }
 
     state_dict = {"CONNECTEE": 1, "DECONNECTEE": 0}
