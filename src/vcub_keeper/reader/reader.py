@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import polars as pl
 
 
 def read_stations_attributes(path_directory, file_name="station_attribute.csv"):
@@ -31,7 +32,9 @@ def read_stations_attributes(path_directory, file_name="station_attribute.csv"):
     return stations
 
 
-def read_activity_vcub(file_path="../../data/bordeaux.csv"):
+def read_activity_vcub(
+    file_path: str = "../../data/bordeaux.csv", output_type: str = "pandas"
+) -> pl.DataFrame | pd.DataFrame:
     """
     Lecture du fichier temporelle sur l'activité des Vcub à Bordeaux
     Modification par rapport au fichier original :
@@ -45,10 +48,12 @@ def read_activity_vcub(file_path="../../data/bordeaux.csv"):
     ----------
     file_path : str
         Chemin d'accès au fichiers source
+    output_type : str
+        Type de sortie du DataFrame (pandas ou polars)
 
     Returns
     -------
-    activite : DataFrame
+    activite : DataFrame (pandas ou polars)
 
     Examples
     --------
@@ -57,30 +62,26 @@ def read_activity_vcub(file_path="../../data/bordeaux.csv"):
     """
 
     column_dtypes = {
-        "gid": "uint8",
-        "ident": "uint8",
-        "type": "category",
-        "name": "string",
-        "state": "category",
-        "available_stands": "uint8",
-        "available_bikes": "uint8",
+        "gid": pl.UInt8,
+        "ident": pl.UInt8,
+        "type": pl.Categorical,
+        "name": pl.Utf8,
+        "state": pl.Categorical,
+        "available_stands": pl.UInt8,
+        "available_bikes": pl.UInt8,
     }
 
     state_dict = {"CONNECTEE": 1, "DECONNECTEE": 0}
 
-    activite = pd.read_csv(file_path, parse_dates=["ts"], dtype=column_dtypes)
+    activite = pl.read_csv(file_path, dtypes=column_dtypes, parse_dates=["ts"])
 
-    activite["state"] = activite["state"].map(state_dict)
+    activite = activite.with_column(pl.col("state").map_dict(state_dict))
 
-    # Renaming colomns
-    activite.rename(columns={"ident": "station_id"}, inplace=True)
-    activite.rename(columns={"ts": "date"}, inplace=True)
+    # Renaming columns
+    activite = activite.rename({"ident": "station_id", "ts": "date"})
 
     # Sorting DataFrame on station_id & date
-    activite.sort_values(["station_id", "date"], ascending=[1, 1], inplace=True)
-
-    # Reset index
-    activite.reset_index(inplace=True, drop=True)
+    activite = activite.sort(["station_id", "date"])
 
     return activite
 
