@@ -16,7 +16,7 @@ classifiers = [
 
 dependencies = [
     "pandas==2.2.2",
-    "polars[pyarrow]==1.8.2",
+    "polars[pyarrow]== 1.8.2",
     "scikit-learn==1.5.2",
     "requests==2.32.3",
     "plotly==5.24.1",
