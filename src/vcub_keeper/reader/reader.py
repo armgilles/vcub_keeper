@@ -66,16 +66,16 @@ def read_activity_vcub(
         "ident": pl.UInt8,
         "type": pl.Categorical,
         "name": pl.Utf8,
-        "state": pl.Categorical,
+        "state": pl.String,
         "available_stands": pl.UInt8,
         "available_bikes": pl.UInt8,
     }
 
     state_dict = {"CONNECTEE": 1, "DECONNECTEE": 0}
 
-    activite = pl.read_csv(file_path, dtypes=column_dtypes, parse_dates=["ts"])
+    activite = pl.read_csv(file_path, schema_overrides=column_dtypes, try_parse_dates=True)
 
-    activite = activite.with_column(pl.col("state").map_dict(state_dict))
+    activite = activite.with_columns(pl.col("state").replace(state_dict))
 
     # Renaming columns
     activite = activite.rename({"ident": "station_id", "ts": "date"})
