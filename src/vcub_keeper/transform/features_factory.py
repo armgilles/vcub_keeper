@@ -35,9 +35,9 @@ def get_transactions_out(data: pl.DataFrame, output_type=None) -> pl.DataFrame |
     data = data.drop("available_stands_shift")
 
     if output_type == "pandas":
-        return data.to_pandas()
-    else:
-        return data
+        data = data.to_pandas()
+
+    return data
 
 
 def get_transactions_in(data):
