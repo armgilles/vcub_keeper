@@ -107,7 +107,7 @@ def transform_json_station_data_to_df(station_json):
     station_df = station_df.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
 
     # Create features
-    station_df = get_transactions_in(station_df)
+    station_df = get_transactions_in(pl.from_pandas(station_df), output_type="pandas")
     station_df = get_transactions_out(pl.from_pandas(station_df), output_type="pandas")
     station_df = get_transactions_all(station_df)
 
@@ -263,7 +263,7 @@ def transform_json_api_bdx_station_data_to_df(station_json):
     station_df = station_df.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
 
     # Create features
-    station_df = get_transactions_in(station_df)
+    station_df = get_transactions_in(pl.from_pandas(station_df), output_type="pandas")
     station_df = get_transactions_out(pl.from_pandas(station_df), output_type="pandas")
     station_df = get_transactions_all(station_df)
 

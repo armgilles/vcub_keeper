@@ -40,7 +40,7 @@ def get_transactions_out(data: pl.DataFrame, output_type=None) -> pl.DataFrame |
     return data
 
 
-def get_transactions_in(data):
+def get_transactions_in(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
     """
     Calcul le nombre d'ajout de vélo qu'il y a eu pour une même station entre 2 points de données
 
@@ -60,16 +60,19 @@ def get_transactions_in(data):
     activite = get_transactions_in(activite)
     """
 
-    data["available_bikes_shift"] = data.groupby("station_id")["available_bikes"].shift(1)
+    data = data.with_columns(pl.col("available_bikes").shift(1).over("station_id").alias("available_bikes_shift"))
+    data = data.with_columns(pl.col("available_bikes_shift").fill_null(pl.col("available_bikes")))
+    data = data.with_columns(transactions_in=(pl.col("available_bikes") - pl.col("available_bikes_shift")))
 
-    data["available_bikes_shift"] = data["available_bikes_shift"].fillna(data["available_bikes"])
-
-    data["transactions_in"] = data["available_bikes"] - data["available_bikes_shift"]
-
-    data.loc[data["transactions_in"] < 0, "transactions_in"] = 0
+    data = data.with_columns(
+        transactions_in=pl.when(pl.col("transactions_in") < 0).then(0).otherwise(pl.col("transactions_in"))
+    )
 
     # Drop non usefull column
-    data.drop("available_bikes_shift", axis=1, inplace=True)
+    data = data.drop("available_bikes_shift")
+
+    if output_type == "pandas":
+        data = data.to_pandas()
 
     return data
 
