@@ -83,6 +83,9 @@ def read_activity_vcub(
     # Sorting DataFrame on station_id & date
     activite = activite.sort(["station_id", "date"])
 
+    if output_type == "pandas":
+        activite = activite.to_pandas()
+
     return activite
 
 
