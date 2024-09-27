@@ -46,7 +46,9 @@ try:
     ROOT_TESTS_DATA = str(ROOT_DIR) + "/tests/data_for_tests/"
 except:  # noqa: E722
     print("Can't have repository variables")
-    ROOT_DATA_REF = ""  # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
+    ROOT_DATA_REF = (
+        ""  # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
+    )
 
 # Only in dev
 if IS_PROD is False:
