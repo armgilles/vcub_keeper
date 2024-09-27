@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
+import polars as pl
 
 
-def get_transactions_out(data):
+def get_transactions_out(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
     """
     Calcul le nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données
 
@@ -22,16 +23,19 @@ def get_transactions_out(data):
     activite = get_transactions_out(activite)
     """
 
-    data["available_stands_shift"] = data.groupby("station_id")["available_stands"].shift(1)
+    data = data.with_columns(pl.col("available_stands").shift(1).over("station_id").alias("available_stands_shift"))
+    data = data.with_columns(pl.col("available_stands_shift").fill_null(pl.col("available_stands")))
+    data = data.with_columns(transactions_out=(pl.col("available_stands") - pl.col("available_stands_shift")))
 
-    data["available_stands_shift"] = data["available_stands_shift"].fillna(data["available_stands"])
-
-    data["transactions_out"] = data["available_stands"] - data["available_stands_shift"]
-
-    data.loc[data["transactions_out"] < 0, "transactions_out"] = 0
+    data = data.with_columns(
+        transactions_out=pl.when(pl.col("transactions_out") < 0).then(0).otherwise(pl.col("transactions_out"))
+    )
 
     # Drop non usefull column
-    data.drop("available_stands_shift", axis=1, inplace=True)
+    data = data.drop("available_stands_shift")
+
+    if output_type == "pandas":
+        data = data.to_pandas()
 
     return data
 
