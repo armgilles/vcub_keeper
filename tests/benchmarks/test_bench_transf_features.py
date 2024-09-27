@@ -35,7 +35,7 @@ def read_json_data(file_name="data_test_api_from_bdx.json"):
 
 
 activite_data = read_activity_data()
-activite_data_pandas = read_activity_data(ouput_type="pandas")
+activite_data_pandas = read_activity_data(output_type="pandas")
 
 # To test get_consecutive_no_transactions_out() function
 station_json_loaded = read_json_data()
