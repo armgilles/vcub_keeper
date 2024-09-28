@@ -109,7 +109,7 @@ def transform_json_station_data_to_df(station_json):
     # Create features
     station_df = get_transactions_in(pl.from_pandas(station_df), output_type="pandas")
     station_df = get_transactions_out(pl.from_pandas(station_df), output_type="pandas")
-    station_df = get_transactions_all(station_df)
+    station_df = get_transactions_all(pl.from_pandas(station_df), output_type="pandas")
 
     ## Resampling
 
@@ -265,7 +265,7 @@ def transform_json_api_bdx_station_data_to_df(station_json):
     # Create features
     station_df = get_transactions_in(pl.from_pandas(station_df), output_type="pandas")
     station_df = get_transactions_out(pl.from_pandas(station_df), output_type="pandas")
-    station_df = get_transactions_all(station_df)
+    station_df = get_transactions_all(pl.from_pandas(station_df), output_type="pandas")
 
     ## Resampling
 
