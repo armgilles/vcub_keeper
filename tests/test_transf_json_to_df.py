@@ -1,4 +1,6 @@
 import pandas as pd
+import polars as pl
+from polars.testing import assert_frame_equal
 import json
 
 from vcub_keeper.production.data import transform_json_api_bdx_station_data_to_df
@@ -20,8 +22,11 @@ def test_transf_json_to_df():
     station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded)
 
     # Loading data from csv test (.csv)
-    station_df_from_csv = pd.read_csv(
-        ROOT_TESTS_DATA + "data_test_transf_json_to_df.csv", encoding="utf8", parse_dates=["date"]
+    station_df_from_csv = pl.read_csv(
+        ROOT_TESTS_DATA + "data_test_transf_json_to_df.csv",
+        try_parse_dates=True,
+        schema_overrides={"station_id": pl.Int32, "status": pl.UInt8},
     )
 
-    assert len(station_df_from_json.compare(station_df_from_csv)) == 0
+    # assert len(station_df_from_json.compare(station_df_from_csv)) == 0
+    assert_frame_equal(station_df_from_json, station_df_from_csv)
