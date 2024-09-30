@@ -41,5 +41,5 @@ def test_get_api_bdx_data_to_df_station_id_80():
 
     station_df = transform_json_api_bdx_station_data_to_df(station_json)
 
-    assert station_df["station_id"].nunique() == 1
-    assert station_df["station_id"].unique() == [106]
+    assert station_df.select("station_id").n_unique() == 1
+    assert station_df["station_id"].unique().to_list() == [106]
