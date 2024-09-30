@@ -24,24 +24,21 @@ def test_get_api_data_one_station():
     station_df = transform_json_station_data_to_df(station_json)
 
     # Check unique station number
-    assert station_df["station_id"].unique() == 106
+    assert station_df["station_id"].unique().to_list() == [106]
 
     # Check la longeur du DataFrame
     assert len(station_df) == 1215
 
-    assert (
-        station_df.columns
-        == [
-            "station_id",
-            "date",
-            "available_stands",
-            "available_bikes",
-            "status",
-            "transactions_in",
-            "transactions_out",
-            "transactions_all",
-        ]
-    ).all()
+    assert station_df.columns == [
+        "date",
+        "station_id",
+        "available_stands",
+        "available_bikes",
+        "status",
+        "transactions_in",
+        "transactions_out",
+        "transactions_all",
+    ]
 
 
 def test_get_api_data_many_station():
@@ -58,24 +55,21 @@ def test_get_api_data_many_station():
     station_df = transform_json_station_data_to_df(station_json)
 
     # Check unique station number
-    assert (station_df["station_id"].unique() == [3, 106]).all()
+    assert station_df["station_id"].unique().to_list() == [3, 106]
 
     # Check la longeur du DataFrame
     assert len(station_df) == 1215 * 2
 
-    assert (
-        station_df.columns
-        == [
-            "station_id",
-            "date",
-            "available_stands",
-            "available_bikes",
-            "status",
-            "transactions_in",
-            "transactions_out",
-            "transactions_all",
-        ]
-    ).all()
+    assert station_df.columns == [
+        "date",
+        "station_id",
+        "available_stands",
+        "available_bikes",
+        "status",
+        "transactions_in",
+        "transactions_out",
+        "transactions_all",
+    ]
 
 
 #############################################
@@ -97,24 +91,21 @@ def test_get_api_bdx_data_one_station():
     station_df = transform_json_api_bdx_station_data_to_df(station_json)
 
     # Check unique station number
-    assert station_df["station_id"].unique() == 106
+    assert station_df.select("station_id").n_unique() == 1
 
     # Check la longeur du DataFrame
     assert len(station_df) == 1296
 
-    assert (
-        station_df.columns
-        == [
-            "station_id",
-            "date",
-            "available_stands",
-            "available_bikes",
-            "status",
-            "transactions_in",
-            "transactions_out",
-            "transactions_all",
-        ]
-    ).all()
+    assert station_df.columns == [
+        "station_id",
+        "date",
+        "available_stands",
+        "available_bikes",
+        "status",
+        "transactions_in",
+        "transactions_out",
+        "transactions_all",
+    ]
 
 
 def test_get_api_bdx_data_many_station():
@@ -131,21 +122,18 @@ def test_get_api_bdx_data_many_station():
     station_df = transform_json_api_bdx_station_data_to_df(station_json)
 
     # Check unique station number
-    assert (station_df["station_id"].unique() == [3, 106]).all()
+    assert station_df["station_id"].unique().to_list() == [3, 106]
 
     # Check la longeur du DataFrame
     assert len(station_df) == 1296 * 2
 
-    assert (
-        station_df.columns
-        == [
-            "station_id",
-            "date",
-            "available_stands",
-            "available_bikes",
-            "status",
-            "transactions_in",
-            "transactions_out",
-            "transactions_all",
-        ]
-    ).all()
+    assert station_df.columns == [
+        "station_id",
+        "date",
+        "available_stands",
+        "available_bikes",
+        "status",
+        "transactions_in",
+        "transactions_out",
+        "transactions_all",
+    ]
