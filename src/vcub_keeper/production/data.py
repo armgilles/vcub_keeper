@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import polars as pl
 import requests
 
@@ -10,7 +9,7 @@ from vcub_keeper.transform.features_factory import get_transactions_all, get_tra
 #############################################
 ###            API Oslandia
 #############################################
-def get_data_from_api_by_station(station_id, start_date, stop_date):
+def get_data_from_api_by_station(station_id: str | list, start_date: str, stop_date: str) -> dict:
     """
     Permet d'obtenir les données d'activité d'une station via une API d'Oslandia
 
@@ -51,7 +50,7 @@ def get_data_from_api_by_station(station_id, start_date, stop_date):
     return response.json()
 
 
-def transform_json_station_data_to_df(station_json):
+def transform_json_station_data_to_df(station_json: dict) -> pl.DataFrame:
     """
     Tranforme la Time Serie d'activité d'une ou plusieurs station en DataFrame
     à partir de la fonction get_data_from_api_by_station()
@@ -80,60 +79,46 @@ def transform_json_station_data_to_df(station_json):
     """
 
     # Si il y a plusieurs stations dans le json
-    if len(station_json["data"]) > 1:
-        station_df = pd.DataFrame()
-        for i in range(0, len(station_json["data"])):
-            temp_station_df = pd.DataFrame(station_json["data"][i])
-            station_df = pd.concat([station_df, temp_station_df])
-    # Il y une seule station dans le json
-    else:
-        station_df = pd.DataFrame(station_json["data"][0])
+    station_df = pl.DataFrame(station_json["data"]).explode("available_bikes", "available_stands", "status", "ts")
 
     # Status mapping
     status_dict = {"open": 1, "closed": 0}
-    station_df["status"] = station_df["status"].map(status_dict)
-    station_df["status"] = station_df["status"].astype("uint8")
+    station_df = station_df.with_columns(status=pl.col("status").replace(status_dict).cast(pl.UInt8))
 
     # Naming
-    station_df.rename(columns={"id": "station_id"}, inplace=True)
-    station_df.rename(columns={"ts": "date"}, inplace=True)
+    station_df = station_df.rename({"id": "station_id", "ts": "date"})
 
     # Casting & sorting DataFrame on station_id & date
-    station_df["date"] = pd.to_datetime(station_df["date"])
-    station_df["station_id"] = station_df["station_id"].astype(int)
-    station_df = station_df.sort_values(["station_id", "date"], ascending=[1, 1])
+    station_df = station_df.with_columns(station_id=pl.col("station_id").cast(pl.Int32()))
+    station_df = station_df.with_columns(date=pl.col("date").str.to_datetime(format="%Y-%m-%dT%H:%M:%S"))
 
-    # Dropduplicate station_id / date rows
-    station_df = station_df.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
+    station_df = station_df.unique(subset=["station_id", "date"])
+    station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    station_df = get_transactions_in(pl.from_pandas(station_df), output_type="pandas")
-    station_df = get_transactions_out(pl.from_pandas(station_df), output_type="pandas")
-    station_df = get_transactions_all(pl.from_pandas(station_df), output_type="pandas")
+    station_df = get_transactions_in(station_df)
+    station_df = get_transactions_out(station_df)
+    station_df = get_transactions_all(station_df)
 
     ## Resampling
-
-    # cf Bug Pandas : https://github.com/pandas-dev/pandas/issues/33548
-    station_df = station_df.set_index("date")
-
-    station_df_resample = (
-        station_df.groupby("station_id")
-        .resample(
-            "10min",
-            label="right",
-        )
-        .agg(
-            {
-                "available_stands": "last",
-                "available_bikes": "last",
-                "status": "max",  # Empeche les micro déconnection à la station
-                "transactions_in": "sum",
-                "transactions_out": "sum",
-                "transactions_all": "sum",
-            }
-        )
-        .reset_index()
+    station_df_resample = station_df.group_by_dynamic("date", group_by="station_id", every="10m", label="right").agg(
+        pl.col("available_stands").last(),
+        pl.col("available_bikes").last(),
+        pl.col("status").max(),  # Empeche les micro déconnection à la station
+        pl.col("transactions_in").sum(),
+        pl.col("transactions_out").sum(),
+        pl.col("transactions_all").sum(),
+    )  # .sort(["date", "station_id"]).upsample("date", every="10m", group_by="station_id")
+    station_df_resample = station_df_resample.sort(["station_id", "date"], descending=[False, False]).upsample(
+        "date", every="10m", group_by="station_id"
     )
+    station_df_resample = station_df_resample.with_columns(station_id=pl.col.station_id.forward_fill())
+    station_df_resample = station_df_resample.with_columns(
+        transactions_in=pl.col.transactions_in.fill_null(0),
+        transactions_out=pl.col.transactions_out.fill_null(0),
+        transactions_all=pl.col.transactions_all.fill_null(0),
+    )
+
     return station_df_resample
 
 
@@ -142,7 +127,7 @@ def transform_json_station_data_to_df(station_json):
 #############################################
 
 
-def get_data_from_api_bdx_by_station(station_id, start_date, stop_date):
+def get_data_from_api_bdx_by_station(station_id: str | list, start_date: str, stop_date: str) -> dict:
     """
     Permet d'obtenir les données d'activité d'une station via une API d'open data Bordeaux
 
@@ -199,7 +184,7 @@ def get_data_from_api_bdx_by_station(station_id, start_date, stop_date):
     return response.json()
 
 
-def transform_json_api_bdx_station_data_to_df(station_json):
+def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.DataFrame:
     """
     Tranforme la Time Serie d'activité d'une ou plusieurs station en DataFrame
     à partir de la fonction get_data_from_api_bdx_by_station()
@@ -228,66 +213,44 @@ def transform_json_api_bdx_station_data_to_df(station_json):
 
     """
 
-    station_df = pd.json_normalize(station_json, record_path=["features"])
+    station_df = pl.json_normalize(station_json["features"], max_level=1)
 
     # Naming from JSON DataFrame
     station_df = station_df.rename(
-        columns={
+        mapping={
             "properties.time": "date",
             "properties.ident": "station_id",
-            "properties.nom": "name",
             "properties.etat": "status",
             "properties.nbplaces": "available_stands",
             "properties.nbvelos": "available_bikes",
         }
-    )
+    ).drop("type", "properties.gid", "properties.nom")  # drop unused columns
 
     # Status mapping
     status_dict = {"CONNECTEE": 1, "DECONNECTEE": 0}
-    station_df["status"] = station_df["status"].map(status_dict).fillna(0)
-    station_df["status"] = station_df["status"].astype("uint8")
+    station_df = station_df.with_columns(status=pl.col("status").replace(status_dict).cast(pl.UInt8))
 
-    # Casting & sorting DataFrame on station_id & date
-    station_df["date"] = pd.to_datetime(station_df["date"], utc=True)
+    station_df = station_df.with_columns(station_id=pl.col("station_id").cast(pl.Int32()))
+    station_df = station_df.with_columns(
+        date=pl.col("date").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%z", time_zone="UTC")
+    )
 
-    # Convert to Europe/Paris TZ
-    try:
-        station_df["date"] = station_df["date"].dt.tz_localize("Europe/Paris")
-    except TypeError:  # try to convert TZ
-        station_df["date"] = station_df["date"].dt.tz_convert("Europe/Paris")
-
-    station_df["station_id"] = station_df["station_id"].astype(int)
-    station_df = station_df.sort_values(["station_id", "date"], ascending=[1, 1])
-
-    # Dropduplicate station_id / date rows
-    station_df = station_df.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
+    station_df = station_df.unique(subset=["station_id", "date"])
+    station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    station_df = get_transactions_in(pl.from_pandas(station_df), output_type="pandas")
-    station_df = get_transactions_out(pl.from_pandas(station_df), output_type="pandas")
-    station_df = get_transactions_all(pl.from_pandas(station_df), output_type="pandas")
+    station_df = get_transactions_in(station_df)
+    station_df = get_transactions_out(station_df)
+    station_df = get_transactions_all(station_df)
 
     ## Resampling
 
-    # # cf Bug Pandas : https://github.com/pandas-dev/pandas/issues/33548
-    station_df = station_df.set_index("date")
-
-    station_df_resample = (
-        station_df.groupby("station_id")
-        .resample(
-            "10min",
-            label="right",
-        )
-        .agg(
-            {
-                "available_stands": "last",
-                "available_bikes": "last",
-                "status": "max",  # Empeche les micro déconnection à la station
-                "transactions_in": "sum",
-                "transactions_out": "sum",
-                "transactions_all": "sum",
-            }
-        )
-        .reset_index()
+    station_df_resample = station_df.group_by_dynamic("date", group_by="station_id", every="10m", label="right").agg(
+        pl.col("available_stands").last(),
+        pl.col("available_bikes").last(),
+        pl.col("status").max(),  # Empeche les micro déconnection à la station
+        pl.col("transactions_in").sum(),
+        pl.col("transactions_out").sum(),
+        pl.col("transactions_all").sum(),
     )
     return station_df_resample
