@@ -71,12 +71,12 @@ def test_benchmark_get_transaction_all(activite_data=activite_data):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=station_df_from_json):
+def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=station_df_from_json.to_pandas()):
     """
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json.to_pandas())
+    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json)
 
 
 @pytest.mark.benchmark
