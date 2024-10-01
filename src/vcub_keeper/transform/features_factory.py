@@ -244,8 +244,8 @@ def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.Dat
     expr_two_pi_div_max_val = pl.lit(two_pi / max_val)
     data = data.with_columns(
         [
-            (expr_two_pi_div_max_val.mul(pl.col(col_date))).sin().alias("Sin_" + col_date),
-            (expr_two_pi_div_max_val.mul(pl.col(col_date))).cos().alias("Cos_" + col_date),
+            (expr_two_pi_div_max_val * pl.col(col_date)).sin().alias("Sin_" + col_date),
+            (expr_two_pi_div_max_val * pl.col(col_date)).cos().alias("Cos_" + col_date),
         ]
     )
     return data
