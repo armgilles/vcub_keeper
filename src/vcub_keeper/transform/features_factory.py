@@ -1,5 +1,4 @@
-import math
-
+import numpy as np
 import pandas as pd
 import polars as pl
 
@@ -241,10 +240,11 @@ def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.Dat
     data = get_encoding_time(data, 'month', max_val=12)
     """
 
+    two_pi = 2 * np.pi
     data = data.with_columns(
         [
-            (2 * math.pi * pl.col(col_date) / max_val).sin().alias("Sin_" + col_date),
-            (2 * math.pi * pl.col(col_date) / max_val).cos().alias("Cos_" + col_date),
+            (two_pi * pl.col(col_date) / max_val).sin().alias("Sin_" + col_date),
+            (two_pi * pl.col(col_date) / max_val).cos().alias("Cos_" + col_date),
         ]
     )
     return data
