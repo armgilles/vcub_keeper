@@ -3,6 +3,7 @@ import pandas as pd
 import polars as pl
 from polars.testing import assert_frame_equal
 import numpy as np
+from datetime import datetime
 
 from vcub_keeper.transform.features_factory import (
     get_transactions_out,
@@ -386,23 +387,31 @@ def test_get_encoding_time_quarter():
     """
     test de la fonction get_encoding_time() pour les trimestres
     """
-    data = pd.DataFrame({"date": pd.date_range(start="2023-01-01", periods=4, freq="Q"), "quarter": [1, 2, 3, 4]})
+    data = pl.DataFrame(
+        {
+            "date": pl.date_range(start=datetime(2022, 1, 1), end=datetime(2022, 12, 1), interval="1q", eager=True),
+            "quarter": [1, 2, 3, 4],
+        }
+    )
 
     result = get_encoding_time(data, "quarter", max_val=4)
 
     expected_sin = np.sin(2 * np.pi * data["quarter"] / 4)
     expected_cos = np.cos(2 * np.pi * data["quarter"] / 4)
 
-    pd.testing.assert_series_equal(result["Sin_quarter"], expected_sin, check_names=False)
-    pd.testing.assert_series_equal(result["Cos_quarter"], expected_cos, check_names=False)
+    pl.testing.assert_series_equal(result["Sin_quarter"], expected_sin, check_names=False)
+    pl.testing.assert_series_equal(result["Cos_quarter"], expected_cos, check_names=False)
 
 
 def test_get_encoding_time_weekday():
     """
     test de la fonction get_encoding_time() pour les jours de la semaine
     """
-    data = pd.DataFrame(
-        {"date": pd.date_range(start="2023-01-01", periods=7, freq="D"), "weekday": [0, 1, 2, 3, 4, 5, 6]}
+    data = pl.DataFrame(
+        {
+            "date": pl.date_range(start=datetime(2022, 1, 1), end=datetime(2022, 1, 7), interval="1d", eager=True),
+            "weekday": [0, 1, 2, 3, 4, 5, 6],
+        }
     )
 
     result = get_encoding_time(data, "weekday", max_val=7)
@@ -410,20 +419,27 @@ def test_get_encoding_time_weekday():
     expected_sin = np.sin(2 * np.pi * data["weekday"] / 7)
     expected_cos = np.cos(2 * np.pi * data["weekday"] / 7)
 
-    pd.testing.assert_series_equal(result["Sin_weekday"], expected_sin, check_names=False)
-    pd.testing.assert_series_equal(result["Cos_weekday"], expected_cos, check_names=False)
+    pl.testing.assert_series_equal(result["Sin_weekday"], expected_sin, check_names=False)
+    pl.testing.assert_series_equal(result["Cos_weekday"], expected_cos, check_names=False)
 
 
 def test_get_encoding_time_hours():
     """
     test de la fonction get_encoding_time() pour les heures
     """
-    data = pd.DataFrame({"date": pd.date_range(start="2023-01-01", periods=24, freq="H"), "hours": list(range(24))})
+    data = pl.DataFrame(
+        {
+            "date": pl.datetime_range(
+                start=datetime(2022, 1, 1, 0, 0, 0), end=datetime(2022, 1, 1, 23, 0, 0), interval="1h", eager=True
+            ),
+            "hours": list(range(24)),
+        }
+    )
 
     result = get_encoding_time(data, "hours", max_val=24)
 
     expected_sin = np.sin(2 * np.pi * data["hours"] / 24)
     expected_cos = np.cos(2 * np.pi * data["hours"] / 24)
 
-    pd.testing.assert_series_equal(result["Sin_hours"], expected_sin, check_names=False)
-    pd.testing.assert_series_equal(result["Cos_hours"], expected_cos, check_names=False)
+    pl.testing.assert_series_equal(result["Sin_hours"], expected_sin, check_names=False)
+    pl.testing.assert_series_equal(result["Cos_hours"], expected_cos, check_names=False)

@@ -80,7 +80,7 @@ def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=stat
 
 
 @pytest.mark.benchmark
-def test_benchmark_process_data_cluster(activite_data=activite_data_pandas):
+def test_benchmark_process_data_cluster(activite_data=activite_data):
     """
     Benchmark for transforming some features with process_data_cluster()
     calling multiple time get_encoding_time() function

@@ -213,7 +213,7 @@ def get_meteo(data, meteo):
     return data
 
 
-def get_encoding_time(data, col_date, max_val):
+def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.DataFrame:
     """
     Encoding time
 
@@ -236,12 +236,18 @@ def get_encoding_time(data, col_date, max_val):
     data = get_encoding_time(data, 'month', max_val=12)
     """
 
-    data["Sin_" + col_date] = np.sin(2 * np.pi * data[col_date] / max_val)
-    data["Cos_" + col_date] = np.cos(2 * np.pi * data[col_date] / max_val)
+    two_pi = 2 * np.pi
+    expr_two_pi_div_max_val = pl.lit(two_pi / max_val)
+    data = data.with_columns(
+        [
+            (expr_two_pi_div_max_val * pl.col(col_date)).sin().alias("Sin_" + col_date),
+            (expr_two_pi_div_max_val * pl.col(col_date)).cos().alias("Cos_" + col_date),
+        ]
+    )
     return data
 
 
-def process_data_cluster(data):
+def process_data_cluster(data: pl.DataFrame) -> pl.DataFrame:
     """
     Process some Feature engineering
 
@@ -260,10 +266,14 @@ def process_data_cluster(data):
     data = process_data_cluster(data)
     """
 
-    data["quarter"] = data["date"].dt.quarter
-    # data['month'] = data['date'].dt.month
-    data["weekday"] = data["date"].dt.weekday
-    data["hours"] = data["date"].dt.hour
+    data = data.with_columns(
+        [
+            pl.col("date").dt.quarter().alias("quarter"),
+            # pl.col("date").dt.month().alias("month"),
+            pl.col("date").dt.weekday().alias("weekday"),
+            pl.col("date").dt.hour().alias("hours"),
+        ]
+    )
 
     data = get_encoding_time(data, "quarter", max_val=4)
     # data = get_encoding_time(data, 'month', max_val=12)
