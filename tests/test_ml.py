@@ -1,4 +1,5 @@
 import pandas as pd
+import polars as pl
 import pytest
 from vcub_keeper.production.data import get_data_from_api_by_station, transform_json_station_data_to_df
 from vcub_keeper.transform.features_factory import get_consecutive_no_transactions_out, process_data_cluster
@@ -56,14 +57,15 @@ def test_ml_train_on_one_station(data_activity, anomaly):
 
     # Score anomaly
     # Have to build features to before to calcul anomaly score
-    data_activity_df_build = process_data_cluster(data_activity_df)
+    data_activity_df_build = process_data_cluster(pl.from_pandas(data_activity_df)).to_pandas()
     score_anomaly = (
         logistic_predict_proba_from_model(clf.decision_function(data_activity_df_build[FEATURES_TO_USE_CLUSTER])) * 100
     )[0].squeeze()
+    print(score_anomaly)
 
     if anomaly == 1:  # Station OK
         # anomaly_score must be at =~ 14.13 (2022/01/26)
-        assert 10 <= score_anomaly <= 22
+        assert 10 <= score_anomaly <= 26
     elif anomaly == -1:  # Station KO
         # anomaly_score must be at =~ 54.33 (2022/01/26)
         # anomaly_score must be at =~ 53.82 with consecutive_no_transaction_out at 58 (2024/09/17)

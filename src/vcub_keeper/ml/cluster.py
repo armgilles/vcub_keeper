@@ -1,4 +1,5 @@
 import numpy as np
+import polars as pl
 from scipy import stats
 from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
@@ -49,7 +50,7 @@ def train_cluster_station(data, station_id, profile_station_activity=None):
     data_station = data[data["station_id"] == station_id].copy()
 
     # Feature engi for cluster
-    data_station = process_data_cluster(data_station)
+    data_station = process_data_cluster(pl.from_pandas(data_station)).to_pandas()
 
     # Filter data based on time & event
     data_station = filter_periode(data_station, NON_USE_STATION_ID=NON_USE_STATION_ID)
@@ -134,7 +135,7 @@ def predict_anomalies_station(data, clf, station_id):
         return data_station
 
     # Feature engi for cluster
-    data_station = process_data_cluster(data_station)
+    data_station = process_data_cluster(pl.from_pandas(data_station)).to_pandas()
 
     data_station["anomaly"] = clf.predict(data_station[FEATURES_TO_USE_CLUSTER])
     return data_station
