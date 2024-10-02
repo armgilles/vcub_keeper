@@ -111,7 +111,7 @@ def get_transactions_all(data: pl.DataFrame, output_type=None) -> pl.DataFrame |
     return data
 
 
-def get_consecutive_no_transactions_out(data):
+def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
     """
     Calcul depuis combien de temps la station n'a pas eu de prise de vélo. Plus le chiffre est haut,
     plus ça fait longtemps que la station est inactive sur la prise de vélo.
@@ -141,20 +141,26 @@ def get_consecutive_no_transactions_out(data):
     activite = get_consecutive_no_transactions_out(activite)
     """
 
-    data = data.with_columns(
-        pl.int_ranges(
-            pl.when(pl.col("transactions_out").shift() == 1)
-            .then(1)
-            .otherwise(pl.col("transactions_out"))  # The 0/1 null logic
-            .fill_null(0)  #
-            .rle_id()  # id of each run/steak
-            .over("station_id")  #     over each group
-            .rle()  # find the length of each run/streak
-            .struct.field("len")  #    extract the length
-        )
-        .flatten()
-        .alias("consecutive_no_transactions_out")
-    )
+    data = data.to_pandas()
+    data["have_data"] = 1
+    data.loc[data["available_stands"].isna(), "have_data"] = 0
+
+    data["consecutive_no_transactions_out"] = data.groupby(
+        [
+            "station_id",
+            (data["available_bikes"] < 3).cumsum(),  # 3 for 2 available_bikes
+            (data["have_data"] == 0).cumsum(),
+            (data["status"] == 0).cumsum(),
+            (data["transactions_out"] > 0).cumsum(),
+        ]
+    ).cumcount()
+
+    data["consecutive_no_transactions_out"] = data["consecutive_no_transactions_out"].fillna(0)
+
+    data.loc[data["available_stands"].isna(), "consecutive_no_transactions_out"] = 0
+
+    data = data.drop("have_data", axis=1)
+    data = pl.from_pandas(data)
 
     return data
 
