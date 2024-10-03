@@ -153,11 +153,23 @@ def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
         .alias("logic")
     )
 
+    # data = data.with_columns(
+    #     pl.col("logic")
+    #     .cum_sum()
+    #     .over("station_id", pl.col("logic").rle_id(), pl.col("logic") == 0)
+    #     .cast(pl.Int64)
+    #     .alias("consecutive_no_transactions_out")
+    # ).drop("logic")
     data = data.with_columns(
-        pl.col("logic")
-        .cum_sum()
-        .over("station_id", pl.col("logic").rle_id(), pl.col("logic") == 0)
-        .cast(pl.Int64)
+        pl.int_ranges(pl.struct("station_id", "logic").rle().struct.field("len"))
+        .flatten()
+        .alias("consecutive_no_transactions_out")
+        + 1
+    )
+    data = data.with_columns(
+        pl.when(pl.col("logic") == 1)
+        .then(pl.col("consecutive_no_transactions_out"))
+        .otherwise(0)
         .alias("consecutive_no_transactions_out")
     ).drop("logic")
 
