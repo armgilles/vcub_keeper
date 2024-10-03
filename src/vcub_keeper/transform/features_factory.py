@@ -141,37 +141,25 @@ def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
     activite = get_consecutive_no_transactions_out(activite)
     """
 
-    # data = data.to_pandas()
-    # data["have_data"] = 1
-    # data.loc[data["available_stands"].isna(), "have_data"] = 0
-
-    # data["consecutive_no_transactions_out"] = data.groupby(
-    #     [
-    #         "station_id",
-    #         (data["available_bikes"] < 3).cumsum(),  # 3 for 2 available_bikes
-    #         (data["have_data"] == 0).cumsum(),
-    #         (data["status"] == 0).cumsum(),
-    #         (data["transactions_out"] > 0).cumsum(),
-    #     ]
-    # ).cumcount()
-
-    # data["consecutive_no_transactions_out"] = data["consecutive_no_transactions_out"].fillna(0)
-
-    # data.loc[data["available_stands"].isna(), "consecutive_no_transactions_out"] = 0
-
-    # data = data.drop("have_data", axis=1)
-    # data = pl.from_pandas(data)
+    data = data.with_columns(
+        pl.when(
+            (pl.col("transactions_out") >= 1)
+            | (pl.col("status") == 0)
+            | (pl.col("available_stands") <= 2)
+            | (pl.col("available_stands").is_null())
+        )
+        .then(0)
+        .otherwise(1)
+        .alias("logic")
+    )
 
     data = data.with_columns(
-        pl.int_range(pl.len())
-        .over(
-            pl.col("station_id"),
-            (pl.col("available_stands") <= 3).cum_sum(),
-            (pl.col("status") == 0).cum_sum(),
-            (pl.col("transactions_out") > 0).cum_sum().forward_fill(),  # polars cum_sum ignores nulls
-        )
+        pl.col("logic")
+        .cum_sum()
+        .over("station_id", pl.col("logic").rle_id(), pl.col("logic") == 0)
+        .cast(pl.Int64)
         .alias("consecutive_no_transactions_out")
-    )
+    ).drop("logic")
 
     return data
 
