@@ -368,7 +368,9 @@ def test_get_consecutive_no_transactions_out():
         "status": [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1] + [1] * 11,
         "transactions_out": [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
         + [0.0, 4.0, 3.0, 0.0, 2.0, 2.0, 0.0, 0.0, 4.0, 1.0, 2.0],
-        "consecutive_no_transactions_out": [0, 1, 2, 0, 1, 0, 1, 2, 3, 0, 1] + [0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
+        # Old version value (pandas) was wrong (beging of new group have to be 1 if logic ok)
+        # "consecutive_no_transactions_out": [0, 1, 2, 0, 1, 0, 1, 2, 3, 0, 1] + [0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
+        "consecutive_no_transactions_out": [1, 2, 3, 0, 1, 0, 1, 2, 3, 0, 1] + [0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
     }
 
     df_activite = pl.DataFrame(data)
