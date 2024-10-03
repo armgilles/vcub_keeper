@@ -111,7 +111,7 @@ def get_transactions_all(data: pl.DataFrame, output_type=None) -> pl.DataFrame |
     return data
 
 
-def get_consecutive_no_transactions_out(data):
+def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
     """
     Calcul depuis combien de temps la station n'a pas eu de prise de vélo. Plus le chiffre est haut,
     plus ça fait longtemps que la station est inactive sur la prise de vélo.
@@ -141,24 +141,32 @@ def get_consecutive_no_transactions_out(data):
     activite = get_consecutive_no_transactions_out(activite)
     """
 
-    data["have_data"] = 1
-    data.loc[data["available_stands"].isna(), "have_data"] = 0
-
-    data["consecutive_no_transactions_out"] = data.groupby(
-        [
-            "station_id",
-            (data["available_bikes"] < 3).cumsum(),  # 3 for 2 available_bikes
-            (data["have_data"] == 0).cumsum(),
-            (data["status"] == 0).cumsum(),
-            (data["transactions_out"] > 0).cumsum(),
-        ]
-    ).cumcount()
-
-    data["consecutive_no_transactions_out"] = data["consecutive_no_transactions_out"].fillna(0)
-
-    data.loc[data["available_stands"].isna(), "consecutive_no_transactions_out"] = 0
-
-    data = data.drop("have_data", axis=1)
+    data = (
+        data.with_columns(
+            pl.when(
+                (pl.col("transactions_out") >= 1)
+                | (pl.col("status") == 0)
+                | (pl.col("available_stands") <= 2)
+                | (pl.col("available_stands").is_null())
+            )
+            .then(0)
+            .otherwise(1)
+            .alias("logic")
+        )
+        .with_columns(
+            pl.int_ranges(pl.struct("station_id", "logic").rle().struct.field("len"))
+            .flatten()
+            .alias("consecutive_no_transactions_out")
+            + 1
+        )
+        .with_columns(
+            pl.when(pl.col("logic") == 1)
+            .then(pl.col("consecutive_no_transactions_out"))
+            .otherwise(0)
+            .alias("consecutive_no_transactions_out")
+        )
+        .drop("logic")
+    )
 
     return data
 
