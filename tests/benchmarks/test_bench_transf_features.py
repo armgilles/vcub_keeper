@@ -167,7 +167,7 @@ def test_benchmark_get_transaction_all_big(activite_data=activite_data_big):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=station_df_from_json.to_pandas()):
+def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=station_df_from_json):
     """
     Benchmark for transforming some feature (get_transactions_all)
     """
@@ -176,7 +176,7 @@ def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=stat
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_consecutive_no_transactions_out_big(station_df_from_json=station_df_from_json_big.to_pandas()):
+def test_benchmark_get_consecutive_no_transactions_out_big(station_df_from_json=station_df_from_json_big):
     """
     Benchmark for transforming some feature (get_transactions_all)
     """
