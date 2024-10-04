@@ -1,9 +1,13 @@
+import io
+
 import numpy as np
 import pandas as pd
 import polars as pl
 
 
-def read_stations_attributes(path_directory, file_name="station_attribute.csv"):
+def read_stations_attributes(
+    path_directory: str, data: None | io.StringIO = None, file_name="station_attribute.csv", output_type: str = ""
+) -> pl.DataFrame | pd.DataFrame:
     """
     Lecture du fichier sur les attributs des Vcub à Bordeaux. Ce fichier provient de
     create.creator.py - create_station_attribute()
@@ -25,9 +29,18 @@ def read_stations_attributes(path_directory, file_name="station_attribute.csv"):
     stations = read_stations_attributes(path_directory=ROOT_DATA_REF)
     """
 
-    column_dtypes = {"station_id": "uint8"}
+    column_dtypes = {"station_id": pl.UInt16}
 
-    stations = pd.read_csv(path_directory + file_name, sep=",", dtype=column_dtypes)
+    if isinstance(data, io.StringIO):
+        file_path = data
+    else:
+        file_path = path_directory + file_name
+
+    # stations = pd.read_csv(path_directory + file_name, sep=",", dtype=column_dtypes)
+    stations = pl.read_csv(file_path, separator=";", schema_overrides=column_dtypes)
+
+    if output_type == "pandas":
+        stations = stations.to_pandas()
 
     return stations
 
@@ -136,29 +149,27 @@ def read_time_serie_activity(path_directory, file_name="time_serie_activity.h5",
     return ts_activity
 
 
-def read_meteo(path_directory, file_name="meteo.csv"):
-    """
-    Lecture du fichier météo dans le répertoire dans ROOT_DATA_REF
-    Parameters
-    ----------
-    path_directory : str
-        chemin d'accès (ROOT_DATA_REF)
-    file_name : str
-        Nom du fichier
+#     Lecture du fichier météo dans le répertoire dans ROOT_DATA_REF
+#     Parameters
+#     ----------
+#     path_directory : str
+#         chemin d'accès (ROOT_DATA_REF)
+#     file_name : str
+#         Nom du fichier
 
-    Returns
-    -------
-    meteo : DataFrame
+#     Returns
+#     -------
+#     meteo : DataFrame
 
-    Examples
-    --------
+#     Examples
+#     --------
 
-    meteo = read_meteo(path_directory=ROOT_DATA_REF)
-    """
+#     meteo = read_meteo(path_directory=ROOT_DATA_REF)
+#     """
 
-    meteo = pd.read_csv(path_directory + file_name, parse_dates=["date"])
+#     meteo = pd.read_csv(path_directory + file_name, parse_dates=["date"])
 
-    return meteo
+#     return meteo
 
 
 def read_station_profile(path_directory, file_name="station_profile.csv"):
