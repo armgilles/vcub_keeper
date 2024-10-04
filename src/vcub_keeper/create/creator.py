@@ -322,6 +322,6 @@ def create_station_attribute(
     if export:
         # Export
         file_export = "station_attribute.csv"
-        stations.write_csv(ROOT_DATA_REF + file_export)
+        stations.write_csv(path_directory + file_export, separator=";")
     else:
         return stations
