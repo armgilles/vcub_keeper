@@ -136,29 +136,27 @@ def read_time_serie_activity(path_directory, file_name="time_serie_activity.h5",
     return ts_activity
 
 
-def read_meteo(path_directory, file_name="meteo.csv"):
-    """
-    Lecture du fichier météo dans le répertoire dans ROOT_DATA_REF
-    Parameters
-    ----------
-    path_directory : str
-        chemin d'accès (ROOT_DATA_REF)
-    file_name : str
-        Nom du fichier
+#     Lecture du fichier météo dans le répertoire dans ROOT_DATA_REF
+#     Parameters
+#     ----------
+#     path_directory : str
+#         chemin d'accès (ROOT_DATA_REF)
+#     file_name : str
+#         Nom du fichier
 
-    Returns
-    -------
-    meteo : DataFrame
+#     Returns
+#     -------
+#     meteo : DataFrame
 
-    Examples
-    --------
+#     Examples
+#     --------
 
-    meteo = read_meteo(path_directory=ROOT_DATA_REF)
-    """
+#     meteo = read_meteo(path_directory=ROOT_DATA_REF)
+#     """
 
-    meteo = pd.read_csv(path_directory + file_name, parse_dates=["date"])
+#     meteo = pd.read_csv(path_directory + file_name, parse_dates=["date"])
 
-    return meteo
+#     return meteo
 
 
 def read_station_profile(path_directory, file_name="station_profile.csv"):
