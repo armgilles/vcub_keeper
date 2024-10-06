@@ -172,7 +172,7 @@ def read_time_serie_activity(path_directory, file_name="time_serie_activity.h5",
 #     return meteo
 
 
-def read_station_profile(path_directory, file_name="station_profile.csv"):
+def read_station_profile(path_directory: str, file_name: str = "station_profile.csv") -> pl.DataFrame:
     """
     Lecture du fichier sur qui classifie les stations par rapport à leurs activité et
     fréquences d'utilisation.
@@ -194,6 +194,7 @@ def read_station_profile(path_directory, file_name="station_profile.csv"):
 
     station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
     """
-    station_profile = pd.read_csv(path_directory + file_name, sep=",")
+    column_dtypes = {"station_id": pl.UInt16}
+    station_profile = pl.read_csv(path_directory + file_name, separator=",", schema_overrides=column_dtypes)
 
     return station_profile
