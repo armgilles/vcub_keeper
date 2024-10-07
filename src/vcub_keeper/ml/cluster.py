@@ -60,7 +60,7 @@ def train_cluster_station(data, station_id, profile_station_activity=None):
 
     # Lecture du profile activité des stations
     if profile_station_activity is None:
-        station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
+        station_profile = read_station_profile(path_directory=ROOT_DATA_REF).to_pandas()
         profile_station_activity = station_profile[station_profile["station_id"] == station_id][
             "profile_station_activity"
         ].values[0]
