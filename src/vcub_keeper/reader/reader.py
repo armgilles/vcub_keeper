@@ -1,6 +1,5 @@
 import io
 
-import numpy as np
 import pandas as pd
 import polars as pl
 
@@ -102,7 +101,9 @@ def read_activity_vcub(
     return activite
 
 
-def read_time_serie_activity(path_directory, file_name="time_serie_activity.h5", post_pressessing_status=True):
+def read_time_serie_activity(
+    path_directory, file_name="time_serie_activity.parquet", post_pressessing_status=True
+) -> pl.LazyFrame:
     """
 
     Lecture du fichier de type time series sur l'activité des stations Vcub
@@ -127,24 +128,29 @@ def read_time_serie_activity(path_directory, file_name="time_serie_activity.h5",
     ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
     """
 
-    ts_activity = pd.read_hdf(path_directory + "time_serie_activity.h5", parse_dates=["date"])
+    ts_activity = pl.scan_parquet(path_directory + file_name)
 
     if post_pressessing_status is True:
-        ts_activity["status_shift"] = ts_activity["status"].shift(-1)
+        ts_activity = ts_activity.with_columns(pl.col("status").shift(-1).alias("status_shift"))
 
         # Déconnecté -> NaN
-        ts_activity.loc[ts_activity["status"] == 0, "status"] = np.nan
+        ts_activity = ts_activity.with_columns(
+            pl.when(pl.col("status") == 0).then(None).otherwise(pl.col("status")).alias("status")
+        )
 
         # Si le prochain status est connecté alors on remplace NaN par 1
-        ts_activity.loc[ts_activity["status_shift"] == 1, "status"] = ts_activity["status"].fillna(
-            method="pad", limit=1
+        ts_activity = ts_activity.with_columns(
+            pl.when(pl.col("status_shift") == 1)
+            .then(pl.col("status").fill_null(1))
+            .otherwise(pl.col("status"))
+            .alias("status")
         )
 
         # On remplace NaN par 0 (comme originalement)
-        ts_activity["status"] = ts_activity["status"].fillna(0)
+        ts_activity = ts_activity.with_columns(pl.col("status").fill_null(0))
 
         # Drop unless column
-        ts_activity = ts_activity.drop("status_shift", axis=1)
+        ts_activity = ts_activity.drop("status_shift")
 
     return ts_activity
 
