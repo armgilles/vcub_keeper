@@ -18,7 +18,7 @@ from vcub_keeper.transform.features_factory import (
 load_dotenv()
 
 
-def create_activity_time_series():
+def create_activity_time_series() -> None:
     """
     Création d'un fichier de type time series sur l'ensemble des stations VCUB
     grâce à la concenation de plusieurs fichier source (/data/raw/) dans
@@ -51,8 +51,8 @@ def create_activity_time_series():
         column_dtypes = {
             "id": "uint8",
             "status": "category",
-            "available_stands": "uint8",
-            "available_bikes": "uint8",
+            "available_stands": "int8",
+            "available_bikes": "int8",
         }
         activite_temp = pd.read_csv(ROOT_DATA_RAW + file_name, parse_dates=["timestamp"], dtype=column_dtypes)
         print(activite_temp.shape)
@@ -80,37 +80,25 @@ def create_activity_time_series():
     # Dropduplicate station_id / date rows
     activite_full = activite_full.drop_duplicates(subset=["station_id", "date"]).reset_index(drop=True)
 
-    # Create features
-    activite_full = get_transactions_in(activite_full)
+    # Create features (with polars)
+    activite_full = get_transactions_in(pl.from_pandas(activite_full))
     activite_full = get_transactions_out(activite_full)
     activite_full = get_transactions_all(activite_full)
 
     ## Resampling
-
-    # cf Bug Pandas : https://github.com/pandas-dev/pandas/issues/33548
-    activite_full = activite_full.set_index("date")
-
-    activite_full_resample = (
-        activite_full.groupby("station_id")
-        .resample(
-            "10T",
-            label="right",
-        )
-        .agg(
-            {
-                "available_stands": "last",
-                "available_bikes": "last",
-                "status": "max",  # Empeche les micro déconnection à la station
-                "transactions_in": "sum",
-                "transactions_out": "sum",
-                "transactions_all": "sum",
-            }
-        )
-        .reset_index()
+    activite_full_resample = activite_full.group_by_dynamic(
+        "date", group_by="station_id", every="10m", label="right"
+    ).agg(
+        pl.col("available_stands").last(),
+        pl.col("available_bikes").last(),
+        pl.col("status").max(),  # Empeche les micro déconnection à la station
+        pl.col("transactions_in").sum(),
+        pl.col("transactions_out").sum(),
+        pl.col("transactions_all").sum(),
     )
 
     # Export
-    activite_full_resample.to_hdf(ROOT_DATA_CLEAN + "time_serie_activity.h5", key="ts_activity")
+    activite_full_resample.write_parquet(ROOT_DATA_CLEAN + "time_serie_activity.parquet")
 
 
 # def create_meteo(min_date_history="2018-12-01", max_date_history="2020-09-18"):
