@@ -100,93 +100,109 @@ def create_activity_time_series() -> None:
     # Export
     activite_full_resample.write_parquet(ROOT_DATA_CLEAN + "time_serie_activity.parquet")
 
+    # def create_meteo(min_date_history="2018-12-01", max_date_history="2020-09-18"):
+    #     """
+    #     Multiple call API afin de créer un fichier et d'exporte celui-ci
+    #     dans ROOT_DATA_REF/meteo.csv
 
-# def create_meteo(min_date_history="2018-12-01", max_date_history="2020-09-18"):
-#     """
-#     Multiple call API afin de créer un fichier et d'exporte celui-ci
-#     dans ROOT_DATA_REF/meteo.csv
+    #     Parameters
+    #     ----------
+    #     min_date_history : str
+    #         date du début de l'historique (format 'yyyy-mm-dd')
+    #     max_date_history : str
+    #         date de fin de l'historique (format 'yyyy-mm-dd')
 
-#     Parameters
-#     ----------
-#     min_date_history : str
-#         date du début de l'historique (format 'yyyy-mm-dd')
-#     max_date_history : str
-#         date de fin de l'historique (format 'yyyy-mm-dd')
+    #     Returns
+    #     -------
+    #     None
 
-#     Returns
-#     -------
-#     None
+    #     Examples
+    #     --------
 
-#     Examples
-#     --------
+    #     create_meteo(min_date_history="2018-12-01", max_date_history='2021-03-18')
+    #     """
+    #     api = Api(API_METEO)
+    #     api.set_granularity("hourly")
 
-#     create_meteo(min_date_history="2018-12-01", max_date_history='2021-03-18')
-#     """
-#     api = Api(API_METEO)
-#     api.set_granularity("hourly")
+    #     # Init DataFrame
+    #     meteo_full = pd.DataFrame()
 
-#     # Init DataFrame
-#     meteo_full = pd.DataFrame()
+    #     # Calls API
+    #     date_list = pd.date_range(start=min_date_history, end=max_date_history)
+    #     for date in date_list:
+    #         # Date processing
+    #         date_minus_one_day = date - datetime.timedelta(days=1)
+    #         date_str = date.strftime(format="%Y-%m-%d")
+    #         date_minus_one_day_str = date_minus_one_day.strftime(format="%Y-%m-%d")
+    #         print(date_minus_one_day_str + " " + date_str)
 
-#     # Calls API
-#     date_list = pd.date_range(start=min_date_history, end=max_date_history)
-#     for date in date_list:
-#         # Date processing
-#         date_minus_one_day = date - datetime.timedelta(days=1)
-#         date_str = date.strftime(format="%Y-%m-%d")
-#         date_minus_one_day_str = date_minus_one_day.strftime(format="%Y-%m-%d")
-#         print(date_minus_one_day_str + " " + date_str)
+    #         # Call API
+    #         try:
+    #             history = api.get_history(
+    #                 city="Bordeaux",
+    #                 country="FR",
+    #                 start_date=date_minus_one_day_str,
+    #                 end_date=date_str,
+    #             )
+    #             meteo_day = pd.DataFrame(history.get_series(["temp", "precip", "rh", "pres", "wind_spd"]))
+    #             meteo_full = pd.concat([meteo_full, meteo_day])
+    #         except requests.HTTPError as exception:
+    #             print(exception)
 
-#         # Call API
-#         try:
-#             history = api.get_history(
-#                 city="Bordeaux",
-#                 country="FR",
-#                 start_date=date_minus_one_day_str,
-#                 end_date=date_str,
-#             )
-#             meteo_day = pd.DataFrame(history.get_series(["temp", "precip", "rh", "pres", "wind_spd"]))
-#             meteo_full = pd.concat([meteo_full, meteo_day])
-#         except requests.HTTPError as exception:
-#             print(exception)
+    #     # Naming DataFrame
 
-#     # Naming DataFrame
+    #     # Accumulated precipitation (default mm)
+    #     meteo_full.rename(columns={"precip": "precipitation"}, inplace=True)
+    #     # Average temperature
+    #     meteo_full.rename(columns={"temp": "temperature"}, inplace=True)
+    #     # Average relative humidity (%)
+    #     meteo_full.rename(columns={"rh": "humidity"}, inplace=True)
+    #     # Average pressure (mb)
+    #     meteo_full.rename(columns={"pres": "pressure"}, inplace=True)
+    #     # Wind_speed (m/s)
+    #     meteo_full.rename(columns={"wind_spd": "wind_speed"}, inplace=True)
+    #     # date
+    #     meteo_full.rename(columns={"datetime": "date"}, inplace=True)
 
-#     # Accumulated precipitation (default mm)
-#     meteo_full.rename(columns={"precip": "precipitation"}, inplace=True)
-#     # Average temperature
-#     meteo_full.rename(columns={"temp": "temperature"}, inplace=True)
-#     # Average relative humidity (%)
-#     meteo_full.rename(columns={"rh": "humidity"}, inplace=True)
-#     # Average pressure (mb)
-#     meteo_full.rename(columns={"pres": "pressure"}, inplace=True)
-#     # Wind_speed (m/s)
-#     meteo_full.rename(columns={"wind_spd": "wind_speed"}, inplace=True)
-#     # date
-#     meteo_full.rename(columns={"datetime": "date"}, inplace=True)
+    #     meteo_full = meteo_full[["date", "temperature", "pressure", "humidity", "precipitation", "wind_speed"]]
 
-#     meteo_full = meteo_full[["date", "temperature", "pressure", "humidity", "precipitation", "wind_speed"]]
+    #     # Check
+    #     min_date = meteo_full.date.min()
+    #     max_date = meteo_full.date.max()
+    #     date_ref = pd.date_range(start=min_date, end=max_date, freq="h")
 
-#     # Check
-#     min_date = meteo_full.date.min()
-#     max_date = meteo_full.date.max()
-#     date_ref = pd.date_range(start=min_date, end=max_date, freq="h")
+    #     # Si le référenciel n'a pas toutes les dates dans Timestamp
+    #     assert date_ref.isin(meteo_full["date"]).all() == True
 
-#     # Si le référenciel n'a pas toutes les dates dans Timestamp
-#     assert date_ref.isin(meteo_full["date"]).all() == True
+    #     # Si il n'y a pas de différence symetrique entre les 2 séries de dates
+    #     assert len(date_ref.symmetric_difference(meteo_full["date"])) == 0
 
-#     # Si il n'y a pas de différence symetrique entre les 2 séries de dates
-#     assert len(date_ref.symmetric_difference(meteo_full["date"])) == 0
+    #     # Si il y a des doublons
+    #     assert meteo_full["date"].is_unique == True
 
-#     # Si il y a des doublons
-#     assert meteo_full["date"].is_unique == True
+    #     # Si les date augmentent
+    #     assert meteo_full["date"].is_monotonic_increasing == True
 
-#     # Si les date augmentent
-#     assert meteo_full["date"].is_monotonic_increasing == True
+    #     # export
 
-#     # export
+    #     meteo_full.to_csv(ROOT_DATA_REF + "meteo.csv", index=False)
 
-#     meteo_full.to_csv(ROOT_DATA_REF + "meteo.csv", index=False)
+
+def calculate_breakpoints_(ser: list | pl.Series, bins: int) -> list:
+    """
+    Permets de calculer les breakpoints pour un découpage en n_bins
+    en vue de passer par la suite par la méthode cut de Polars par la suite
+    au lieu de passer par la méthode cut de Pandas.
+
+    Only use it in create_station_profilage_activity() fonction
+
+    from : https://stackoverflow.com/a/79061794/5498645
+    """
+    if isinstance(ser, list):
+        ser = pl.Series(ser)
+    min_value, max_value = ser.min(), ser.max()  # 1, 10
+    bin_size = (max_value - min_value) / bins  # (10 - 1) / 4 -> 2.25
+    return [min_value + (bin_size * i) for i in range(1, bins)]
 
 
 def create_station_profilage_activity() -> None:
@@ -210,16 +226,16 @@ def create_station_profilage_activity() -> None:
     """
 
     # Lecture du fichier activité
-    ts_activity = pl.from_pandas(read_time_serie_activity(path_directory=ROOT_DATA_CLEAN))
+    ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
 
-    # Some features
-    ts_activity = get_transactions_in(ts_activity)
-    ts_activity = get_transactions_out(ts_activity)
-    ts_activity = get_transactions_all(ts_activity)
-    ts_activity = get_consecutive_no_transactions_out(ts_activity)
-
-    # Filter data with confinement & non use by consumer
-    ts_activity = filter_periode(ts_activity, non_use_station_id=NON_USE_STATION_ID)
+    # Some features and filtering using .pipe
+    ts_activity = (
+        ts_activity.pipe(get_transactions_in)
+        .pipe(get_transactions_out)
+        .pipe(get_transactions_all)
+        .pipe(get_consecutive_no_transactions_out)
+        .pipe(filter_periode, non_use_station_id=NON_USE_STATION_ID)
+    )
 
     # On regarde si il y a eu une prise de vélo ou non toutes les 10 min
     ts_activity = ts_activity.with_columns(transactions_out_bool=pl.col("transactions_out").clip(0, 1))
@@ -239,24 +255,13 @@ def create_station_profilage_activity() -> None:
             pl.col("transactions_out_bool").max().alias("max"),
         )
     )
-    profile_station = profile_station.sort("mean")
+    profile_station = profile_station.sort("mean").collect()
 
-    # Classification en 3 activités (low / medium / hight, etc...)
-    # Pour retrouver les seuils de cut
-    # Je ne retrouve pas les mêmes résulats avec
-    # breakpoints = np.quantile(profile_station.select("mean"), np.linspace(0, 1, n_bins + 1), method="linear")
-    df_pd = profile_station.to_pandas()
-    df_pd["profile_station_activity"], breakpoints = pd.cut(
-        df_pd["mean"], 4, labels=["low", "medium", "hight", "very high"], retbins=True
-    )
-    del df_pd
+    # Calculate breakpoints (bins in Pandas) to use it in Polars cut
+    breakpoints = calculate_breakpoints_(profile_station["mean"], 4)
 
-    # Question about cut & labels in polars
-    # https://stackoverflow.com/questions/79059121/using-polars-cut-with-label-from-a-pandas-perspective
     profile_station = profile_station.with_columns(
-        profile_station_activity=pl.col("mean").cut(
-            breaks=breakpoints, labels=["nothing_low", "low", "medium", "hight", "very high", "nothing_high"]
-        )
+        profile_station_activity=pl.col("mean").cut(breaks=breakpoints, labels=["low", "medium", "hight", "very high"])
     )
 
     ## Export
