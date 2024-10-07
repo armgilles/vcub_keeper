@@ -3,7 +3,7 @@ import pytest
 import pandas as pd
 import polars as pl
 from polars.testing import assert_frame_equal
-from vcub_keeper.create.creator import create_station_attribute
+from vcub_keeper.create.creator import create_station_attribute, calculate_breakpoints_
 from vcub_keeper.reader.reader import read_stations_attributes
 
 
@@ -76,3 +76,35 @@ Geo Point;Geo Shape;COMMUNE;total_stand;NOM;TYPEA;station_id;lat;lon
     expected_df = pl.DataFrame(expected_data)
 
     assert_frame_equal(stations, expected_df, check_dtype=False)
+
+
+def test_create_breakpoints_to_use_cut():
+    """
+    Test de la fonction create_breakpoints_to_use_cut
+    """
+
+    data = {
+        "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    }
+    df_pl = pl.DataFrame(data)
+
+    # Convertir en DataFrame Pandas pour obtenir les breakpoints
+    df_pd = df_pl.to_pandas()
+
+    # Use returbins to get the breakpoints (from pandas)
+    df_pd["cut_label"], breakpoints = pd.cut(
+        df_pd["value"], 4, labels=["low", "medium", "hight", "very high"], retbins=True
+    )
+    print(pl.from_pandas(df_pd))
+
+    # Cut in folars
+    breakpoints_custum = calculate_breakpoints_(df_pl["value"], 4)
+    labels = ["low", "medium", "hight", "very high"]
+
+    df_pl = df_pl.with_columns(pl.col("value").cut(breaks=breakpoints_custum, labels=labels).alias("cut_label"))
+
+    # Check if breakpoints are the same
+    assert (breakpoints[1:-1] == breakpoints_custum).all()
+
+    # Check label's cut
+    assert_frame_equal(df_pl, pl.from_pandas(df_pd))
