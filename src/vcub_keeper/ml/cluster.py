@@ -50,10 +50,10 @@ def train_cluster_station(data, station_id, profile_station_activity=None):
     data_station = data[data["station_id"] == station_id].copy()
 
     # Feature engi for cluster
-    data_station = process_data_cluster(pl.from_pandas(data_station)).to_pandas()
+    data_station = process_data_cluster(pl.from_pandas(data_station))
 
     # Filter data based on time & event
-    data_station = filter_periode(data_station, NON_USE_STATION_ID=NON_USE_STATION_ID)
+    data_station = filter_periode(data_station, non_use_station_id=NON_USE_STATION_ID).to_pandas()
 
     # on prend uniquement la station quand satus ==1
     data_station_ok = data_station[data_station["status"] == 1].copy()

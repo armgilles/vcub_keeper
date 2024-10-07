@@ -201,7 +201,7 @@ def create_activity_time_series():
 #     meteo_full.to_csv(ROOT_DATA_REF + "meteo.csv", index=False)
 
 
-def create_station_profilage_activity():
+def create_station_profilage_activity() -> None:
     """
     Création d'un fichier classifiant les stations suivant leurs activités et
     leurs fréquences d'utilation (données filtré par reader_utils.py filter_periode() )
@@ -222,7 +222,7 @@ def create_station_profilage_activity():
     """
 
     # Lecture du fichier activité
-    ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
+    ts_activity = pl.from_pandas(read_time_serie_activity(path_directory=ROOT_DATA_CLEAN))
 
     # Some features
     ts_activity = get_transactions_in(ts_activity)
@@ -231,43 +231,55 @@ def create_station_profilage_activity():
     ts_activity = get_consecutive_no_transactions_out(ts_activity)
 
     # Filter data with confinement & non use by consumer
-    ts_activity = filter_periode(ts_activity, NON_USE_STATION_ID=NON_USE_STATION_ID)
+    ts_activity = filter_periode(ts_activity, non_use_station_id=NON_USE_STATION_ID)
 
     # On regarde si il y a eu une prise de vélo ou non toutes les 10 min
-    ts_activity["transactions_out_bool"] = ts_activity["transactions_out"].clip(0, 1)
+    ts_activity = ts_activity.with_columns(transactions_out_bool=pl.col("transactions_out").clip(0, 1))
 
     # Aggrégation de l'activité par stations
     profile_station = (
-        ts_activity[(ts_activity["status"] == 1) & (ts_activity["consecutive_no_transactions_out"] <= 144)]
-        .groupby("station_id", as_index=False)["transactions_out_bool"]
+        ts_activity.filter((pl.col("status") == 1) & (pl.col("consecutive_no_transactions_out") <= 144))
+        .group_by("station_id")
         .agg(
-            {
-                "total_point": "size",
-                "mean": "mean",
-                "median": "median",
-                "std": "std",
-                "95%": lambda x: x.quantile(0.95),
-                "98%": lambda x: x.quantile(0.98),
-                "99%": lambda x: x.quantile(0.99),
-                "max": "max",
-            }
+            pl.col("transactions_out_bool").count().alias("total_point"),
+            pl.col("transactions_out_bool").mean().alias("mean"),
+            pl.col("transactions_out_bool").median().alias("median"),
+            pl.col("transactions_out_bool").std().alias("std"),
+            pl.col("transactions_out_bool").quantile(0.95).alias("95%"),
+            pl.col("transactions_out_bool").quantile(0.98).alias("98%"),
+            pl.col("transactions_out_bool").quantile(0.99).alias("99%"),
+            pl.col("transactions_out_bool").max().alias("max"),
         )
     )
-    profile_station = profile_station.sort_values("mean")
-    # Classification en 3 activités (low / medium / hight)
-    profile_station["profile_station_activity"] = pd.cut(
-        profile_station["mean"], 4, labels=["low", "medium", "hight", "very high"]
+    profile_station = profile_station.sort("mean")
+
+    # Classification en 3 activités (low / medium / hight, etc...)
+    # Pour retrouver les seuils de cut
+    # Je ne retrouve pas les mêmes résulats avec
+    # breakpoints = np.quantile(profile_station.select("mean"), np.linspace(0, 1, n_bins + 1), method="linear")
+    df_pd = profile_station.to_pandas()
+    df_pd["profile_station_activity"], breakpoints = pd.cut(
+        df_pd["mean"], 4, labels=["low", "medium", "hight", "very high"], retbins=True
+    )
+    del df_pd
+
+    # Question about cut & labels in polars
+    # https://stackoverflow.com/questions/79059121/using-polars-cut-with-label-from-a-pandas-perspective
+    profile_station = profile_station.with_columns(
+        profile_station_activity=pl.col("mean").cut(
+            breaks=breakpoints, labels=["nothing_low", "low", "medium", "hight", "very high", "nothing_high"]
+        )
     )
 
     ## Export
-    profile_station.to_csv(ROOT_DATA_REF + "station_profile.csv", index=False, encoding="utf-8")
+    profile_station.write_csv(ROOT_DATA_REF + "station_profile.csv")
 
 
 def create_station_attribute(
     path_directory: str, data: None | io.StringIO = None, export: bool = True
 ) -> None | pl.DataFrame:
     """
-    Création du fichier de référence des attributs des stations Vcub de l'agglomération de Bordeaux
+    Création du fichier de réeérence des attributs des stations Vcub de l'agglomération de Bordeaux
     suite à la modification de l'accès open-data des données précédentes
     (https://github.com/armgilles/vcub_keeper/issues/50).
     Export le fichier dans "path_directory" en .csv.
