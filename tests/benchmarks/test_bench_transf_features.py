@@ -81,21 +81,21 @@ station_df_from_json_big = pl.from_pandas(
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_out(activite_data=activite_data):
+def test_benchmark_get_transaction_out(activite_data=activite_data.collect()):
     """
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activite_data.with_columns(get_transactions_out()).collect()
+    activite_data.with_columns(get_transactions_out())
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_out_big(activite_data=activite_data_big):
+def test_benchmark_get_transaction_out_big(activite_data=activite_data_big.collect()):
     """
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activite_data.with_columns(get_transactions_out()).collect()
+    activite_data.with_columns(get_transactions_out())
 
 
 @pytest.mark.benchmark
