@@ -44,9 +44,7 @@ def read_stations_attributes(
     return stations
 
 
-def read_activity_vcub(
-    file_path: str = "../../data/bordeaux.csv", output_type: str | None = None
-) -> pl.DataFrame | pd.DataFrame:
+def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFrame:
     """
     Lecture du fichier temporelle sur l'activité des Vcub à Bordeaux
     Modification par rapport au fichier original :
@@ -85,7 +83,7 @@ def read_activity_vcub(
 
     state_dict = {"CONNECTEE": 1, "DECONNECTEE": 0}
 
-    activite = pl.read_csv(file_path, schema_overrides=column_dtypes, try_parse_dates=True)
+    activite = pl.scan_csv(file_path, schema_overrides=column_dtypes, try_parse_dates=True)
 
     activite = activite.with_columns(pl.col("state").replace(state_dict))
 
@@ -94,9 +92,6 @@ def read_activity_vcub(
 
     # Sorting DataFrame on station_id & date
     activite = activite.sort(["station_id", "date"])
-
-    if output_type == "pandas":
-        activite = activite.to_pandas()
 
     return activite
 
