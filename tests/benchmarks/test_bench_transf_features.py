@@ -70,7 +70,7 @@ def create_station_df_from_json_big(station_df_from_json: pd.DataFrame) -> pd.Da
 
 activite_data = read_activity_data().collect()
 activite_data_pandas = activite_data.to_pandas()
-activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pandas))  # bigger dataset
+activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pandas)).lazy().collect()  # bigger dataset
 
 # To test get_consecutive_no_transactions_out() function
 station_json_loaded = read_json_data()
