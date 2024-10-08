@@ -58,8 +58,6 @@ def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFra
     ----------
     file_path : str
         Chemin d'accès au fichiers source
-    output_type : str
-        Type de sortie du DataFrame (pandas ou polars)
 
     Returns
     -------
