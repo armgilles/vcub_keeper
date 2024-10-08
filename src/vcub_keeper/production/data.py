@@ -96,9 +96,7 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.DataFrame:
     station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    station_df = station_df.with_columns(get_transactions_in())
-    station_df = station_df.with_columns(get_transactions_out())
-    station_df = get_transactions_all(station_df)
+    station_df = station_df.with_columns(get_transactions_in(), get_transactions_out(), get_transactions_all())
 
     ## Resampling
     station_df_resample = station_df.group_by_dynamic("date", group_by="station_id", every="10m", label="right").agg(
@@ -239,9 +237,7 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.DataFram
     station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    station_df = station_df.with_columns(get_transactions_in())
-    station_df = station_df.with_columns(get_transactions_out())
-    station_df = get_transactions_all(station_df)
+    station_df = station_df.with_columns(get_transactions_in(), get_transactions_out(), get_transactions_all())
 
     ## Resampling
 

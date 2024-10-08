@@ -44,38 +44,24 @@ def get_transactions_in() -> pl.Expr:
     return pl.when(transactions_in < 0).then(0).otherwise(transactions_in).alias("transactions_in")
 
 
-def get_transactions_all(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
+def get_transactions_all() -> pl.Expr:
     """
-    Calcul le nombre de transactions de vélo (ajout et dépôt) qu'il y a eu pour une même
-    station entre 2 points de données
-
-    Parameters
-    ----------
-    data : DataFrame
-        Activité des stations Vcub
+    Returns a  Polars expressions to calculate the number of bike check-out transactions for a station.
 
     Returns
     -------
-    data : DataFrame
-        Ajout de colonne 'transactions_all'
+    pl.Expr
+        List of expressions to add a 'transactions_all' column.
 
     Examples
     --------
-
-    activite = get_transactions_all(activite)
+    activite.with_columns(get_transactions_all())
     """
 
-    data = data.with_columns(pl.col("available_bikes").shift(1).over("station_id").alias("available_bikes_shift"))
-    data = data.with_columns(pl.col("available_bikes_shift").fill_null(pl.col("available_bikes")))
-    data = data.with_columns(transactions_all=(pl.col("available_bikes") - pl.col("available_bikes_shift")).abs())
+    available_bikes_shift = pl.col("available_bikes").shift(1).over("station_id").fill_null(pl.col("available_bikes"))
+    transactions_all = (pl.col("available_bikes") - available_bikes_shift).abs()
 
-    # Drop non usefull column
-    data = data.drop("available_bikes_shift")
-
-    if output_type == "pandas":
-        data = data.to_pandas()
-
-    return data
+    return pl.when(transactions_all < 0).then(0).otherwise(transactions_all).alias("transactions_all")
 
 
 def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:

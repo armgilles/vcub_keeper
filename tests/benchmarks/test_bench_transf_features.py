@@ -122,7 +122,7 @@ def test_benchmark_get_transaction_all(activite_data=activite_data):
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    activity_data_feature = get_transactions_all(activite_data)
+    activite_data.with_columns(get_transactions_all())
 
 
 @pytest.mark.benchmark
@@ -131,7 +131,7 @@ def test_benchmark_get_transaction_all_big(activite_data=activite_data_big):
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    activity_data_feature = get_transactions_all(activite_data)
+    activite_data.with_columns(get_transactions_all())
 
 
 @pytest.mark.benchmark
