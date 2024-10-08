@@ -68,9 +68,9 @@ def create_station_df_from_json_big(station_df_from_json: pd.DataFrame) -> pd.Da
     return station_df_from_json_big
 
 
-activite_data = read_activity_data()
-activite_data_pandas = read_activity_data().collect().to_pandas()
-activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pandas)).lazy()  # bigger dataset
+activite_data = read_activity_data().collect()
+activite_data_pandas = activite_data.to_pandas()
+activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pandas))  # bigger dataset
 
 # To test get_consecutive_no_transactions_out() function
 station_json_loaded = read_json_data()
@@ -81,7 +81,7 @@ station_df_from_json_big = pl.from_pandas(
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_out(activite_data=activite_data.collect()):
+def test_benchmark_get_transaction_out(activite_data=activite_data):
     """
     Benchmark for transforming some feature (get_transactions_out)
     """
@@ -90,7 +90,7 @@ def test_benchmark_get_transaction_out(activite_data=activite_data.collect()):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_out_big(activite_data=activite_data_big.collect()):
+def test_benchmark_get_transaction_out_big(activite_data=activite_data_big):
     """
     Benchmark for transforming some feature (get_transactions_out)
     """
