@@ -86,7 +86,7 @@ def test_benchmark_get_transaction_out(activite_data=activite_data.lazy()):
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activite_data.with_columns(get_transactions_out())
+    activite_data.with_columns(get_transactions_out()).collect()
 
 
 @pytest.mark.benchmark
@@ -95,7 +95,7 @@ def test_benchmark_get_transaction_out_big(activite_data=activite_data_big.lazy(
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activite_data.with_columns(get_transactions_out())
+    activite_data.with_columns(get_transactions_out()).collect()
 
 
 @pytest.mark.benchmark
