@@ -3,41 +3,20 @@ import pandas as pd
 import polars as pl
 
 
-def get_transactions_out(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
+def get_transactions_out() -> pl.Expr:
     """
-    Calcul le nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données
-
-    Parameters
-    ----------
-    data : DataFrame
-        Activité des stations Vcub
+    Returns a list of Polars expressions to calculate the number of bike check-out transactions for a station.
 
     Returns
     -------
-    data : DataFrame
-        Ajout de colonne 'transactions_out'
-
-    Examples
-    --------
-
-    activite = get_transactions_out(activite)
+    list[pl.Expr]
+        List of expressions to add a 'transactions_out' column.
     """
-
-    data = data.with_columns(pl.col("available_stands").shift(1).over("station_id").alias("available_stands_shift"))
-    data = data.with_columns(pl.col("available_stands_shift").fill_null(pl.col("available_stands")))
-    data = data.with_columns(transactions_out=(pl.col("available_stands") - pl.col("available_stands_shift")))
-
-    data = data.with_columns(
-        transactions_out=pl.when(pl.col("transactions_out") < 0).then(0).otherwise(pl.col("transactions_out"))
+    available_stands_shift = (
+        pl.col("available_stands").shift(1).over("station_id").fill_null(pl.col("available_stands"))
     )
-
-    # Drop non usefull column
-    data = data.drop("available_stands_shift")
-
-    if output_type == "pandas":
-        data = data.to_pandas()
-
-    return data
+    transactions_out = pl.col("available_stands") - available_stands_shift
+    return pl.when(transactions_out < 0).then(0).otherwise(transactions_out).alias("transactions_out")
 
 
 def get_transactions_in(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
