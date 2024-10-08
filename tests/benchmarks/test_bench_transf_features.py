@@ -15,13 +15,13 @@ from vcub_keeper.reader.reader import read_activity_vcub
 from vcub_keeper.config import ROOT_TESTS_DATA
 
 
-def read_activity_data(file_name="activite_data.csv", output_type=None):
+def read_activity_data(file_name="activite_data.csv"):
     """
     Read test csv activity station's data.
     From notebooks/04_tests/03_test_data_activite.ipynb
     """
 
-    return read_activity_vcub(ROOT_TESTS_DATA + file_name, output_type=output_type)
+    return read_activity_vcub(ROOT_TESTS_DATA + file_name)
 
 
 def read_json_data(file_name="data_test_api_from_bdx.json"):
@@ -69,8 +69,8 @@ def create_station_df_from_json_big(station_df_from_json: pd.DataFrame) -> pd.Da
 
 
 activite_data = read_activity_data()
-activite_data_pandas = read_activity_data(output_type="pandas")
-activite_data_big = pl.from_pandas(create_activite_data_big(activite_data.to_pandas()))  # bigger dataset
+activite_data_pandas = read_activity_data().collect().to_pandas()
+activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pandas)).lazy()  # bigger dataset
 
 # To test get_consecutive_no_transactions_out() function
 station_json_loaded = read_json_data()
@@ -81,7 +81,7 @@ station_df_from_json_big = pl.from_pandas(
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_out(activite_data=activite_data.lazy()):
+def test_benchmark_get_transaction_out(activite_data=activite_data):
     """
     Benchmark for transforming some feature (get_transactions_out)
     """
@@ -90,7 +90,7 @@ def test_benchmark_get_transaction_out(activite_data=activite_data.lazy()):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_out_big(activite_data=activite_data_big.lazy()):
+def test_benchmark_get_transaction_out_big(activite_data=activite_data_big):
     """
     Benchmark for transforming some feature (get_transactions_out)
     """
@@ -99,7 +99,7 @@ def test_benchmark_get_transaction_out_big(activite_data=activite_data_big.lazy(
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_in(activite_data=activite_data):
+def test_benchmark_get_transaction_in(activite_data=activite_data.collect()):
     """
     Benchmark for transforming some feature (get_transactions_in)
     """
@@ -108,7 +108,7 @@ def test_benchmark_get_transaction_in(activite_data=activite_data):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_in_big(activite_data=activite_data_big):
+def test_benchmark_get_transaction_in_big(activite_data=activite_data_big.collect()):
     """
     Benchmark for transforming some feature (get_transactions_in)
     """
@@ -117,7 +117,7 @@ def test_benchmark_get_transaction_in_big(activite_data=activite_data_big):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_all(activite_data=activite_data):
+def test_benchmark_get_transaction_all(activite_data=activite_data.collect()):
     """
     Benchmark for transforming some feature (get_transactions_all)
     """
@@ -126,7 +126,7 @@ def test_benchmark_get_transaction_all(activite_data=activite_data):
 
 
 @pytest.mark.benchmark
-def test_benchmark_get_transaction_all_big(activite_data=activite_data_big):
+def test_benchmark_get_transaction_all_big(activite_data=activite_data_big.collect()):
     """
     Benchmark for transforming some feature (get_transactions_all)
     """
@@ -153,7 +153,7 @@ def test_benchmark_get_consecutive_no_transactions_out_big(station_df_from_json=
 
 
 @pytest.mark.benchmark
-def test_benchmark_process_data_cluster(activite_data=activite_data):
+def test_benchmark_process_data_cluster(activite_data=activite_data.collect()):
     """
     Benchmark for transforming some features with process_data_cluster()
     calling multiple time get_encoding_time() function
@@ -163,7 +163,7 @@ def test_benchmark_process_data_cluster(activite_data=activite_data):
 
 
 @pytest.mark.benchmark
-def test_benchmark_process_data_cluster_big(activite_data=activite_data_big):
+def test_benchmark_process_data_cluster_big(activite_data=activite_data_big.collect()):
     """
     Benchmark for transforming some features with process_data_cluster()
     calling multiple time get_encoding_time() function
