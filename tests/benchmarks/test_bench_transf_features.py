@@ -140,7 +140,7 @@ def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=stat
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json)
+    station_df_from_json.with_columns(get_consecutive_no_transactions_out())
 
 
 @pytest.mark.benchmark
@@ -149,7 +149,7 @@ def test_benchmark_get_consecutive_no_transactions_out_big(station_df_from_json=
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json)
+    station_df_from_json_big.with_columns(get_consecutive_no_transactions_out())
 
 
 @pytest.mark.benchmark

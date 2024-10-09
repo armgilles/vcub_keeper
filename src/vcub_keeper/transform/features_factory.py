@@ -64,7 +64,7 @@ def get_transactions_all() -> pl.Expr:
     return pl.when(transactions_all < 0).then(0).otherwise(transactions_all).alias("transactions_all")
 
 
-def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
+def get_consecutive_no_transactions_out() -> pl.Expr:
     """
     Calcul depuis combien de temps la station n'a pas eu de prise de vélo. Plus le chiffre est haut,
     plus ça fait longtemps que la station est inactive sur la prise de vélo.
@@ -78,50 +78,39 @@ def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
     L'indicateur pour s'activer et continer à avancer dans le temps doit avoir des vélos disposibles en
     station (plus de 2 vélos, possibilité vélo HS, borne HS...)
 
-    Parameters
-    ----------
-    data : DataFrame
-        Activité des stations Vcub avec la feature `transactions_out` (get_transactions_out)
-
     Returns
     -------
-    data : DataFrame
-        Ajout de colonne 'consecutive_no_transactions_out'
+    pl.Expr
+        List of expressions to add a 'transactions_all' column.
 
     Examples
     --------
-
-    activite = get_consecutive_no_transactions_out(activite)
+    activite.with_columns(get_consecutive_no_transactions_out())
     """
 
-    data = (
-        data.with_columns(
-            pl.when(
-                (pl.col("transactions_out") >= 1)
-                | (pl.col("status") == 0)
-                | (pl.col("available_stands") <= 2)
-                | (pl.col("available_stands").is_null())
-            )
-            .then(0)
-            .otherwise(1)
-            .alias("logic")
+    logic = (
+        pl.when(
+            (pl.col("transactions_out") >= 1)
+            | (pl.col("status") == 0)
+            | (pl.col("available_stands") <= 2)
+            | (pl.col("available_stands").is_null())
         )
-        .with_columns(
-            pl.int_ranges(pl.struct("station_id", "logic").rle().struct.field("len"))
-            .flatten()
-            .alias("consecutive_no_transactions_out")
-            + 1
-        )
-        .with_columns(
-            pl.when(pl.col("logic") == 1)
-            .then(pl.col("consecutive_no_transactions_out"))
-            .otherwise(0)
-            .alias("consecutive_no_transactions_out")
-        )
-        .drop("logic")
+        .then(0)
+        .otherwise(1)
+        .alias("logic")
     )
 
-    return data
+    consecutive_no_transactions_out = (
+        pl.int_ranges(pl.struct("station_id", logic).rle().struct.field("len"))
+        .flatten()
+        .alias("consecutive_no_transactions_out")
+        + 1
+    )
+    consecutive_no_transactions_out_cond = (
+        pl.when(logic == 1).then(consecutive_no_transactions_out).otherwise(0).alias("consecutive_no_transactions_out")
+    )
+
+    return consecutive_no_transactions_out_cond
 
 
 # https://github.com/armgilles/vcub_keeper/issues/42#issuecomment-718848126

@@ -208,12 +208,13 @@ def test_get_consecutive_no_transactions_out():
         "consecutive_no_transactions_out": [1, 2, 3, 0, 1, 0, 1, 2, 3, 0, 1] + [0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
     }
 
-    df_activite = pl.DataFrame(data)
-    # drop columns we want to test.
-    df_activite = df_activite.drop(["transactions_out", "consecutive_no_transactions_out"])
+    df_activite = pl.DataFrame(data).drop("transactions_out", "consecutive_no_transactions_out").lazy()
 
-    result = df_activite.with_columns(get_transactions_out())
-    result = get_consecutive_no_transactions_out(result)
+    result = (
+        df_activite.with_columns(get_transactions_out()).with_columns(get_consecutive_no_transactions_out())
+    ).collect()
+
+    expected = pl.DataFrame(data)
 
     expected = pl.DataFrame(data)
 
