@@ -167,14 +167,13 @@ def get_meteo(data, meteo):
     return data
 
 
-def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.DataFrame:
+def get_encoding_time(col_date: str, max_val: int) -> list[pl.Expr]:
     """
     Encoding time
 
     Parameters
     ----------
-    data : DataFrame
-        Activité des stations Vcub
+
     col_date : str
         Nom de la colonne à encoder
     max_val : int
@@ -182,26 +181,25 @@ def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.Dat
 
     Returns
     -------
-    data : DataFrame
-        Ajout de colonne Sin_[col_date] & Cos_[col_date]
+    list[pl.Expr]
 
-    Examples
+    Example
     --------
-    data = get_encoding_time(data, 'month', max_val=12)
+    encoding_quarter_expr = get_encoding_time("quarter", max_val=4)
+    data.with_columns(*encoding_quarter_expr)
     """
 
     two_pi = 2 * np.pi
     expr_two_pi_div_max_val = pl.lit(two_pi / max_val)
-    data = data.with_columns(
-        [
-            (expr_two_pi_div_max_val * pl.col(col_date)).sin().alias("Sin_" + col_date),
-            (expr_two_pi_div_max_val * pl.col(col_date)).cos().alias("Cos_" + col_date),
-        ]
-    )
-    return data
+
+    # Création des expressions pour Sin et Cos
+    sin_expr = (expr_two_pi_div_max_val * pl.col(col_date)).sin().alias(f"Sin_{col_date}")
+    cos_expr = (expr_two_pi_div_max_val * pl.col(col_date)).cos().alias(f"Cos_{col_date}")
+
+    return [sin_expr, cos_expr]
 
 
-def process_data_cluster(data: pl.DataFrame) -> pl.DataFrame:
+def process_data_cluster(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Process some Feature engineering
 
@@ -212,7 +210,7 @@ def process_data_cluster(data: pl.DataFrame) -> pl.DataFrame:
 
     Returns
     -------
-    data : DataFrame
+    data : LazyFrame
         Add some columns in DataFrame
 
     Examples
@@ -223,15 +221,14 @@ def process_data_cluster(data: pl.DataFrame) -> pl.DataFrame:
     data = data.with_columns(
         [
             pl.col("date").dt.quarter().alias("quarter"),
-            # pl.col("date").dt.month().alias("month"),
             pl.col("date").dt.weekday().alias("weekday"),
             pl.col("date").dt.hour().alias("hours"),
         ]
     )
 
-    data = get_encoding_time(data, "quarter", max_val=4)
-    # data = get_encoding_time(data, 'month', max_val=12)
-    data = get_encoding_time(data, "weekday", max_val=7)
-    data = get_encoding_time(data, "hours", max_val=24)
+    encoding_quarter_expr = get_encoding_time("quarter", max_val=4)
+    encoding_weekday_expr = get_encoding_time("weekday", max_val=7)
+    encoding_hours_expr = get_encoding_time("hours", max_val=24)
+    data = data.with_columns(*encoding_quarter_expr, *encoding_weekday_expr, *encoding_hours_expr)
 
     return data
