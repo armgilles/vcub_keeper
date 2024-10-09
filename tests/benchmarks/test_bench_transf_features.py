@@ -74,7 +74,7 @@ activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pandas
 
 # To test get_consecutive_no_transactions_out() function
 station_json_loaded = read_json_data()
-station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded)
+station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded).collect()
 station_df_from_json_big = pl.from_pandas(
     create_station_df_from_json_big(station_df_from_json.to_pandas())
 )  # bigger dataset

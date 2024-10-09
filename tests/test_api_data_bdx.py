@@ -39,7 +39,7 @@ def test_get_api_bdx_data_to_df_station_id_80():
 
     station_json = get_data_from_api_bdx_by_station(station_id=station_id, start_date=start_date, stop_date=stop_date)
 
-    station_df = transform_json_api_bdx_station_data_to_df(station_json)
+    station_df = transform_json_api_bdx_station_data_to_df(station_json).collect()
 
     assert station_df.select("station_id").n_unique() == 1
     assert station_df["station_id"].unique().to_list() == [106]

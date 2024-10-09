@@ -50,7 +50,7 @@ def get_data_from_api_by_station(station_id: str | list, start_date: str, stop_d
     return response.json()
 
 
-def transform_json_station_data_to_df(station_json: dict) -> pl.DataFrame:
+def transform_json_station_data_to_df(station_json: dict) -> pl.LazyFrame:
     """
     Tranforme la Time Serie d'activité d'une ou plusieurs station en DataFrame
     à partir de la fonction get_data_from_api_by_station()
@@ -67,7 +67,7 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.DataFrame:
         Time serie au format json de l'activité d'une station (ou plusieurs)
     Returns
     -------
-    station_df_resample : DataFrame
+    station_df_resample : LazyFrame
         Time serie au format DataFrame de l'activité d'une ou plusieurs station
         resampler sur 10 min.
 
@@ -79,7 +79,9 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.DataFrame:
     """
 
     # Si il y a plusieurs stations dans le json
-    station_df = pl.DataFrame(station_json["data"]).explode("available_bikes", "available_stands", "status", "ts")
+    station_df = (
+        pl.DataFrame(station_json["data"]).explode("available_bikes", "available_stands", "status", "ts").lazy()
+    )
 
     # Status mapping
     status_dict = {"open": 1, "closed": 0}
@@ -99,16 +101,22 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.DataFrame:
     station_df = station_df.with_columns(get_transactions_in(), get_transactions_out(), get_transactions_all())
 
     ## Resampling
-    station_df_resample = station_df.group_by_dynamic("date", group_by="station_id", every="10m", label="right").agg(
-        pl.col("available_stands").last(),
-        pl.col("available_bikes").last(),
-        pl.col("status").max(),  # Empeche les micro déconnection à la station
-        pl.col("transactions_in").sum(),
-        pl.col("transactions_out").sum(),
-        pl.col("transactions_all").sum(),
-    )  # .sort(["date", "station_id"]).upsample("date", every="10m", group_by="station_id")
-    station_df_resample = station_df_resample.sort(["station_id", "date"], descending=[False, False]).upsample(
-        "date", every="10m", group_by="station_id"
+    station_df_resample = (
+        station_df.group_by_dynamic("date", group_by="station_id", every="10m", label="right")
+        .agg(
+            pl.col("available_stands").last(),
+            pl.col("available_bikes").last(),
+            pl.col("status").max(),  # Empeche les micro déconnection à la station
+            pl.col("transactions_in").sum(),
+            pl.col("transactions_out").sum(),
+            pl.col("transactions_all").sum(),
+        )
+        .collect()
+    )  # using collect cause upsample is not available in lazy mode https://github.com/armgilles/vcub_keeper/issues/152#issuecomment-2401744287
+    station_df_resample = (
+        station_df_resample.sort(["station_id", "date"], descending=[False, False])
+        .upsample("date", every="10m", group_by="station_id")
+        .lazy()
     )
     station_df_resample = station_df_resample.with_columns(station_id=pl.col.station_id.forward_fill())
     station_df_resample = station_df_resample.with_columns(
@@ -182,7 +190,7 @@ def get_data_from_api_bdx_by_station(station_id: str | list, start_date: str, st
     return response.json()
 
 
-def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.DataFrame:
+def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.LazyFrame:
     """
     Tranforme la Time Serie d'activité d'une ou plusieurs station en DataFrame
     à partir de la fonction get_data_from_api_bdx_by_station()
@@ -200,7 +208,7 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.DataFram
         Time serie au format json de l'activité d'une station (ou plusieurs)
     Returns
     -------
-    station_df_resample : DataFrame
+    station_df_resample : LazyFrame
         Time serie au format DataFrame de l'activité d'une ou plusieurs station
         resampler sur 10 min.
 
@@ -211,7 +219,7 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.DataFram
 
     """
 
-    station_df = pl.json_normalize(station_json["features"], max_level=1)
+    station_df = pl.json_normalize(station_json["features"], max_level=1).lazy()
 
     # Naming from JSON DataFrame
     station_df = station_df.rename(

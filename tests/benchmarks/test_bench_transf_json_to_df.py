@@ -26,4 +26,4 @@ def test_benchmark_transf_json_to_df(json_data=station_json_loaded):
     Benchmark for transforming JSON data to DataFrame
     """
 
-    station_df_from_json = transform_json_api_bdx_station_data_to_df(json_data)
+    station_df_from_json = transform_json_api_bdx_station_data_to_df(json_data).collect()
