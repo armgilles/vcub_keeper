@@ -86,7 +86,7 @@ def test_benchmark_get_transaction_out(activite_data=activite_data):
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activite_data.with_columns(get_transactions_out()).collect()
+    activite_data.with_columns(get_transactions_out())
 
 
 @pytest.mark.benchmark
@@ -95,7 +95,7 @@ def test_benchmark_get_transaction_out_big(activite_data=activite_data_big):
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activite_data.with_columns(get_transactions_out()).collect()
+    activite_data.with_columns(get_transactions_out())
 
 
 @pytest.mark.benchmark
@@ -104,7 +104,7 @@ def test_benchmark_get_transaction_in(activite_data=activite_data):
     Benchmark for transforming some feature (get_transactions_in)
     """
 
-    activite_data.with_columns(get_transactions_in()).collect()
+    activite_data.with_columns(get_transactions_in())
 
 
 @pytest.mark.benchmark
@@ -113,7 +113,7 @@ def test_benchmark_get_transaction_in_big(activite_data=activite_data_big):
     Benchmark for transforming some feature (get_transactions_in)
     """
 
-    activite_data.with_columns(get_transactions_in()).collect()
+    activite_data.with_columns(get_transactions_in())
 
 
 @pytest.mark.benchmark
@@ -122,7 +122,7 @@ def test_benchmark_get_transaction_all(activite_data=activite_data):
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    activite_data.with_columns(get_transactions_all()).collect()
+    activite_data.with_columns(get_transactions_all())
 
 
 @pytest.mark.benchmark
@@ -131,7 +131,7 @@ def test_benchmark_get_transaction_all_big(activite_data=activite_data_big):
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    activite_data.with_columns(get_transactions_all()).collect()
+    activite_data.with_columns(get_transactions_all())
 
 
 @pytest.mark.benchmark
