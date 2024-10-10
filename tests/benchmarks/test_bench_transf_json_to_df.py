@@ -114,10 +114,11 @@ def test_benchmark_pipepline_transform(json_data=station_json_loaded_simu):
     # station_df = station_df.with_columns(
     #     transform_json_api_bdx_station_data_to_df(json_data), get_consecutive_no_transactions_out()
     # ).with_columns(process_data_cluster())
-    station_df = transform_json_api_bdx_station_data_to_df(json_data).with_columns(
-        get_consecutive_no_transactions_out()
+    station_df = (
+        transform_json_api_bdx_station_data_to_df(json_data)
+        .with_columns(get_consecutive_no_transactions_out())
+        .with_columns(process_data_cluster(station_df))
     )
-    station_df = process_data_cluster(station_df)
 
 
 @pytest.mark.benchmark
@@ -126,7 +127,8 @@ def test_benchmark_pipepline_transform_big(json_data=station_json_loaded_simu_bi
     Benchmark for all transformation steps before ML step with larger dataset.
     """
 
-    station_df = transform_json_api_bdx_station_data_to_df(json_data).with_columns(
-        get_consecutive_no_transactions_out()
+    station_df = (
+        transform_json_api_bdx_station_data_to_df(json_data)
+        .with_columns(get_consecutive_no_transactions_out())
+        .with_columns(process_data_cluster(station_df))
     )
-    station_df = process_data_cluster(station_df)
