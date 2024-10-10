@@ -19,7 +19,7 @@ def test_transf_json_to_df():
     with open(ROOT_TESTS_DATA + "data_test_api_from_bdx.json") as f:
         station_json_loaded = json.load(f)
 
-    station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded)
+    station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded).collect()
 
     # Loading data from csv test (.csv)
     station_df_from_csv = pl.read_csv(
