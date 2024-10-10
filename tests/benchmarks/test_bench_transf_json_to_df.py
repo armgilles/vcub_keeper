@@ -1,11 +1,12 @@
-import pytest
 import json
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
+import pytest
+
+from vcub_keeper.config import ROOT_TESTS_DATA
 from vcub_keeper.production.data import transform_json_api_bdx_station_data_to_df
 from vcub_keeper.transform.features_factory import get_consecutive_no_transactions_out, process_data_cluster
-from vcub_keeper.config import ROOT_TESTS_DATA
 
 
 def read_json_data(file_name="data_test_api_from_bdx.json"):
@@ -28,8 +29,9 @@ def generate_data(num_stations, num_days, seed=None):
     # Dictionnaire de base GeoJSON
     data = {"type": "FeatureCollection", "features": []}
 
-    # Début de la période temporelle (par exemple aujourd'hui)
-    start_time = datetime.now()
+    # Début de la période temporelle (par exemple aujourd'hui) avec fuseau horaire UTC+1
+    tz = timezone(timedelta(hours=1))  # Fuseau horaire +01:00
+    start_time = datetime.now(tz=tz)  # Inclut le fuseau horaire
 
     # Calcul du nombre total de minutes à générer pour chaque jour (24 heures * 60 minutes // 5 minutes)
     interval_per_day = 24 * 60 // 5  # Nombre d'intervalle de 5 minutes par jour
@@ -64,7 +66,7 @@ def generate_data(num_stations, num_days, seed=None):
             feature = {
                 "type": "Feature",
                 "properties": {
-                    "time": time.isoformat(),  # Format ISO 8601
+                    "time": time.isoformat(timespec="seconds"),
                     "gid": station_id,
                     "ident": station_id,
                     "nom": station_name,
