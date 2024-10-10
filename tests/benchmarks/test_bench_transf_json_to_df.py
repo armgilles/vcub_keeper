@@ -86,8 +86,8 @@ def generate_data(num_stations, num_days, seed=None):
 station_json_loaded = read_json_data()
 
 # Read simulated data
-station_json_loaded_simu = generate_data(num_stations=3, num_days=3, seed=2024)  # (15135, 8)
-station_json_loaded_simu_big = generate_data(num_stations=15, num_days=15, seed=2024)  # (144000, 8)
+station_json_loaded_simu = generate_data(num_stations=3, num_days=3, seed=2024)  # (1296, 8)
+station_json_loaded_simu_big = generate_data(num_stations=7, num_days=15, seed=2024)  # (15127, 8)
 
 
 @pytest.mark.benchmark
