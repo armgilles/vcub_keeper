@@ -21,14 +21,6 @@ def read_json_data(file_name="data_test_api_from_bdx.json"):
 
 
 def generate_data(num_stations, num_months, seed=None):
-    """
-    Permets de générer des données d'activité pour un certain nombre de stations
-    et simule les données de l'API de Bordeaux Métropole.
-
-    Exemple :
-    ---------
-    station_json_loaded = generate_data(num_stations=20, num_months=1, seed=2024) # (86400, 8)
-    """
     # Si une seed est fournie, on l'utilise pour la reproductibilité
     if seed is not None:
         random.seed(seed)
@@ -39,6 +31,10 @@ def generate_data(num_stations, num_months, seed=None):
     # Début de la période temporelle (par exemple aujourd'hui)
     start_time = datetime.now()
 
+    # Calcul du nombre total de minutes à générer pour chaque mois (30 jours * 24 heures * 60 minutes // 5 minutes)
+    interval_per_day = 24 * 60 // 5  # Nombre d'intervalle de 5 minutes par jour
+    intervals_per_month = interval_per_day * 30  # Nombre d'intervalle pour 30 jours
+
     # Pour chaque station
     for station_id in range(1, num_stations + 1):
         # Nom de la station
@@ -47,18 +43,18 @@ def generate_data(num_stations, num_months, seed=None):
         # Capacité totale de la station (constante pour chaque station)
         total_places = random.randint(20, 50)  # Entre 20 et 50, la capacité totale fixe (nbplaces + nbvelos)
 
+        # Pré-générer les états ("CONNECTEE" ou "DECONNECTEE") pour tous les intervalles avec une seule opération
+        etats = random.choices(["CONNECTEE", "DECONNECTEE"], weights=[95, 5], k=num_months * intervals_per_month)
+
         # Pour chaque mois sur la période donnée
         for month in range(num_months):
-            # Début du mois (on peut utiliser des intervalles de 5 minutes comme exemple)
+            # Début du mois (éviter le recalcul de timedelta à chaque itération)
             month_start = start_time + timedelta(days=30 * month)
 
-            # Créer un enregistrement pour chaque intervalle de 5 minutes sur le mois
-            # Chaque 5 minutes = 288 enregistrements par jour
-            for minute in range(0, 30 * 24 * 60, 5):  # Chaque 5 minutes
-                time = month_start + timedelta(minutes=minute)
-
-                # Définir l'état avec une probabilité biaisée (95% "CONNECTEE", 5% "DECONNECTEE")
-                etat = random.choices(["CONNECTEE", "DECONNECTEE"], weights=[95, 5])[0]
+            # Générer tous les enregistrements pour ce mois
+            for i in range(intervals_per_month):
+                # Calculer le temps exact pour cet intervalle de 5 minutes
+                time = month_start + timedelta(minutes=i * 5)
 
                 # Faire varier le nombre de vélos disponibles entre 0 et la capacité totale
                 nbvelos = random.randint(0, total_places)
@@ -66,6 +62,7 @@ def generate_data(num_stations, num_months, seed=None):
                 # Calculer le nombre de places disponibles (nbplaces = capacité totale - nbvelos)
                 nbplaces = total_places - nbvelos
 
+                # Ajouter l'enregistrement
                 feature = {
                     "type": "Feature",
                     "properties": {
@@ -73,7 +70,7 @@ def generate_data(num_stations, num_months, seed=None):
                         "gid": station_id,
                         "ident": station_id,
                         "nom": station_name,
-                        "etat": etat,
+                        "etat": etats[month * intervals_per_month + i],  # Utilisation de la liste pré-générée
                         "nbplaces": nbplaces,  # Calculé en fonction du nombre de vélos
                         "nbvelos": nbvelos,  # Varie à chaque enregistrement
                     },
@@ -88,7 +85,7 @@ station_json_loaded = read_json_data()
 
 # Read simulated data
 station_json_loaded_simu = generate_data(num_stations=20, num_months=1, seed=2024)  # (86400, 8)
-station_json_loaded_simu_big = generate_data(num_stations=20, num_months=1, seed=2024)  # (777600, 8)
+station_json_loaded_simu_big = generate_data(num_stations=60, num_months=2, seed=2024)  # (518460, 8)
 
 
 @pytest.mark.benchmark
