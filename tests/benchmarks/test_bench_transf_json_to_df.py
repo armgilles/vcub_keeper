@@ -20,7 +20,7 @@ def read_json_data(file_name="data_test_api_from_bdx.json"):
     return station_json_loaded
 
 
-def generate_data(num_stations, num_months, seed=None):
+def generate_data(num_stations, num_days, seed=None):
     # Si une seed est fournie, on l'utilise pour la reproductibilité
     if seed is not None:
         random.seed(seed)
@@ -31,9 +31,12 @@ def generate_data(num_stations, num_months, seed=None):
     # Début de la période temporelle (par exemple aujourd'hui)
     start_time = datetime.now()
 
-    # Calcul du nombre total de minutes à générer pour chaque mois (30 jours * 24 heures * 60 minutes // 5 minutes)
+    # Calcul du nombre total de minutes à générer pour chaque jour (24 heures * 60 minutes // 5 minutes)
     interval_per_day = 24 * 60 // 5  # Nombre d'intervalle de 5 minutes par jour
-    intervals_per_month = interval_per_day * 30  # Nombre d'intervalle pour 30 jours
+    intervals_per_period = interval_per_day * num_days  # Nombre total d'intervalles pour tous les jours
+
+    # Liste temporaire pour accumuler les features
+    features = []
 
     # Pour chaque station
     for station_id in range(1, num_stations + 1):
@@ -44,38 +47,37 @@ def generate_data(num_stations, num_months, seed=None):
         total_places = random.randint(20, 50)  # Entre 20 et 50, la capacité totale fixe (nbplaces + nbvelos)
 
         # Pré-générer les états ("CONNECTEE" ou "DECONNECTEE") pour tous les intervalles avec une seule opération
-        etats = random.choices(["CONNECTEE", "DECONNECTEE"], weights=[95, 5], k=num_months * intervals_per_month)
+        etats = random.choices(["CONNECTEE", "DECONNECTEE"], weights=[95, 5], k=intervals_per_period)
 
-        # Pour chaque mois sur la période donnée
-        for month in range(num_months):
-            # Début du mois (éviter le recalcul de timedelta à chaque itération)
-            month_start = start_time + timedelta(days=30 * month)
+        # Générer tous les enregistrements pour la période (en nombre de jours)
+        for i in range(intervals_per_period):
+            # Calculer le temps exact pour cet intervalle de 5 minutes
+            time = start_time + timedelta(minutes=i * 5)
 
-            # Générer tous les enregistrements pour ce mois
-            for i in range(intervals_per_month):
-                # Calculer le temps exact pour cet intervalle de 5 minutes
-                time = month_start + timedelta(minutes=i * 5)
+            # Faire varier le nombre de vélos disponibles entre 0 et la capacité totale
+            nbvelos = random.randint(0, total_places)
 
-                # Faire varier le nombre de vélos disponibles entre 0 et la capacité totale
-                nbvelos = random.randint(0, total_places)
+            # Calculer le nombre de places disponibles (nbplaces = capacité totale - nbvelos)
+            nbplaces = total_places - nbvelos
 
-                # Calculer le nombre de places disponibles (nbplaces = capacité totale - nbvelos)
-                nbplaces = total_places - nbvelos
+            # Créer l'enregistrement (feature)
+            feature = {
+                "type": "Feature",
+                "properties": {
+                    "time": time.isoformat(),  # Format ISO 8601
+                    "gid": station_id,
+                    "ident": station_id,
+                    "nom": station_name,
+                    "etat": etats[i],  # Utilisation de la liste pré-générée
+                    "nbplaces": nbplaces,  # Calculé en fonction du nombre de vélos
+                    "nbvelos": nbvelos,  # Varie à chaque enregistrement
+                },
+            }
+            # Ajouter la feature à la liste temporaire
+            features.append(feature)
 
-                # Ajouter l'enregistrement
-                feature = {
-                    "type": "Feature",
-                    "properties": {
-                        "time": time.isoformat(),  # Format ISO 8601
-                        "gid": station_id,
-                        "ident": station_id,
-                        "nom": station_name,
-                        "etat": etats[month * intervals_per_month + i],  # Utilisation de la liste pré-générée
-                        "nbplaces": nbplaces,  # Calculé en fonction du nombre de vélos
-                        "nbvelos": nbvelos,  # Varie à chaque enregistrement
-                    },
-                }
-                data["features"].append(feature)
+    # Ajouter toutes les features d'un coup
+    data["features"].extend(features)
 
     return data
 
@@ -84,8 +86,8 @@ def generate_data(num_stations, num_months, seed=None):
 station_json_loaded = read_json_data()
 
 # Read simulated data
-station_json_loaded_simu = generate_data(num_stations=20, num_months=1, seed=2024)  # (86400, 8)
-station_json_loaded_simu_big = generate_data(num_stations=60, num_months=2, seed=2024)  # (518460, 8)
+station_json_loaded_simu = generate_data(num_stations=40, num_days=7, seed=2024)  # (40360, 8)
+station_json_loaded_simu_big = generate_data(num_stations=50, num_days=30, seed=2024)  # (216050, 8)
 
 
 @pytest.mark.benchmark
