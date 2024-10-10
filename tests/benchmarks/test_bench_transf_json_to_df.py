@@ -99,15 +99,15 @@ def test_benchmark_transf_json_to_df(json_data=station_json_loaded):
     station_df_from_json = transform_json_api_bdx_station_data_to_df(json_data)
 
 
-# @pytest.mark.benchmark
-# def test_benchmark_pipepline_transform(json_data=station_json_loaded_simu):
-#     """
-#     Benchmark for all transformation steps before ML step.
-#     """
+@pytest.mark.benchmark
+def test_benchmark_pipepline_transform(json_data=station_json_loaded_simu):
+    """
+    Benchmark for all transformation steps before ML step.
+    """
 
-#     station_df = transform_json_api_bdx_station_data_to_df(json_data)
-#     station_df = get_consecutive_no_transactions_out(station_df)
-#     station_df = process_data_cluster(station_df)
+    station_df = transform_json_api_bdx_station_data_to_df(json_data)
+    station_df = get_consecutive_no_transactions_out(station_df)
+    station_df = process_data_cluster(station_df)
 
 
 # @pytest.mark.benchmark
