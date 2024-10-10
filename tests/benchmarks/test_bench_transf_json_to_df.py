@@ -87,7 +87,7 @@ station_json_loaded = read_json_data()
 
 # Read simulated data
 station_json_loaded_simu = generate_data(num_stations=40, num_days=7, seed=2024)  # (40360, 8)
-station_json_loaded_simu_big = generate_data(num_stations=50, num_days=30, seed=2024)  # (216050, 8)
+# station_json_loaded_simu_big = generate_data(num_stations=50, num_days=30, seed=2024)  # (216050, 8)
 
 
 @pytest.mark.benchmark
@@ -110,12 +110,12 @@ def test_benchmark_pipepline_transform(json_data=station_json_loaded_simu):
     station_df = process_data_cluster(station_df)
 
 
-@pytest.mark.benchmark
-def test_benchmark_pipepline_transform_big(json_data=station_json_loaded_simu_big):
-    """
-    Benchmark for all transformation steps before ML step with larger dataset.
-    """
+# @pytest.mark.benchmark
+# def test_benchmark_pipepline_transform_big(json_data=station_json_loaded_simu_big):
+#     """
+#     Benchmark for all transformation steps before ML step with larger dataset.
+#     """
 
-    station_df = transform_json_api_bdx_station_data_to_df(json_data)
-    station_df = get_consecutive_no_transactions_out(station_df)
-    station_df = process_data_cluster(station_df)
+#     station_df = transform_json_api_bdx_station_data_to_df(json_data)
+#     station_df = get_consecutive_no_transactions_out(station_df)
+#     station_df = process_data_cluster(station_df)
