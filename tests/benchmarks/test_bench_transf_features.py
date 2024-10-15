@@ -159,7 +159,7 @@ def test_benchmark_process_data_cluster(activite_data=activite_data):
     calling multiple time get_encoding_time() function
     """
 
-    activite_data_feature = process_data_cluster(activite_data)
+    activite_data_feature = process_data_cluster(activite_data).collect()
 
 
 @pytest.mark.benchmark
@@ -169,4 +169,4 @@ def test_benchmark_process_data_cluster_big(activite_data=activite_data_big):
     calling multiple time get_encoding_time() function
     """
 
-    activite_data_feature = process_data_cluster(activite_data)
+    activite_data_feature = process_data_cluster(activite_data).collect()
