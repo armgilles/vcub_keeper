@@ -68,16 +68,18 @@ def create_station_df_from_json_big(station_df_from_json: pd.DataFrame) -> pd.Da
     return station_df_from_json_big
 
 
-activite_data = read_activity_data()
-activite_data_pd = activite_data.collect().to_pandas()
-activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pd)).lazy()  # bigger dataset
+activite_data = read_activity_data().collect()  # small dataset are collected
+activite_data_pd = activite_data.to_pandas()
+activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pd)).lazy()  # bigger dataset are in lazy mode
 
 # To test get_consecutive_no_transactions_out() function
 station_json_loaded = read_json_data()
-station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded)
+station_df_from_json = transform_json_api_bdx_station_data_to_df(
+    station_json_loaded
+).collect()  # small dataset are collected
 station_df_from_json_big = pl.from_pandas(
-    create_station_df_from_json_big(station_df_from_json.collect().to_pandas())
-).lazy()  # bigger dataset
+    create_station_df_from_json_big(station_df_from_json.to_pandas())
+).lazy()  # bigger dataset are in lazy mode
 
 
 @pytest.mark.benchmark
