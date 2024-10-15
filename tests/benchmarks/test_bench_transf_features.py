@@ -88,7 +88,7 @@ def test_benchmark_get_transaction_out(activite_data=activite_data):
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activity_data_feature = get_transactions_out(activite_data).collect()
+    activity_data_feature = get_transactions_out(activite_data)
 
 
 @pytest.mark.benchmark
@@ -106,7 +106,7 @@ def test_benchmark_get_transaction_in(activite_data=activite_data):
     Benchmark for transforming some feature (get_transactions_in)
     """
 
-    activity_data_feature = get_transactions_in(activite_data).collect()
+    activity_data_feature = get_transactions_in(activite_data)
 
 
 @pytest.mark.benchmark
@@ -124,7 +124,7 @@ def test_benchmark_get_transaction_all(activite_data=activite_data):
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    activity_data_feature = get_transactions_all(activite_data).collect()
+    activity_data_feature = get_transactions_all(activite_data)
 
 
 @pytest.mark.benchmark
@@ -142,7 +142,7 @@ def test_benchmark_get_consecutive_no_transactions_out(station_df_from_json=stat
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json).collect()
+    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json)
 
 
 @pytest.mark.benchmark
@@ -161,7 +161,7 @@ def test_benchmark_process_data_cluster(activite_data=activite_data):
     calling multiple time get_encoding_time() function
     """
 
-    activite_data_feature = process_data_cluster(activite_data).collect()
+    activite_data_feature = process_data_cluster(activite_data)
 
 
 @pytest.mark.benchmark
