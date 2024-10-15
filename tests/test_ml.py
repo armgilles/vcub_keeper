@@ -37,7 +37,7 @@ def test_ml_train_on_one_station(data_activity, anomaly):
     station_df = transform_json_station_data_to_df(station_json)
 
     # Create feature basé sur l'absence consécutive de prise de vcub sur la station
-    station_df = station_df.with_columns(get_consecutive_no_transactions_out()).collect().to_pandas()
+    station_df = get_consecutive_no_transactions_out(station_df).collect().to_pandas()
 
     clf = train_cluster_station(station_df, station_id=station_id, profile_station_activity=profile_station_activity)
 

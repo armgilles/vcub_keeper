@@ -57,9 +57,9 @@ def test_get_transactions_out():
 
     df_activite = pl.DataFrame(data).drop("transactions_out").lazy()
 
-    result = df_activite.with_columns(get_transactions_out()).collect()
+    result = get_transactions_out(df_activite)
 
-    expected = pl.DataFrame(data)
+    expected = pl.LazyFrame(data)
 
     assert_frame_equal(result, expected)
 
@@ -107,9 +107,9 @@ def test_get_transactions_in():
 
     df_activite = pl.DataFrame(data).drop("transactions_in").lazy()
 
-    result = df_activite.with_columns(get_transactions_in()).collect()
+    result = get_transactions_in(df_activite)
 
-    expected = pl.DataFrame(data)
+    expected = pl.LazyFrame(data)
 
     assert_frame_equal(result, expected)
 
@@ -157,9 +157,9 @@ def test_get_transactions_all():
 
     df_activite = pl.DataFrame(data).drop("transactions_all").lazy()
 
-    result = df_activite.with_columns(get_transactions_all()).collect()
+    result = get_transactions_all(df_activite)
 
-    expected = pl.DataFrame(data)
+    expected = pl.LazyFrame(data)
 
     assert_frame_equal(result, expected)
 
@@ -210,13 +210,9 @@ def test_get_consecutive_no_transactions_out():
 
     df_activite = pl.DataFrame(data).drop("transactions_out", "consecutive_no_transactions_out").lazy()
 
-    result = (
-        df_activite.with_columns(get_transactions_out()).with_columns(get_consecutive_no_transactions_out())
-    ).collect()
+    result = df_activite.pipe(get_transactions_out).pipe(get_consecutive_no_transactions_out)
 
-    expected = pl.DataFrame(data)
-
-    expected = pl.DataFrame(data)
+    expected = pl.LazyFrame(data)
 
     pl.testing.assert_frame_equal(result, expected)
 
@@ -225,6 +221,7 @@ def test_get_encoding_time_quarter():
     """
     test de la fonction get_encoding_time() pour les trimestres
     """
+
     data = pl.DataFrame(
         {
             "date": pl.date_range(start=datetime(2022, 1, 1), end=datetime(2022, 12, 1), interval="1q", eager=True),
@@ -232,8 +229,7 @@ def test_get_encoding_time_quarter():
         }
     )
 
-    encoding_quarter_expr = get_encoding_time("quarter", max_val=4)
-    result = data.lazy().with_columns(*encoding_quarter_expr).collect()
+    result = get_encoding_time(data, "quarter", max_val=4)
 
     expected_sin = np.sin(2 * np.pi * data["quarter"] / 4)
     expected_cos = np.cos(2 * np.pi * data["quarter"] / 4)
@@ -246,6 +242,7 @@ def test_get_encoding_time_weekday():
     """
     test de la fonction get_encoding_time() pour les jours de la semaine
     """
+
     data = pl.DataFrame(
         {
             "date": pl.date_range(start=datetime(2022, 1, 1), end=datetime(2022, 1, 7), interval="1d", eager=True),
@@ -253,8 +250,7 @@ def test_get_encoding_time_weekday():
         }
     )
 
-    encoding_weekday_expr = get_encoding_time("weekday", max_val=7)
-    result = data.lazy().with_columns(*encoding_weekday_expr).collect()
+    result = get_encoding_time(data, "weekday", max_val=7)
 
     expected_sin = np.sin(2 * np.pi * data["weekday"] / 7)
     expected_cos = np.cos(2 * np.pi * data["weekday"] / 7)
@@ -267,6 +263,7 @@ def test_get_encoding_time_hours():
     """
     test de la fonction get_encoding_time() pour les heures
     """
+
     data = pl.DataFrame(
         {
             "date": pl.datetime_range(
@@ -276,8 +273,7 @@ def test_get_encoding_time_hours():
         }
     )
 
-    encoding_hours_expr = get_encoding_time("hours", max_val=24)
-    result = data.lazy().with_columns(*encoding_hours_expr).collect()
+    result = get_encoding_time(data, "hours", max_val=24)
 
     expected_sin = np.sin(2 * np.pi * data["hours"] / 24)
     expected_cos = np.cos(2 * np.pi * data["hours"] / 24)
