@@ -1,6 +1,6 @@
 [run]
 source = vcub_keeper
-omit = tests/*, vcub_keeper/visualisation.py
+omit = tests/*, src/vcub_keeper/visualisation.py
 
 [report]
  show_missing = True

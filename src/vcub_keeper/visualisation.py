@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+import polars as pl
 import seaborn as sns
 from keplergl import KeplerGl
 from plotly.offline import init_notebook_mode, iplot, offline
@@ -139,14 +140,14 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc="mean", filt
     station = data[data["station_id"] == station_id].copy()
 
     if filter_data is True:
-        station = filter_periode(station, NON_USE_STATION_ID)
+        station = filter_periode(pl.from_pandas(station), NON_USE_STATION_ID).to_pandas()
 
     # station status == 1 (ok)
     station = station[station["status"] == 1]
 
     # Resample hours
     station = station.set_index("date")
-    station_resample = station.resample("H", label="right").agg({feature_to_plot: "sum"}).reset_index()
+    station_resample = station.resample("h", label="right").agg({feature_to_plot: "sum"}).reset_index()
 
     station_resample["month"] = station_resample["date"].dt.month
     station_resample["weekday"] = station_resample["date"].dt.weekday

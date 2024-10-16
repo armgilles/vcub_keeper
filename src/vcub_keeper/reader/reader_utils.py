@@ -1,9 +1,9 @@
-import pandas as pd
+from datetime import datetime
 
-# from vcub_keeper.config import NON_USE_STATION_ID
+import polars as pl
 
 
-def filter_periode(data, NON_USE_STATION_ID):
+def filter_periode(data: pl.DataFrame, non_use_station_id: list[int] | None = None) -> pl.DataFrame:
     """
     Filter DataFrame based on time or event.
         - Confinement Covid
@@ -11,13 +11,12 @@ def filter_periode(data, NON_USE_STATION_ID):
     """
 
     # Confinement Covid 17 mars 2020 au 11 mai 2020 (on ajoute 2 jours à la fin par sécu)
-    start_date_covid = "2020-03-17"  # 00:00:00"
-    end_date_covid = "2020-05-13"  # 23:59:59"
-    after_start_date = data[data["date"] < start_date_covid]
-    before_end_date = data[data["date"] > end_date_covid]
-    data = pd.concat([after_start_date, before_end_date])
+    start_date_covid = datetime(2020, 3, 17)
+    end_date_covid = datetime(2020, 5, 13)
+
+    data = data.filter(~pl.col.date.is_between(start_date_covid, end_date_covid))
 
     # Station Vcub non utilisé par le grand public
-    data = data[~data["station_id"].isin(NON_USE_STATION_ID)]
+    data = data.filter(~pl.col.station_id.is_in(non_use_station_id))
 
     return data
