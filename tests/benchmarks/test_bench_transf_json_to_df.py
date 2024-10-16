@@ -107,21 +107,11 @@ def test_benchmark_pipepline_transform(json_data=station_json_loaded_simu):
     Benchmark for all transformation steps before ML step.
     """
 
-    # todo : using pipe() ?
-    # station_df = transform_json_api_bdx_station_data_to_df(json_data)
-    # station_df = get_consecutive_no_transactions_out(station_df)
-    # station_df = process_data_cluster(station_df)
-
     station_df = (
         transform_json_api_bdx_station_data_to_df(json_data)
         .pipe(get_consecutive_no_transactions_out)
         .pipe(process_data_cluster)
     ).collect()
-
-    #     transform_json_api_bdx_station_data_to_df(json_data)
-    #     .pipe(get_consecutive_no_transactions_out)
-    #     .pipe(process_data_cluster())
-    # )
 
 
 @pytest.mark.benchmark
