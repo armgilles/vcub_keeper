@@ -3,18 +3,18 @@ import pandas as pd
 import polars as pl
 
 
-def get_transactions_out(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
+def get_transactions_out(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul le nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données
 
     Parameters
     ----------
-    data : DataFrame
+    data : layzFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : layzFrame
         Ajout de colonne 'transactions_out'
 
     Examples
@@ -34,24 +34,21 @@ def get_transactions_out(data: pl.DataFrame, output_type=None) -> pl.DataFrame |
     # Drop non usefull column
     data = data.drop("available_stands_shift")
 
-    if output_type == "pandas":
-        data = data.to_pandas()
-
     return data
 
 
-def get_transactions_in(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
+def get_transactions_in(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul le nombre d'ajout de vélo qu'il y a eu pour une même station entre 2 points de données
 
     Parameters
     ----------
-    data : DataFrame
+    data : lazyFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : lazyFrame
         Ajout de colonne 'transactions_in'
 
     Examples
@@ -71,25 +68,22 @@ def get_transactions_in(data: pl.DataFrame, output_type=None) -> pl.DataFrame | 
     # Drop non usefull column
     data = data.drop("available_bikes_shift")
 
-    if output_type == "pandas":
-        data = data.to_pandas()
-
     return data
 
 
-def get_transactions_all(data: pl.DataFrame, output_type=None) -> pl.DataFrame | pd.DataFrame:
+def get_transactions_all(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul le nombre de transactions de vélo (ajout et dépôt) qu'il y a eu pour une même
     station entre 2 points de données
 
     Parameters
     ----------
-    data : DataFrame
+    data : lazyFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : lazyFrame
         Ajout de colonne 'transactions_all'
 
     Examples
@@ -105,13 +99,10 @@ def get_transactions_all(data: pl.DataFrame, output_type=None) -> pl.DataFrame |
     # Drop non usefull column
     data = data.drop("available_bikes_shift")
 
-    if output_type == "pandas":
-        data = data.to_pandas()
-
     return data
 
 
-def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
+def get_consecutive_no_transactions_out(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul depuis combien de temps la station n'a pas eu de prise de vélo. Plus le chiffre est haut,
     plus ça fait longtemps que la station est inactive sur la prise de vélo.
@@ -127,12 +118,12 @@ def get_consecutive_no_transactions_out(data: pl.DataFrame) -> pl.DataFrame:
 
     Parameters
     ----------
-    data : DataFrame
+    data : LazyFrame
         Activité des stations Vcub avec la feature `transactions_out` (get_transactions_out)
 
     Returns
     -------
-    data : DataFrame
+    data : LazyFrame
         Ajout de colonne 'consecutive_no_transactions_out'
 
     Examples
@@ -225,13 +216,13 @@ def get_meteo(data, meteo):
     return data
 
 
-def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.DataFrame:
+def get_encoding_time(data: pl.LazyFrame, col_date: str, max_val: int) -> pl.LazyFrame:
     """
     Encoding time
 
     Parameters
     ----------
-    data : DataFrame
+    data : LazyFrame
         Activité des stations Vcub
     col_date : str
         Nom de la colonne à encoder
@@ -240,7 +231,7 @@ def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.Dat
 
     Returns
     -------
-    data : DataFrame
+    data : LazyFrame
         Ajout de colonne Sin_[col_date] & Cos_[col_date]
 
     Examples
@@ -259,18 +250,18 @@ def get_encoding_time(data: pl.DataFrame, col_date: str, max_val: int) -> pl.Dat
     return data
 
 
-def process_data_cluster(data: pl.DataFrame) -> pl.DataFrame:
+def process_data_cluster(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Process some Feature engineering
 
     Parameters
     ----------
-    data : DataFrame
+    data : LazyFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : LazyFrame
         Add some columns in DataFrame
 
     Examples

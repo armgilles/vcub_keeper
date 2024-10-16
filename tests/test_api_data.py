@@ -21,7 +21,7 @@ def test_get_api_data_one_station():
 
     station_json = get_data_from_api_by_station(station_id=station_id, start_date=start_date, stop_date=stop_date)
 
-    station_df = transform_json_station_data_to_df(station_json)
+    station_df = transform_json_station_data_to_df(station_json).collect()
 
     # Check unique station number
     assert station_df["station_id"].unique().to_list() == [106]
@@ -52,7 +52,7 @@ def test_get_api_data_many_station():
 
     station_json = get_data_from_api_by_station(station_id=station_id, start_date=start_date, stop_date=stop_date)
 
-    station_df = transform_json_station_data_to_df(station_json)
+    station_df = transform_json_station_data_to_df(station_json).collect()
 
     # Check unique station number
     assert station_df["station_id"].unique().to_list() == [3, 106]
@@ -88,7 +88,7 @@ def test_get_api_bdx_data_one_station():
 
     station_json = get_data_from_api_bdx_by_station(station_id=station_id, start_date=start_date, stop_date=stop_date)
 
-    station_df = transform_json_api_bdx_station_data_to_df(station_json)
+    station_df = transform_json_api_bdx_station_data_to_df(station_json).collect()
 
     # Check unique station number
     assert station_df.select("station_id").n_unique() == 1
@@ -119,7 +119,7 @@ def test_get_api_bdx_data_many_station():
 
     station_json = get_data_from_api_bdx_by_station(station_id=station_id, start_date=start_date, stop_date=stop_date)
 
-    station_df = transform_json_api_bdx_station_data_to_df(station_json)
+    station_df = transform_json_api_bdx_station_data_to_df(station_json).collect()
 
     # Check unique station number
     assert station_df["station_id"].unique().to_list() == [3, 106]
