@@ -22,7 +22,7 @@ test_data = [
 
 
 @pytest.mark.parametrize("data_activity, anomaly", test_data)
-def test_ml_train_on_one_station(data_activity, anomaly):
+def test_ml_train_on_ne_station(data_activity, anomaly):
     """
     On test le learning de l'algo sur une station et ses prédictions.
     """
@@ -37,7 +37,7 @@ def test_ml_train_on_one_station(data_activity, anomaly):
     station_df = transform_json_station_data_to_df(station_json)
 
     # Create feature basé sur l'absence consécutive de prise de vcub sur la station
-    station_df = get_consecutive_no_transactions_out(station_df).collect().to_pandas()
+    station_df = get_consecutive_no_transactions_out(station_df)
 
     clf = train_cluster_station(station_df, station_id=station_id, profile_station_activity=profile_station_activity)
 
@@ -46,21 +46,23 @@ def test_ml_train_on_one_station(data_activity, anomaly):
 
     # Check prediction sanity
     # Check features creation is the same as FEATURES_TO_USE_CLUSTER (from config.py)
-    assert (station_df_pred[FEATURES_TO_USE_CLUSTER].columns == FEATURES_TO_USE_CLUSTER).any()
+    assert station_df_pred.select(FEATURES_TO_USE_CLUSTER).columns == FEATURES_TO_USE_CLUSTER
 
     # Check prediction
     # transform test data into DataFrame
-    data_activity_df = pd.DataFrame((data_activity))
+    data_activity_df = pl.LazyFrame(data_activity)
     assert (
-        predict_anomalies_station(data=data_activity_df, clf=clf, station_id=station_id)["anomaly"].squeeze() == anomaly
+        predict_anomalies_station(data=data_activity_df, clf=clf, station_id=station_id).select("anomaly").item()
+        == anomaly
     )
 
     # Score anomaly
     # Have to build features to before to calcul anomaly score
-    data_activity_df_build = process_data_cluster(pl.from_pandas(data_activity_df)).to_pandas()
+    data_activity_df_build = process_data_cluster(data_activity_df).collect()
     score_anomaly = (
-        logistic_predict_proba_from_model(clf.decision_function(data_activity_df_build[FEATURES_TO_USE_CLUSTER])) * 100
-    )[0].squeeze()
+        logistic_predict_proba_from_model(clf.decision_function(data_activity_df_build.select(FEATURES_TO_USE_CLUSTER)))
+        * 100
+    )[0]
     print(score_anomaly)
 
     if anomaly == 1:  # Station OK
