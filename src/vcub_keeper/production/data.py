@@ -98,10 +98,7 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.LazyFrame:
     station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    # todo: using pipe() ?
-    station_df = get_transactions_in(station_df)
-    station_df = get_transactions_out(station_df)
-    station_df = get_transactions_all(station_df)
+    station_df = station_df.pipe(get_transactions_in).pipe(get_transactions_out).pipe(get_transactions_all)
 
     ## Resampling
     station_df_resample = (
@@ -248,10 +245,7 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.LazyFram
     station_df = station_df.sort(["station_id", "date"], descending=[False, False])
 
     # Create features
-    # todo: using pipe() ?
-    station_df = get_transactions_in(station_df)
-    station_df = get_transactions_out(station_df)
-    station_df = get_transactions_all(station_df)
+    station_df = station_df.pipe(get_transactions_in).pipe(get_transactions_out).pipe(get_transactions_all)
 
     ## Resampling
 

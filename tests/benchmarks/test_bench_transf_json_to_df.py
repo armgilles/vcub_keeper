@@ -24,7 +24,7 @@ def read_json_data(file_name="data_test_api_from_bdx.json"):
 def generate_data(num_stations, num_days, seed=None):
     # Si une seed est fournie, on l'utilise pour la reproductibilité
     if seed is not None:
-        random.seed(seed)
+        random.seed(2024)
 
     # Dictionnaire de base GeoJSON
     data = {"type": "FeatureCollection", "features": []}
@@ -108,9 +108,20 @@ def test_benchmark_pipepline_transform(json_data=station_json_loaded_simu):
     """
 
     # todo : using pipe() ?
-    station_df = transform_json_api_bdx_station_data_to_df(json_data)
-    station_df = get_consecutive_no_transactions_out(station_df)
-    station_df = process_data_cluster(station_df)
+    # station_df = transform_json_api_bdx_station_data_to_df(json_data)
+    # station_df = get_consecutive_no_transactions_out(station_df)
+    # station_df = process_data_cluster(station_df)
+
+    station_df = (
+        transform_json_api_bdx_station_data_to_df(json_data)
+        .pipe(get_consecutive_no_transactions_out)
+        .pipe(process_data_cluster)
+    ).collect()
+
+    #     transform_json_api_bdx_station_data_to_df(json_data)
+    #     .pipe(get_consecutive_no_transactions_out)
+    #     .pipe(process_data_cluster())
+    # )
 
 
 @pytest.mark.benchmark
@@ -119,6 +130,8 @@ def test_benchmark_pipepline_transform_big(json_data=station_json_loaded_simu_bi
     Benchmark for all transformation steps before ML step with larger dataset.
     """
 
-    station_df = transform_json_api_bdx_station_data_to_df(json_data)
-    station_df = get_consecutive_no_transactions_out(station_df)
-    station_df = process_data_cluster(station_df)
+    station_df = (
+        transform_json_api_bdx_station_data_to_df(json_data)
+        .pipe(get_consecutive_no_transactions_out)
+        .pipe(process_data_cluster)
+    ).collect()
