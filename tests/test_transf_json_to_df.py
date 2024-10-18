@@ -30,3 +30,71 @@ def test_transf_json_to_df():
 
     # assert len(station_df_from_json.compare(station_df_from_csv)) == 0
     assert_frame_equal(station_df_from_json, station_df_from_csv)
+
+
+def test_transf_json_to_df_with_new_status_value_165():
+    """
+    Check la fonction de transformation de données entre le json (from API call)
+    avec de noouvelles valeurs pour le champs "etat" du json issue de l'api de Bordeaux
+
+    Issue : https://github.com/armgilles/vcub_keeper/issues/165
+    """
+
+    station_json = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {
+                    "time": "2024-05-06T12:20:00+02:00",
+                    "gid": 14,
+                    "ident": 15,
+                    "nom": "Capdeville",
+                    "etat": "DECONNECTEE",
+                    "nbplaces": 1,
+                    "nbvelos": 0,
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "time": "2024-05-06T12:25:00+02:00",
+                    "gid": 14,
+                    "ident": 15,
+                    "nom": "Capdeville",
+                    "etat": "CONNECTEE",
+                    "nbplaces": 1,
+                    "nbvelos": 0,
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "time": "2024-05-06T12:30:00+02:00",
+                    "gid": 14,
+                    "ident": 15,
+                    "nom": "Capdeville",
+                    "etat": "MAINTENANCE",
+                    "nbplaces": 1,
+                    "nbvelos": 0,
+                },
+            },
+            {
+                "type": "Feature",
+                "properties": {
+                    "time": "2024-05-06T12:35:00+02:00",
+                    "gid": 14,
+                    "ident": 15,
+                    "nom": "Capdeville",
+                    "etat": "AUTRE CHOSE ???",  # New value
+                    "nbplaces": 1,
+                    "nbvelos": 0,
+                },
+            },
+        ],
+    }
+
+    station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json).collect()
+
+    status_values = station_df_from_json.select(pl.col("status")).unique().to_series()
+    assert status_values.is_in([0, 1]).all()
