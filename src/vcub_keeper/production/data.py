@@ -85,7 +85,7 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.LazyFrame:
 
     # Status mapping
     status_dict = {"open": 1, "closed": 0}
-    station_df = station_df.with_columns(status=pl.col("status").replace(status_dict).cast(pl.UInt8))
+    station_df = station_df.with_columns(status=pl.col("status").replace(status_dict, default=0).cast(pl.UInt8))
 
     # Naming
     station_df = station_df.rename({"id": "station_id", "ts": "date"})
@@ -233,8 +233,8 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.LazyFram
     ).drop("type", "properties.gid", "properties.nom")  # drop unused columns
 
     # Status mapping
-    status_dict = {"CONNECTEE": 1, "DECONNECTEE": 0}
-    station_df = station_df.with_columns(status=pl.col("status").replace(status_dict).cast(pl.UInt8))
+    status_dict = {"CONNECTEE": 1, "DECONNECTEE": 0, "MAINTENANCE": 0}
+    station_df = station_df.with_columns(status=pl.col("status").replace(status_dict, default=0).cast(pl.UInt8))
 
     station_df = station_df.with_columns(station_id=pl.col("station_id").cast(pl.Int32()))
     station_df = station_df.with_columns(
