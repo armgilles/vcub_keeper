@@ -18,7 +18,6 @@ from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.transform.features_factory import process_data_cluster
 
 
-# TODO: Tranform input as polars lazy frame
 def train_cluster_station(data: pl.LazyFrame, station_id: int, profile_station_activity: str | None = None) -> Pipeline:
     """
     Train estimator on a single station_id Time Serie.
@@ -110,8 +109,7 @@ def train_cluster_station(data: pl.LazyFrame, station_id: int, profile_station_a
     return pipe
 
 
-# TODO: Tranform input as polars lazy frame
-def predict_anomalies_station(data, clf, station_id):
+def predict_anomalies_station(data: pl.LazyFrame, clf: Pipeline, station_id: int) -> pl.DataFrame:
     """
     Predict anomalies on given station with an estimator
 
