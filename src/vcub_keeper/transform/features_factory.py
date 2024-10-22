@@ -137,7 +137,7 @@ def get_consecutive_no_transactions_out(data: pl.LazyFrame) -> pl.LazyFrame:
             pl.when(
                 (pl.col("transactions_out") >= 1)
                 | (pl.col("status") == 0)
-                | (pl.col("available_stands") <= 2)
+                | (pl.col("available_bikes") <= 2)
                 | (pl.col("available_stands").is_null())
             )
             .then(0)
