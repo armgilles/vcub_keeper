@@ -196,16 +196,16 @@ def test_get_consecutive_no_transactions_out():
             pd.Timestamp("2018-12-01 01:40:00"),
             pd.Timestamp("2018-12-01 01:50:00"),
         ],
-        "available_stands": [28.0, 28.0, 28.0, 27.0, 27.0, 28.0, 28.0, 28.0, 28.0, 29.0, 29.0]
+        "available_stands": [28.0, 28.0, 28.0, 27.0, 27.0, 28.0, 28.0, 28.0, 28.0, 30.0, 30.0]
         + [2.0, 6.0, 9.0, 9.0, 11.0, 13.0, 13.0, 13.0, 17.0, 18.0, 20.0],
-        "available_bikes": [4.0, 4.0, 4.0, 5.0, 5.0, 4.0, 4.0, 4.0, 4.0, 3.0, 3.0]
-        + [31.0, 27.0, 24.0, 24.0, 22.0, 20.0, 20.0, 20.0, 16.0, 15.0, 13.0],
+        "available_bikes": [4.0, 4.0, 4.0, 5.0, 5.0, 4.0, 4.0, 4.0, 4.0, 2.0, 2.0]
+        + [31.0, 27.0, 24.0, 24.0, 22.0, 20.0, 20.0, 20.0, 16.0, 2, 2],
         "status": [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1] + [1] * 11,
-        "transactions_out": [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+        "transactions_out": [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 2.0, 0.0]
         + [0.0, 4.0, 3.0, 0.0, 2.0, 2.0, 0.0, 0.0, 4.0, 1.0, 2.0],
         # Old version value (pandas) was wrong (beging of new group have to be 1 if logic ok)
         # "consecutive_no_transactions_out": [0, 1, 2, 0, 1, 0, 1, 2, 3, 0, 1] + [0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
-        "consecutive_no_transactions_out": [1, 2, 3, 0, 1, 0, 1, 2, 3, 0, 1] + [0, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
+        "consecutive_no_transactions_out": [1, 2, 3, 0, 1, 0, 1, 2, 3, 0, 0] + [1, 0, 0, 1, 0, 0, 1, 2, 0, 0, 0],
     }
 
     df_activite = pl.DataFrame(data).drop("transactions_out", "consecutive_no_transactions_out").lazy()
