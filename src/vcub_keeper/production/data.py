@@ -238,7 +238,10 @@ def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.LazyFram
 
     station_df = station_df.with_columns(station_id=pl.col("station_id").cast(pl.Int32()))
     station_df = station_df.with_columns(
-        date=pl.col("date").str.to_datetime(format="%Y-%m-%dT%H:%M:%S%z", time_zone="UTC")
+        # cast into datetime with tz_aware to Paris to none
+        date=pl.col("date")
+        .str.to_datetime(format="%Y-%m-%dT%H:%M:%S%z", time_zone="Europe/Paris")
+        .dt.replace_time_zone(None),
     )
 
     station_df = station_df.unique(subset=["station_id", "date"])
