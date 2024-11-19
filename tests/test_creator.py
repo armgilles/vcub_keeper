@@ -39,7 +39,7 @@ Geo Point;Geo Shape;commune;IDENT;TYPE;NOM;NBPLACES;NBVELOS
 
     expected_df = pl.DataFrame(expected_data)
 
-    assert_frame_equal(stations, expected_df, check_dtype=False)
+    assert_frame_equal(stations, expected_df, check_dtypes=False)
 
 
 def test_read_stations_attributes():
@@ -75,7 +75,7 @@ Geo Point;Geo Shape;COMMUNE;total_stand;NOM;TYPEA;station_id;lat;lon
 
     expected_df = pl.DataFrame(expected_data)
 
-    assert_frame_equal(stations, expected_df, check_dtype=False)
+    assert_frame_equal(stations, expected_df, check_dtypes=False)
 
 
 def test_create_breakpoints_to_use_cut():
