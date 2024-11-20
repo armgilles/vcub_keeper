@@ -48,6 +48,9 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["notebooks", "tests"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["*.ipynb", "*.md"]
  
 [tool.setuptools.package-data]
 "*" = ["config*.yml"]
