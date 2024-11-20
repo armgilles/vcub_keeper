@@ -50,7 +50,7 @@ where = ["src"]
 exclude = ["notebooks", "tests"]
 
 [tool.setuptools.exclude-package-data]
-* = ["*.ipynb", "*.md"]
+"*" = ["*.ipynb", "*.md"]
  
 [tool.setuptools.package-data]
 "*" = ["config*.yml"]
