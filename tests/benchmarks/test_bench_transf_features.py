@@ -1,4 +1,5 @@
 import pytest
+import polars as pl
 import pandas as pd
 import json
 
@@ -67,13 +68,18 @@ def create_station_df_from_json_big(station_df_from_json: pd.DataFrame) -> pd.Da
     return station_df_from_json_big
 
 
-activite_data = read_activity_data()
-activite_data_big = create_activite_data_big(activite_data)  # bigger dataset
+activite_data = read_activity_data().collect()  # small dataset are collected
+activite_data_pd = activite_data.to_pandas()
+activite_data_big = pl.from_pandas(create_activite_data_big(activite_data_pd)).lazy()  # bigger dataset are in lazy mode
 
 # To test get_consecutive_no_transactions_out() function
 station_json_loaded = read_json_data()
-station_df_from_json = transform_json_api_bdx_station_data_to_df(station_json_loaded)
-station_df_from_json_big = create_station_df_from_json_big(station_df_from_json)  # bigger dataset
+station_df_from_json = transform_json_api_bdx_station_data_to_df(
+    station_json_loaded
+).collect()  # small dataset are collected
+station_df_from_json_big = pl.from_pandas(
+    create_station_df_from_json_big(station_df_from_json.to_pandas())
+).lazy()  # bigger dataset are in lazy mode
 
 
 @pytest.mark.benchmark
@@ -91,7 +97,7 @@ def test_benchmark_get_transaction_out_big(activite_data=activite_data_big):
     Benchmark for transforming some feature (get_transactions_out)
     """
 
-    activity_data_feature = get_transactions_out(activite_data)
+    activity_data_feature = get_transactions_out(activite_data).collect()
 
 
 @pytest.mark.benchmark
@@ -109,7 +115,7 @@ def test_benchmark_get_transaction_in_big(activite_data=activite_data_big):
     Benchmark for transforming some feature (get_transactions_in)
     """
 
-    activity_data_feature = get_transactions_in(activite_data)
+    activity_data_feature = get_transactions_in(activite_data).collect()
 
 
 @pytest.mark.benchmark
@@ -127,7 +133,7 @@ def test_benchmark_get_transaction_all_big(activite_data=activite_data_big):
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    activity_data_feature = get_transactions_all(activite_data)
+    activity_data_feature = get_transactions_all(activite_data).collect()
 
 
 @pytest.mark.benchmark
@@ -145,7 +151,7 @@ def test_benchmark_get_consecutive_no_transactions_out_big(station_df_from_json=
     Benchmark for transforming some feature (get_transactions_all)
     """
 
-    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json)
+    station_df_from_json_feature = get_consecutive_no_transactions_out(station_df_from_json).collect()
 
 
 @pytest.mark.benchmark
@@ -165,4 +171,4 @@ def test_benchmark_process_data_cluster_big(activite_data=activite_data_big):
     calling multiple time get_encoding_time() function
     """
 
-    activite_data_feature = process_data_cluster(activite_data)
+    activite_data_feature = process_data_cluster(activite_data).collect()

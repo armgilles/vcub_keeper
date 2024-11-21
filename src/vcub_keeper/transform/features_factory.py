@@ -1,19 +1,20 @@
 import numpy as np
 import pandas as pd
+import polars as pl
 
 
-def get_transactions_out(data):
+def get_transactions_out(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul le nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données
 
     Parameters
     ----------
-    data : DataFrame
+    data : layzFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : layzFrame
         Ajout de colonne 'transactions_out'
 
     Examples
@@ -22,32 +23,32 @@ def get_transactions_out(data):
     activite = get_transactions_out(activite)
     """
 
-    data["available_stands_shift"] = data.groupby("station_id")["available_stands"].shift(1)
+    data = data.with_columns(pl.col("available_stands").shift(1).over("station_id").alias("available_stands_shift"))
+    data = data.with_columns(pl.col("available_stands_shift").fill_null(pl.col("available_stands")))
+    data = data.with_columns(transactions_out=(pl.col("available_stands") - pl.col("available_stands_shift")))
 
-    data["available_stands_shift"] = data["available_stands_shift"].fillna(data["available_stands"])
-
-    data["transactions_out"] = data["available_stands"] - data["available_stands_shift"]
-
-    data.loc[data["transactions_out"] < 0, "transactions_out"] = 0
+    data = data.with_columns(
+        transactions_out=pl.when(pl.col("transactions_out") < 0).then(0).otherwise(pl.col("transactions_out"))
+    )
 
     # Drop non usefull column
-    data.drop("available_stands_shift", axis=1, inplace=True)
+    data = data.drop("available_stands_shift")
 
     return data
 
 
-def get_transactions_in(data):
+def get_transactions_in(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul le nombre d'ajout de vélo qu'il y a eu pour une même station entre 2 points de données
 
     Parameters
     ----------
-    data : DataFrame
+    data : lazyFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : lazyFrame
         Ajout de colonne 'transactions_in'
 
     Examples
@@ -56,33 +57,33 @@ def get_transactions_in(data):
     activite = get_transactions_in(activite)
     """
 
-    data["available_bikes_shift"] = data.groupby("station_id")["available_bikes"].shift(1)
+    data = data.with_columns(pl.col("available_bikes").shift(1).over("station_id").alias("available_bikes_shift"))
+    data = data.with_columns(pl.col("available_bikes_shift").fill_null(pl.col("available_bikes")))
+    data = data.with_columns(transactions_in=(pl.col("available_bikes") - pl.col("available_bikes_shift")))
 
-    data["available_bikes_shift"] = data["available_bikes_shift"].fillna(data["available_bikes"])
-
-    data["transactions_in"] = data["available_bikes"] - data["available_bikes_shift"]
-
-    data.loc[data["transactions_in"] < 0, "transactions_in"] = 0
+    data = data.with_columns(
+        transactions_in=pl.when(pl.col("transactions_in") < 0).then(0).otherwise(pl.col("transactions_in"))
+    )
 
     # Drop non usefull column
-    data.drop("available_bikes_shift", axis=1, inplace=True)
+    data = data.drop("available_bikes_shift")
 
     return data
 
 
-def get_transactions_all(data):
+def get_transactions_all(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul le nombre de transactions de vélo (ajout et dépôt) qu'il y a eu pour une même
     station entre 2 points de données
 
     Parameters
     ----------
-    data : DataFrame
+    data : lazyFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : lazyFrame
         Ajout de colonne 'transactions_all'
 
     Examples
@@ -91,19 +92,17 @@ def get_transactions_all(data):
     activite = get_transactions_all(activite)
     """
 
-    data["available_bikes_shift"] = data.groupby("station_id")["available_bikes"].shift(1)
-
-    data["available_bikes_shift"] = data["available_bikes_shift"].fillna(data["available_bikes"])
-
-    data["transactions_all"] = np.abs(data["available_bikes"] - data["available_bikes_shift"])
+    data = data.with_columns(pl.col("available_bikes").shift(1).over("station_id").alias("available_bikes_shift"))
+    data = data.with_columns(pl.col("available_bikes_shift").fill_null(pl.col("available_bikes")))
+    data = data.with_columns(transactions_all=(pl.col("available_bikes") - pl.col("available_bikes_shift")).abs())
 
     # Drop non usefull column
-    data.drop("available_bikes_shift", axis=1, inplace=True)
+    data = data.drop("available_bikes_shift")
 
     return data
 
 
-def get_consecutive_no_transactions_out(data):
+def get_consecutive_no_transactions_out(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Calcul depuis combien de temps la station n'a pas eu de prise de vélo. Plus le chiffre est haut,
     plus ça fait longtemps que la station est inactive sur la prise de vélo.
@@ -119,12 +118,12 @@ def get_consecutive_no_transactions_out(data):
 
     Parameters
     ----------
-    data : DataFrame
+    data : LazyFrame
         Activité des stations Vcub avec la feature `transactions_out` (get_transactions_out)
 
     Returns
     -------
-    data : DataFrame
+    data : LazyFrame
         Ajout de colonne 'consecutive_no_transactions_out'
 
     Examples
@@ -133,24 +132,32 @@ def get_consecutive_no_transactions_out(data):
     activite = get_consecutive_no_transactions_out(activite)
     """
 
-    data["have_data"] = 1
-    data.loc[data["available_stands"].isna(), "have_data"] = 0
-
-    data["consecutive_no_transactions_out"] = data.groupby(
-        [
-            "station_id",
-            (data["available_bikes"] < 3).cumsum(),  # 3 for 2 available_bikes
-            (data["have_data"] == 0).cumsum(),
-            (data["status"] == 0).cumsum(),
-            (data["transactions_out"] > 0).cumsum(),
-        ]
-    ).cumcount()
-
-    data["consecutive_no_transactions_out"] = data["consecutive_no_transactions_out"].fillna(0)
-
-    data.loc[data["available_stands"].isna(), "consecutive_no_transactions_out"] = 0
-
-    data = data.drop("have_data", axis=1)
+    data = (
+        data.with_columns(
+            pl.when(
+                (pl.col("transactions_out") >= 1)
+                | (pl.col("status") == 0)
+                | (pl.col("available_bikes") <= 2)
+                | (pl.col("available_stands").is_null())
+            )
+            .then(0)
+            .otherwise(1)
+            .alias("logic")
+        )
+        .with_columns(
+            pl.int_ranges(pl.struct("station_id", "logic").rle().struct.field("len"))
+            .flatten()
+            .alias("consecutive_no_transactions_out")
+            + 1
+        )
+        .with_columns(
+            pl.when(pl.col("logic") == 1)
+            .then(pl.col("consecutive_no_transactions_out"))
+            .otherwise(0)
+            .alias("consecutive_no_transactions_out")
+        )
+        .drop("logic")
+    )
 
     return data
 
@@ -209,13 +216,13 @@ def get_meteo(data, meteo):
     return data
 
 
-def get_encoding_time(data, col_date, max_val):
+def get_encoding_time(data: pl.LazyFrame, col_date: str, max_val: int) -> pl.LazyFrame:
     """
     Encoding time
 
     Parameters
     ----------
-    data : DataFrame
+    data : LazyFrame
         Activité des stations Vcub
     col_date : str
         Nom de la colonne à encoder
@@ -224,7 +231,7 @@ def get_encoding_time(data, col_date, max_val):
 
     Returns
     -------
-    data : DataFrame
+    data : LazyFrame
         Ajout de colonne Sin_[col_date] & Cos_[col_date]
 
     Examples
@@ -232,23 +239,29 @@ def get_encoding_time(data, col_date, max_val):
     data = get_encoding_time(data, 'month', max_val=12)
     """
 
-    data["Sin_" + col_date] = np.sin(2 * np.pi * data[col_date] / max_val)
-    data["Cos_" + col_date] = np.cos(2 * np.pi * data[col_date] / max_val)
+    two_pi = 2 * np.pi
+    expr_two_pi_div_max_val = pl.lit(two_pi / max_val)
+    data = data.with_columns(
+        [
+            (expr_two_pi_div_max_val * pl.col(col_date)).sin().alias("Sin_" + col_date),
+            (expr_two_pi_div_max_val * pl.col(col_date)).cos().alias("Cos_" + col_date),
+        ]
+    )
     return data
 
 
-def process_data_cluster(data):
+def process_data_cluster(data: pl.LazyFrame) -> pl.LazyFrame:
     """
     Process some Feature engineering
 
     Parameters
     ----------
-    data : DataFrame
+    data : LazyFrame
         Activité des stations Vcub
 
     Returns
     -------
-    data : DataFrame
+    data : LazyFrame
         Add some columns in DataFrame
 
     Examples
@@ -256,10 +269,14 @@ def process_data_cluster(data):
     data = process_data_cluster(data)
     """
 
-    data["quarter"] = data["date"].dt.quarter
-    # data['month'] = data['date'].dt.month
-    data["weekday"] = data["date"].dt.weekday
-    data["hours"] = data["date"].dt.hour
+    data = data.with_columns(
+        [
+            pl.col("date").dt.quarter().alias("quarter"),
+            # pl.col("date").dt.month().alias("month"),
+            pl.col("date").dt.weekday().alias("weekday"),
+            pl.col("date").dt.hour().alias("hours"),
+        ]
+    )
 
     data = get_encoding_time(data, "quarter", max_val=4)
     # data = get_encoding_time(data, 'month', max_val=12)
