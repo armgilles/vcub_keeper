@@ -1,6 +1,7 @@
 # Projet
 *.csv
 *.bz2
+*.parquet
 *.h5
 *.env
 model

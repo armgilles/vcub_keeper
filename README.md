@@ -40,7 +40,7 @@ Les données proviennent du travail de [Damien Garaud](https://twitter.com/jazzy
 
 ## Installation : 
 
-```pip install vcun_keeper[all]```
+```pip install vcub_keeper[all]```
 
 ### Variable :
 
