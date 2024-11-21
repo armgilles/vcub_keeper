@@ -2,10 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
+import polars as pl
 import seaborn as sns
 from keplergl import KeplerGl
 from plotly.offline import init_notebook_mode, iplot, offline
 from plotly.subplots import make_subplots
+from sklearn.pipeline import Pipeline
 
 from vcub_keeper.config import FEATURES_TO_USE_CLUSTER, MAPBOX_TOKEN, NON_USE_STATION_ID, THRESHOLD_PROFILE_STATION
 from vcub_keeper.ml.cluster import logistic_predict_proba_from_model, predict_anomalies_station
@@ -139,14 +141,14 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc="mean", filt
     station = data[data["station_id"] == station_id].copy()
 
     if filter_data is True:
-        station = filter_periode(station, NON_USE_STATION_ID)
+        station = filter_periode(pl.from_pandas(station), NON_USE_STATION_ID).to_pandas()
 
     # station status == 1 (ok)
     station = station[station["status"] == 1]
 
     # Resample hours
     station = station.set_index("date")
-    station_resample = station.resample("H", label="right").agg({feature_to_plot: "sum"}).reset_index()
+    station_resample = station.resample("h", label="right").agg({feature_to_plot: "sum"}).reset_index()
 
     station_resample["month"] = station_resample["date"].dt.month
     station_resample["weekday"] = station_resample["date"].dt.weekday
@@ -170,21 +172,21 @@ def plot_profile_station(data, station_id, feature_to_plot, aggfunc="mean", filt
 
 
 def plot_station_anomalies(
-    data,
-    clf,
-    station_id,
-    start_date="",
-    end_date="",
-    return_data=False,
-    offline_plot=False,
-    display_title=True,
-    return_plot=False,
-):
+    data: pl.LazyFrame,
+    clf: Pipeline,
+    station_id: int,
+    start_date: str = "",
+    end_date: str = "",
+    return_data: bool = False,
+    offline_plot: bool = False,
+    display_title: bool = True,
+    return_plot: bool = False,
+) -> None | dict | pd.DataFrame:
     """
     Plot Time Series
     Parameters
     ----------
-    data : pd.DataFrame
+    data : pl.LazyFrame
         Tableau temporelle de l'activité des stations Vcub
     clf : Pipeline Scikit Learn
         Estimator already fit
@@ -215,18 +217,22 @@ def plot_station_anomalies(
     """
 
     # Filter on station_id
-    data_station = data[data["station_id"] == station_id].copy()
+    data_station = data.filter(pl.col("station_id") == station_id)
 
-    if "consecutive_no_transactions_out" not in data.columns:
+    if "consecutive_no_transactions_out" not in data_station.collect_schema().names():
         # Some features
-        data_station = get_transactions_in(data_station)
-        data_station = get_transactions_out(data_station)
-        data_station = get_transactions_all(data_station)
-        data_station = get_consecutive_no_transactions_out(data_station)
+        data_station = (
+            data_station.pipe(get_transactions_in)
+            .pipe(get_transactions_out)
+            .pipe(get_transactions_all)
+            .pipe(get_consecutive_no_transactions_out)
+        )
 
-    data_pred = predict_anomalies_station(data=data_station, clf=clf, station_id=station_id)
+    # Into pandas
+    data_pred = predict_anomalies_station(data=data_station, clf=clf, station_id=station_id).to_pandas()
 
     if start_date != "":
+        data_pred = data_pred.filter(pl.col("date") >= start_date)
         data_pred = data_pred[data_pred["date"] >= start_date]
 
     if end_date != "":
@@ -690,15 +696,15 @@ def plot_map_station_with_kepler(station_control, station_id=None):
 
 
 def plot_station_anomalies_with_score(
-    data,
-    clf,
-    station_id,
-    start_date="",
-    end_date="",
-    return_data=False,
-    offline_plot=False,
-    display_title=True,
-    return_plot=False,
+    data: pl.LazyFrame,
+    clf: Pipeline,
+    station_id: int,
+    start_date: str = "",
+    end_date: str = "",
+    return_data: bool = False,
+    offline_plot: bool = False,
+    display_title: bool = True,
+    return_plot: bool = False,
 ):
     """
     Plot Time Series activty and anomaly score
@@ -735,20 +741,29 @@ def plot_station_anomalies_with_score(
     """
 
     # Filter on station_id
-    data_station = data[data["station_id"] == station_id].copy()
+    data_station = data.filter(pl.col("station_id") == station_id)
 
-    if "consecutive_no_transactions_out" not in data.columns:
+    if "consecutive_no_transactions_out" not in data_station.collect_schema().names():
         # Some features
-        data_station = get_transactions_in(data_station)
-        data_station = get_transactions_out(data_station)
-        data_station = get_transactions_all(data_station)
-        data_station = get_consecutive_no_transactions_out(data_station)
+        data_station = (
+            data_station.pipe(get_transactions_in)
+            .pipe(get_transactions_out)
+            .pipe(get_transactions_all)
+            .pipe(get_consecutive_no_transactions_out)
+        )
 
     data_pred = predict_anomalies_station(data=data_station, clf=clf, station_id=station_id)
 
-    data_pred["anomaly_score"] = (
-        logistic_predict_proba_from_model(clf.decision_function(data_pred[FEATURES_TO_USE_CLUSTER])) * 100
+    data_pred = data_pred.with_columns(
+        pl.Series(
+            name="anomaly_score",
+            values=logistic_predict_proba_from_model(clf.decision_function(data_pred.select(FEATURES_TO_USE_CLUSTER)))
+            * 100,
+        )
     )
+
+    # Into pandas
+    data_pred = data_pred.to_pandas()
 
     if start_date != "":
         data_pred = data_pred[data_pred["date"] >= start_date]
