@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -9,7 +10,8 @@ IS_PROD = False
 
 # Paths
 try:
-    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+    ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+    print("ROOT_DIR: ", ROOT_DIR)
 except:  # noqa: E722
     # Case of heroku env var
     print("Try to find environnement variable")
@@ -17,20 +19,31 @@ except:  # noqa: E722
     IS_PROD = True
 
 # If package is install with pip
-if "site-packages" in os.path.dirname(os.path.dirname(os.path.realpath(__file__))):  # install via pip
+# if "site-packages" in os.path.dirname(os.path.dirname(os.path.realpath(__file__))):  # install via pip
+if "site-packages" in str(Path(__file__).resolve().parent):  # install via pip
     from dotenv import load_dotenv
 
+    print("In site-packages")
     load_dotenv()
-    ROOT_DIR = os.environ.get("ROOT_DIR")  # with .env file in preprod
+    ROOT_DIR = Path(os.environ.get("ROOT_DIR", ""))
+    print("ROOT_DIR from environment variable: ", ROOT_DIR)
+    # On verifie si le repertoire existe bien
+    if ROOT_DIR.exists():
+        print("ROOT_DIR from environment variable exists: ", ROOT_DIR)
+    else:
+        # On essaye de trouver le repertoire (utile pour le dev hors linux)
+        print("ROOT_DIR from environment variable does not exist")
+        ROOT_DIR = str(Path.cwd()).split("vcub_keeper")[0] + "vcub_keeper"
+        print("ROOT_DIR from cwd: ", ROOT_DIR)
     IS_PROD = True
 
 # In case where ROOT_DIR is None (pre-prod) but we don't need these variables
 try:
-    ROOT_DATA_RAW = ROOT_DIR + "/data/raw/"
-    ROOT_DATA_CLEAN = ROOT_DIR + "/data/clean/"
-    ROOT_DATA_REF = ROOT_DIR + "/data/ref/"
-    ROOT_MODEL = ROOT_DIR + "/model/"
-    ROOT_TESTS_DATA = ROOT_DIR + "/tests/data_for_tests/"
+    ROOT_DATA_RAW = str(ROOT_DIR) + "/data/raw/"
+    ROOT_DATA_CLEAN = str(ROOT_DIR) + "/data/clean/"
+    ROOT_DATA_REF = str(ROOT_DIR) + "/data/ref/"
+    ROOT_MODEL = str(ROOT_DIR) + "/model/"
+    ROOT_TESTS_DATA = str(ROOT_DIR) + "/tests/data_for_tests/"
 except:  # noqa: E722
     print("Can't have repository variables")
     ROOT_DATA_REF = ""  # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007593715
