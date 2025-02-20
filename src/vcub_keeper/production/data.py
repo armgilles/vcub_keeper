@@ -187,6 +187,11 @@ def get_data_from_api_bdx_by_station(station_id: str | list, start_date: str, st
         )
 
     response = requests.get(url)  # noqa: S113
+    if response.status_code != 200:
+        raise Exception(
+            f"Erreur lors de la récupération des données depuis l'API Bordeaux Métropole: {url}\n{response.status_code}\n{response.text}"
+        )
+
     return response.json()
 
 
