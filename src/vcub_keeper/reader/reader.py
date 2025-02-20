@@ -44,6 +44,7 @@ def read_stations_attributes(
     return stations
 
 
+# TODO : to delete
 def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFrame:
     """
     Lecture du fichier temporelle sur l'activité des Vcub à Bordeaux
@@ -94,6 +95,7 @@ def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFra
     return activite
 
 
+# TODO : to delete
 def read_time_serie_activity(
     path_directory, file_name="time_serie_activity.parquet", post_pressessing_status=True
 ) -> pl.LazyFrame:
@@ -197,3 +199,25 @@ def read_station_profile(path_directory: str, file_name: str = "station_profile.
     station_profile = pl.read_csv(path_directory + file_name, separator=",", schema_overrides=column_dtypes)
 
     return station_profile
+
+
+def read_learning_dataset(file_path: str, file_name: str = "learning_dataset") -> pl.DataFrame:
+    """
+    Permets de lire les données d'apprentissage (fichier parquet).
+
+    Parameters
+    ----------
+    file_path : str
+        Chemin vers le fichier.
+    file_name : str
+        Nom du fichier (default: "learning_dataset").
+    Returns
+    -------
+    pl.DataFrame
+        Le DataFrame contenant les données d'apprentissage.
+
+    Example
+    -------
+    station_df = read_learning_dataset(file_path=ROOT_DATA_CLEAN, file_name="learning_dataset")
+    """
+    return pl.read_parquet(f"{file_path}/{file_name}.parquet")

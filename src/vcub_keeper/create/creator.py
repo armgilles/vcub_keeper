@@ -1,12 +1,14 @@
 import glob as glob
 import io
+from datetime import datetime, timedelta
 
 import pandas as pd
 import polars as pl
 from dotenv import load_dotenv
 
 from vcub_keeper.config import NON_USE_STATION_ID, ROOT_DATA_CLEAN, ROOT_DATA_RAW, ROOT_DATA_REF
-from vcub_keeper.reader.reader import read_time_serie_activity
+from vcub_keeper.production.data import get_data_from_api_bdx_by_station, transform_json_api_bdx_station_data_to_df
+from vcub_keeper.reader.reader import read_stations_attributes, read_time_serie_activity
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.transform.features_factory import (
     get_consecutive_no_transactions_out,
@@ -18,6 +20,7 @@ from vcub_keeper.transform.features_factory import (
 load_dotenv()
 
 
+# to do : To delete
 def create_activity_time_series() -> None:
     """
     Création d'un fichier de type time series sur l'ensemble des stations VCUB
@@ -330,3 +333,107 @@ def create_station_attribute(
         stations.write_csv(path_directory + file_export, separator=";")
     else:
         return stations
+
+
+def generate_date_intervals_(start_date: str, stop_date: str, chunk_days: int = 60) -> list[dict[str, str]]:
+    """
+    Génère une liste d'intervalles de dates sous forme de dictionnaires,
+    où chaque intervalle a une durée maximum de chunk_days (par défaut 60 jours).
+
+    Parameters
+    ----------
+    start_date : str
+        Date de départ au format "YYYY-MM-DD".
+    stop_date : str
+        Date de fin au format "YYYY-MM-DD".
+    chunk_days : int, optional
+        Nombre maximum de jours par intervalle (default: 60).
+
+    Returns
+    -------
+    List[Dict[str, str]]
+        Liste d'intervalles, chaque intervalle étant un dictionnaire avec les clés "start_date" et "stop_date".
+
+    Example
+    -------
+    intervals = generate_date_intervals(start_date, stop_date, chunk_days=4)
+    """
+    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+    stop_dt = datetime.strptime(stop_date, "%Y-%m-%d")
+    if start_dt > stop_dt:
+        raise ValueError("start_date doit être antérieure à stop_date.")
+
+    intervals = []
+    current_start = start_dt
+
+    while current_start < stop_dt:
+        current_stop = current_start + timedelta(days=chunk_days)
+        if current_stop > stop_dt:
+            current_stop = stop_dt
+        intervals.append(
+            {"start_date": current_start.strftime("%Y-%m-%d"), "stop_date": current_stop.strftime("%Y-%m-%d")}
+        )
+        current_start = current_stop
+
+    return intervals
+
+
+def create_learning_dataset(
+    start_time: str, end_time: str, path_to_export: str, file_name: str = "learning_dataset"
+) -> None:
+    """
+    Permets de créer le learning dataset à partir de données de l'API
+    de Bordeaux Métropole.
+
+    Export le résulatat dans le dossier path_to_export sous le nom learning_dataset.parquet (par défaut)
+
+    Parameters
+    ----------
+    start_time : str
+        Date de début au format "YYYY-MM-DD".
+    end_time : str
+        Date de fin au format "YYYY-MM-DD".
+    path_to_export : str
+        Chemin vers le dossier d'export.
+    file_name : str, optional
+        Nom du fichier d'export (default: "learning_dataset").
+
+    Returns
+    -------
+    None
+
+    Exemple
+    -------
+    create_learning_dataset(start_time="2022-01-01", end_time="2025-02-22",
+                            parh_to_export="ROOT_DATA_CLEAN", file_name="learning_dataset")
+    """
+
+    # Récupération de la liste des id des stations
+    stations_attributes = read_stations_attributes(path_directory=ROOT_DATA_REF)
+    station_id_list = stations_attributes["station_id"].to_list()
+
+    # On découpe la période en intervalles de 5 jours pour ne pas faire planter l'API
+    intervals = generate_date_intervals_(start_date=start_time, stop_date=end_time, chunk_days=4)
+
+    # Initialisation et récupération des données
+    station_df = pl.DataFrame()
+    for interval in intervals:
+        start_date = interval["start_date"]
+        stop_date = interval["stop_date"]
+        print(f"Récupération des données sur la période de : {start_date} - {stop_date}")
+
+        # Récupération des données de l'API
+        station_json = get_data_from_api_bdx_by_station(
+            station_id=station_id_list,
+            start_date=start_date,
+            stop_date=stop_date,
+        )
+
+        # Transformation des données en DataFrame
+        df_temp = transform_json_api_bdx_station_data_to_df(station_json).collect()
+
+        # Concaténation des données
+        station_df = pl.concat([station_df, df_temp])
+
+    # Export
+    station_df.write_parquet(f"{path_to_export}{file_name}.parquet")
