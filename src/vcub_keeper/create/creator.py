@@ -1,5 +1,6 @@
 import glob as glob
 import io
+from collections.abc import Generator
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -378,12 +379,21 @@ def generate_date_intervals_(start_date: str, stop_date: str, chunk_days: int = 
     return intervals
 
 
+def chunk_list_(station_id_list: list, chunk_size: int) -> Generator[list, None, None]:
+    """Divise une liste en sous-listes de taille chunk_size. Est uniquement utilisé par la fonction create_learning_dataset()"""
+    for i in range(0, len(station_id_list), chunk_size):
+        yield station_id_list[i : i + chunk_size]
+
+
 def create_learning_dataset(
     start_time: str, end_time: str, path_to_export: str, file_name: str = "learning_dataset"
 ) -> None:
     """
     Permets de créer le learning dataset à partir de données de l'API
-    de Bordeaux Métropole.
+    de Bordeaux Métropole. Si la durée de la période est trop longue,
+    l'API renvoie une erreur. On découpe donc la période en intervalles
+    de 4 jours. Idem pour le nombre de stations, on les découpe en chunks
+    de 25 stations afin de ne pas faire planter l'API.
 
     Export le résulatat dans le dossier path_to_export sous le nom learning_dataset.parquet (par défaut)
 
@@ -417,23 +427,47 @@ def create_learning_dataset(
 
     # Initialisation et récupération des données
     station_df = pl.DataFrame()
+    # Découpage en intervals de temps
     for interval in intervals:
         start_date = interval["start_date"]
         stop_date = interval["stop_date"]
         print(f"Récupération des données sur la période de : {start_date} - {stop_date}")
 
-        # Récupération des données de l'API
-        station_json = get_data_from_api_bdx_by_station(
-            station_id=station_id_list,
-            start_date=start_date,
-            stop_date=stop_date,
-        )
+        chunk_size = 25
+        # Si beaucoup de stations, on les découpe en chunks
+        if len(station_id_list) >= chunk_size:
+            total_chunks = len(list(chunk_list_(station_id_list, chunk_size)))
 
-        # Transformation des données en DataFrame
-        df_temp = transform_json_api_bdx_station_data_to_df(station_json).collect()
+            for chunk_index, station_id_list_chunk in enumerate(chunk_list_(station_id_list, chunk_size), start=1):
+                print(f"Récupération des données pour le chunk {chunk_index} / {total_chunks}")
+                try:
+                    station_json_chunk = get_data_from_api_bdx_by_station(
+                        station_id=station_id_list_chunk,
+                        start_date=start_date,
+                        stop_date=stop_date,
+                    )
 
-        # Concaténation des données
-        station_df = pl.concat([station_df, df_temp])
+                    if "station_json" not in locals():
+                        station_json = station_json_chunk
+                    else:
+                        station_json["features"].extend(station_json_chunk["features"])
+                except Exception as e:
+                    print(f"Erreur lors de la récupération des données pour le chunk {station_id_list_chunk}: {e}")
+
+        else:
+            # Récupération des données de l'API
+            station_json = get_data_from_api_bdx_by_station(
+                station_id=station_id_list,
+                start_date=start_date,
+                stop_date=stop_date,
+            )
+
+    # Transformation des données en DataFrame
+    df_temp = transform_json_api_bdx_station_data_to_df(station_json).collect()
+
+    # Concaténation des données
+    station_df = pl.concat([station_df, df_temp])
 
     # Export
+    print(f"Export des données dans le fichier : {path_to_export}{file_name}.parquet")
     station_df.write_parquet(f"{path_to_export}{file_name}.parquet")
