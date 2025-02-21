@@ -1,6 +1,9 @@
+import time
+
 import numpy as np
 import polars as pl
 import requests
+from requests.exceptions import ChunkedEncodingError, Timeout
 
 from vcub_keeper.config import KEY_API_BDX
 from vcub_keeper.transform.features_factory import get_transactions_all, get_transactions_in, get_transactions_out
@@ -133,7 +136,9 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.LazyFrame:
 #############################################
 
 
-def get_data_from_api_bdx_by_station(station_id: str | list, start_date: str, stop_date: str) -> dict:
+def get_data_from_api_bdx_by_station(
+    station_id: str | list, start_date: str, stop_date: str, timeout: int = 10, max_retries: int = 3
+) -> dict:
     """
     Permet d'obtenir les données d'activité d'une station via une API d'open data Bordeaux
 
@@ -145,6 +150,10 @@ def get_data_from_api_bdx_by_station(station_id: str | list, start_date: str, st
         Date de début de la Time Serie
     stop_date : str
         Date de fin de la Time Serie
+    timeout : int
+        Timeout for the API request (default is 10 seconds)
+    max_retries : int
+        Maximum number of retries for the API request (default is 3)
 
     Returns
     -------
@@ -186,13 +195,25 @@ def get_data_from_api_bdx_by_station(station_id: str | list, start_date: str, st
             + '&rangeStep=5min&attributes={"nom": "mode", "etat": "mode", "nbplaces": "max", "nbvelos": "max", "ident": "min"}'
         )
 
-    response = requests.get(url)  # noqa: S113
-    if response.status_code != 200:
-        raise Exception(
-            f"Erreur lors de la récupération des données depuis l'API Bordeaux Métropole: {url}\n{response.status_code}\n{response.text}"
-        )
-
-    return response.json()
+    # Retry logic
+    attempts = 0
+    while attempts < max_retries:
+        try:
+            response = requests.get(url, timeout=timeout)  # noqa: S113
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            return response.json()
+        except (Timeout, ChunkedEncodingError) as e:
+            attempts += 1
+            time.sleep(10)  # Aout d'une time.sleep de 10 secondes
+            print(f"Tentative {attempts}/{max_retries} échouée avec l'erreur : {e}. Nouvelle tentative...")
+            if attempts == max_retries:
+                raise Exception(
+                    f"Erreur lors de la récupération des données après {max_retries} tentatives : {url}\n{e}"
+                ) from e
+        except requests.RequestException as e:
+            raise Exception(
+                f"Erreur lors de la récupération des données depuis l'API Bordeaux Métropole: {url}\n{e}"
+            ) from e
 
 
 def transform_json_api_bdx_station_data_to_df(station_json: dict) -> pl.LazyFrame:
