@@ -201,7 +201,7 @@ def read_station_profile(path_directory: str, file_name: str = "station_profile.
     return station_profile
 
 
-def read_learning_dataset(file_path: str, file_name: str = "learning_dataset") -> pl.DataFrame:
+def read_learning_dataset(file_path: str, file_name: str = "learning_dataset") -> pl.LazyFrame:
     """
     Permets de lire les données d'apprentissage (fichier parquet).
 
@@ -220,4 +220,4 @@ def read_learning_dataset(file_path: str, file_name: str = "learning_dataset") -
     -------
     station_df = read_learning_dataset(file_path=ROOT_DATA_CLEAN, file_name="learning_dataset")
     """
-    return pl.read_parquet(f"{file_path}/{file_name}.parquet")
+    return pl.scan_parquet(f"{file_path}/{file_name}.parquet")
