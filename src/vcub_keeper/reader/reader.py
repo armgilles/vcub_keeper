@@ -1,4 +1,5 @@
 import io
+import warnings
 
 import pandas as pd
 import polars as pl
@@ -44,9 +45,9 @@ def read_stations_attributes(
     return stations
 
 
-# TODO : to delete
 def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFrame:
     """
+    NE PAS UTILISER DEPUIS LA VERSION 1.4.0
     Lecture du fichier temporelle sur l'activité des Vcub à Bordeaux
     Modification par rapport au fichier original :
         - Modification des type du DataFrame
@@ -69,6 +70,12 @@ def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFra
 
     activite = read_activity_vcub()
     """
+
+    warnings.warn(
+        "Cette fonction est dépréciée depuis la version 1.4.0. Plus besoin de l'utiliser.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     column_dtypes = {
         "gid": pl.UInt8,
@@ -95,12 +102,11 @@ def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFra
     return activite
 
 
-# TODO : to delete
 def read_time_serie_activity(
     path_directory, file_name="time_serie_activity.parquet", post_pressessing_status=True
 ) -> pl.LazyFrame:
     """
-
+    NE PAS UTILISER DEPUIS LA VERSION 1.4.0
     Lecture du fichier de type time series sur l'activité des stations Vcub
     dans le répertoire `/data/clean/`
     Parameters
@@ -122,6 +128,11 @@ def read_time_serie_activity(
 
     ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
     """
+    warnings.warn(
+        "Cette fonction est dépréciée depuis la version 1.4.0. Utilisez read_learning_dataset() à la place.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     ts_activity = pl.scan_parquet(path_directory + file_name)
 
