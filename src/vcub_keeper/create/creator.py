@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 from vcub_keeper.config import NON_USE_STATION_ID, ROOT_DATA_CLEAN, ROOT_DATA_RAW, ROOT_DATA_REF
 from vcub_keeper.production.data import get_data_from_api_bdx_by_station, transform_json_api_bdx_station_data_to_df
-from vcub_keeper.reader.reader import read_stations_attributes, read_time_serie_activity
+from vcub_keeper.reader.reader import read_learning_dataset, read_stations_attributes
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.transform.features_factory import (
     get_consecutive_no_transactions_out,
@@ -230,7 +230,7 @@ def create_station_profilage_activity() -> None:
     """
 
     # Lecture du fichier activité
-    ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
+    ts_activity = read_learning_dataset(file_path=ROOT_DATA_CLEAN, file_name="learning_dataset")
 
     # Some features and filtering using .pipe
     ts_activity = (
