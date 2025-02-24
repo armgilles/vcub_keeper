@@ -87,7 +87,7 @@ KEY_API_BDX = os.getenv("KEY_API_BDX")
 
 # Station Vcub ID non user
 # https://github.com/armgilles/vcub_keeper/issues/29#issuecomment-703246491
-NON_USE_STATION_ID = [244, 249, 250, 138]
+NON_USE_STATION_ID = []  # [244, 249, 250, 138] old station_id (last learning data)
 
 
 # Features to use during clustering
