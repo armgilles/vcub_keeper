@@ -112,4 +112,4 @@ PROFILE_STATION_RULE = {
 
 # Utiliser dans ml/train_cluster.py. Permet d'apprendre uniquement les stations
 # avec un certain niveau d'activité
-THRESHOLD_PROFILE_STATION = 0.12
+THRESHOLD_PROFILE_STATION = 0.06  # On ne prend pas les stations low
