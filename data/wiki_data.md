@@ -7,18 +7,7 @@ Les fichiers de données sont organisés par répertoire :
 
 ### Raw - Fichiers sources
 
-1. `bordeaux-YYYY.csv` (YYYY étant l'année) : Fichiers d'activités des stations (un fichier égal à une année)
-
-|          |   id | status   |   available_stands |   available_bikes | timestamp           |
-|---------:|-----:|:---------|-------------------:|------------------:|:--------------------|
-|  9799112 |    1 | open     |                  8 |                25 | 2020-01-01 03:49:13 |
-|   462704 |    1 | open     |                  8 |                25 | 2020-01-01 03:54:13 |
-| 11305359 |    1 | open     |                  8 |                25 | 2020-01-01 03:57:13 |
-|  4283349 |    1 | open     |                  8 |                25 | 2020-01-01 04:02:13 |
-|  3945493 |    1 | open     |                  9 |                24 | 2020-01-01 04:08:13 |
-
-Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les informations sur le nombre d'ajouts ou de prises de vélo par station sur un temps de 5 minutes (fichiers sources) avant d'être resampler sur 10 minutes. Ces transformations sont assurées par la fonction `vcub_keeper/create/creator.py create_activity_time_series()` créant le fichier dans le répertoire `clean` nommé `time_serie_activity.h5`.
-
+Ce répertoire n'est plus utilisé depuis la version 1.4.0 du projet. On n'utilise plus de fichiers sources bruts, mais directement l'API de Bordeaux.
 
 ### Ref - Fichiers de références
 
@@ -35,7 +24,7 @@ Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les inf
 |  4 | 44.840712,-0.581124 | {"type": "Point", "coordinates": [-0.581124, 44.840712]} | Bordeaux  |            40 | Place Gambetta   | VLS     |            5 | 44.8407 | -0.581124 |
 
 
-1. `meteo.csv` Fichier météo qui indique différents indicateurs météo à l'heure créer à partir de `vcub_keeper/create/creator.py create_meteo()`. Ce fichier n'est pas utilisé dans la partie Machine Learning.
+2. `meteo.csv` Fichier météo qui indique différents indicateurs météo à l'heure créer à partir de `vcub_keeper/create/creator.py create_meteo()`. Ce fichier n'est pas utilisé dans la partie Machine Learning. Old
 
 |       | date                |   temperature |   pressure |   humidity |   precipitation |   wind_speed |
 |------:|:--------------------|--------------:|-----------:|-----------:|----------------:|-------------:|
@@ -47,25 +36,50 @@ Ces fichiers sont concaténés puis retravaillés notamment afin d'avoir les inf
 
    - Fonction de lecture : `/reader/reader.py read_meteo()`
 
+3. `station_profile.csv` Fichier de référence sur les stations Vcub de Bordeaux provenant du portail open-data de [bordeaux-metropole](https://opendata.bordeaux-metropole.fr/explore/dataset/ci_vcub_p/table/). Celui-ci peut etre créé à partir de `/create/creator.py create_station_profile()`
+   - Le fichier est légèrement modifié (changement de nom de colonnes, filtre sur les colonnes).
+   - Fonction de lecture : `/reader/reader.py read_stations_profile()`
+
+┌────────────┬─────────────┬──────────┬────────┬───┬─────┬─────┬─────┬──────────────────────────┐
+│ station_id ┆ total_point ┆ mean     ┆ median ┆ … ┆ 98% ┆ 99% ┆ max ┆ profile_station_activity │
+│ ---        ┆ ---         ┆ ---      ┆ ---    ┆   ┆ --- ┆ --- ┆ --- ┆ ---                      │
+│ u16        ┆ i64         ┆ f64      ┆ f64    ┆   ┆ f64 ┆ f64 ┆ i64 ┆ str                      │
+╞════════════╪═════════════╪══════════╪════════╪═══╪═════╪═════╪═════╪══════════════════════════╡
+│ 72         ┆ 135460      ┆ 0.010586 ┆ 0.0    ┆ … ┆ 0.0 ┆ 1.0 ┆ 1   ┆ low                      │
+│ 206        ┆ 2005        ┆ 0.011471 ┆ 0.0    ┆ … ┆ 0.0 ┆ 1.0 ┆ 1   ┆ low                      │
+│ 157        ┆ 101547      ┆ 0.011768 ┆ 0.0    ┆ … ┆ 0.0 ┆ 1.0 ┆ 1   ┆ low                      │
+│ 80         ┆ 106987      ┆ 0.012123 ┆ 0.0    ┆ … ┆ 0.0 ┆ 1.0 ┆ 1   ┆ low                      │
+│ 156        ┆ 105750      ┆ 0.012444 ┆ 0.0    ┆ … ┆ 0.0 ┆ 1.0 ┆ 1   ┆ low                      │
+└────────────┴─────────────┴──────────┴────────┴───┴─────┴─────┴─────┴──────────────────────────┘
+
 
 ### Clean - Fichiers retravaillés
 
-1. `time_serie_activity.h5` fichier retraillé à partir des données `raw` sur l'activité des stations. La lecture est assurée par la fonction  `vcub_keeper/reader/reader.py read_time_serie_activity()`. 
+1. `learning_dataset.parquet` fichier retraillé à partir des données de la fonction  `create_learning_dataset()` sur l'activité des stations. La lecture est assurée par la fonction  `vcub_keeper/reader/reader.py read_learning_dataset()`. 
 
 
-|          |   station_id | date                |   available_stands |   available_bikes |   status |   transactions_in |   transactions_out |   transactions_all |
-|---------:|-------------:|:--------------------|-------------------:|------------------:|---------:|------------------:|-------------------:|-------------------:|
-| 16564507 |          251 | 2020-08-28 11:10:00 |                 28 |                12 |        1 |                 0 |                  0 |                  0 |
-| 16564508 |          251 | 2020-08-28 11:20:00 |                 28 |                12 |        1 |                 0 |                  0 |                  0 |
-| 16564509 |          251 | 2020-08-28 11:30:00 |                 26 |                14 |        1 |                 2 |                  0 |                  2 |
-| 16564510 |          251 | 2020-08-28 11:40:00 |                 26 |                14 |        1 |                 0 |                  0 |                  0 |
-| 16564511 |          251 | 2020-08-28 11:50:00 |                 26 |                14 |        1 |                 0 |                  0 |                  0 |
+ ────────────┬────────────┬────────────┬────────────┬────────┬────────────┬────────────┬───────────┐
+│ station_id ┆ date       ┆ available_ ┆ available_ ┆ status ┆ transactio ┆ transactio ┆ transacti │
+│ ---        ┆ ---        ┆ stands     ┆ bikes      ┆ ---    ┆ ns_in      ┆ ns_out     ┆ ons_all   │
+│ i32        ┆ datetime[μ ┆ ---        ┆ ---        ┆ u8     ┆ ---        ┆ ---        ┆ ---       │
+│            ┆ s]         ┆ i64        ┆ i64        ┆        ┆ i64        ┆ i64        ┆ i64       │
+╞════════════╪════════════╪════════════╪════════════╪════════╪════════════╪════════════╪═══════════╡
+│ 1          ┆ 2022-01-01 ┆ 11         ┆ 22         ┆ 1      ┆ 0          ┆ 0          ┆ 0         │
+│            ┆ 01:10:00   ┆            ┆            ┆        ┆            ┆            ┆           │
+│ 1          ┆ 2022-01-01 ┆ 11         ┆ 22         ┆ 1      ┆ 0          ┆ 0          ┆ 0         │
+│            ┆ 01:20:00   ┆            ┆            ┆        ┆            ┆            ┆           │
+│ 1          ┆ 2022-01-01 ┆ 11         ┆ 22         ┆ 1      ┆ 0          ┆ 0          ┆ 0         │
+│            ┆ 01:30:00   ┆            ┆            ┆        ┆            ┆            ┆           │
+│ 1          ┆ 2022-01-01 ┆ 11         ┆ 22         ┆ 1      ┆ 0          ┆ 0          ┆ 0         │
+│            ┆ 01:40:00   ┆            ┆            ┆        ┆            ┆            ┆           │
+│ 1          ┆ 2022-01-01 ┆ 11         ┆ 22         ┆ 1      ┆ 0          ┆ 0          ┆ 0         │
+│            ┆ 01:50:00   ┆            ┆            ┆        ┆            ┆            ┆           │
+└────────────┴────────────┴────────────┴────────────┴────────┴────────────┴────────────┴───────────┘
 
 - `transactions_in` : Nombre d'ajouts de vélo qu'il y a eu pour une même station entre 2 points de données
 - `transactions_out` : Nombre de prise de vélo qu'il y a eu pour une même station entre 2 points de données 
-- `transactions_in` : Nombre de transactions de vélo (ajout et prise) qu'il y a eu pour une même
-    station entre 2 points de données
+- `transactions_all` : Nombre de transactions de vélo (ajout et prise) qu'il y a eu pour une même station entre 2 points de données
 
 ## API de données : 
 
-Les données live sont obtenu par le projet [Jitenshea](https://github.com/garaud/jitenshea) ou à partir de l'open data de [Bordeaux](https://opendata.bordeaux-metropole.fr/explore/dataset/ci_vcub_p/information/) 
+Les données live sont obtenu par le projet [Jitenshea](https://github.com/garaud/jitenshea) ou à partir de l'open data de [Bordeaux](https://opendata.bordeaux-metropole.fr/explore/dataset/ci_vcub_p/information/). On priorise l'API de Bordeaux maintenant.

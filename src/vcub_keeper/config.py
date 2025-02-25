@@ -87,7 +87,7 @@ KEY_API_BDX = os.getenv("KEY_API_BDX")
 
 # Station Vcub ID non user
 # https://github.com/armgilles/vcub_keeper/issues/29#issuecomment-703246491
-NON_USE_STATION_ID = [244, 249, 250, 138]
+NON_USE_STATION_ID = []  # [244, 249, 250, 138] old station_id (last learning data)
 
 
 # Features to use during clustering
@@ -112,4 +112,4 @@ PROFILE_STATION_RULE = {
 
 # Utiliser dans ml/train_cluster.py. Permet d'apprendre uniquement les stations
 # avec un certain niveau d'activité
-THRESHOLD_PROFILE_STATION = 0.12
+THRESHOLD_PROFILE_STATION = 0.06  # On ne prend pas les stations low

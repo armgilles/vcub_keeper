@@ -1,4 +1,5 @@
 import io
+import warnings
 
 import pandas as pd
 import polars as pl
@@ -46,6 +47,7 @@ def read_stations_attributes(
 
 def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFrame:
     """
+    NE PAS UTILISER DEPUIS LA VERSION 1.4.0
     Lecture du fichier temporelle sur l'activité des Vcub à Bordeaux
     Modification par rapport au fichier original :
         - Modification des type du DataFrame
@@ -68,6 +70,12 @@ def read_activity_vcub(file_path: str = "../../data/bordeaux.csv") -> pl.LazyFra
 
     activite = read_activity_vcub()
     """
+
+    warnings.warn(
+        "Cette fonction est dépréciée depuis la version 1.4.0. Plus besoin de l'utiliser.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     column_dtypes = {
         "gid": pl.UInt8,
@@ -98,7 +106,7 @@ def read_time_serie_activity(
     path_directory, file_name="time_serie_activity.parquet", post_pressessing_status=True
 ) -> pl.LazyFrame:
     """
-
+    NE PAS UTILISER DEPUIS LA VERSION 1.4.0
     Lecture du fichier de type time series sur l'activité des stations Vcub
     dans le répertoire `/data/clean/`
     Parameters
@@ -120,6 +128,11 @@ def read_time_serie_activity(
 
     ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
     """
+    warnings.warn(
+        "Cette fonction est dépréciée depuis la version 1.4.0. Utilisez read_learning_dataset() à la place.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     ts_activity = pl.scan_parquet(path_directory + file_name)
 
@@ -197,3 +210,25 @@ def read_station_profile(path_directory: str, file_name: str = "station_profile.
     station_profile = pl.read_csv(path_directory + file_name, separator=",", schema_overrides=column_dtypes)
 
     return station_profile
+
+
+def read_learning_dataset(file_path: str, file_name: str = "learning_dataset") -> pl.LazyFrame:
+    """
+    Permets de lire les données d'apprentissage (fichier parquet).
+
+    Parameters
+    ----------
+    file_path : str
+        Chemin vers le fichier.
+    file_name : str
+        Nom du fichier (default: "learning_dataset").
+    Returns
+    -------
+    pl.DataFrame
+        Le DataFrame contenant les données d'apprentissage.
+
+    Example
+    -------
+    station_df = read_learning_dataset(file_path=ROOT_DATA_CLEAN, file_name="learning_dataset")
+    """
+    return pl.scan_parquet(f"{file_path}/{file_name}.parquet")
