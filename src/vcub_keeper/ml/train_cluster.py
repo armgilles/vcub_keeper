@@ -18,7 +18,6 @@ def run_train_cluster():
     # Lecture de profile des stations pour connaitre ceux que l'on clusterise
     station_profile = read_station_profile(path_directory=ROOT_DATA_REF)
 
-    # stations_id_to_fit = station_profile[station_profile["mean"] >= THRESHOLD_PROFILE_STATION]["station_id"].unique()
     stations_id_to_fit = (
         station_profile.filter(pl.col("mean") >= THRESHOLD_PROFILE_STATION)
         .select("station_id")
