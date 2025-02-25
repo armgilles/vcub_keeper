@@ -1,7 +1,7 @@
 import pandas as pd
 import polars as pl
 import pytest
-from vcub_keeper.production.data import get_data_from_api_by_station, transform_json_station_data_to_df
+from vcub_keeper.production.data import get_data_from_api_bdx_by_station, transform_json_api_bdx_station_data_to_df
 from vcub_keeper.transform.features_factory import get_consecutive_no_transactions_out, process_data_cluster
 from vcub_keeper.ml.cluster import train_cluster_station, predict_anomalies_station, logistic_predict_proba_from_model
 from vcub_keeper.config import FEATURES_TO_USE_CLUSTER
@@ -11,11 +11,11 @@ from vcub_keeper.config import FEATURES_TO_USE_CLUSTER
 # Minimal information about station activity to predict anomaly with a algo already fitted
 test_data = [
     (
-        [{"station_id": 106, "date": pd.Timestamp("2018-12-01 00:10:00"), "consecutive_no_transactions_out": 0}],
+        [{"station_id": 106, "date": pd.Timestamp("2023-05-01 08:10:00"), "consecutive_no_transactions_out": 0}],
         1,
     ),  # Should be OK
     (
-        [{"station_id": 106, "date": pd.Timestamp("2020-08-25 03:50:00"), "consecutive_no_transactions_out": 58}],
+        [{"station_id": 106, "date": pd.Timestamp("2023-08-25 03:50:00"), "consecutive_no_transactions_out": 40}],
         -1,
     ),  # Should be KO (anomaly)
 ]
@@ -28,13 +28,13 @@ def test_ml_train_on_ne_station(data_activity, anomaly):
     """
 
     station_id = 106
-    start_date = "2018-12-01"
-    stop_date = "2020-08-28"
-    profile_station_activity = "very high"  # https://github.com/armgilles/vcub_keeper/issues/56#issuecomment-1007612158
+    start_date = "2023-05-01"
+    stop_date = "2023-08-28"
+    profile_station_activity = "very high"
 
-    station_json = get_data_from_api_by_station(station_id=station_id, start_date=start_date, stop_date=stop_date)
+    station_json = get_data_from_api_bdx_by_station(station_id=station_id, start_date=start_date, stop_date=stop_date)
 
-    station_df = transform_json_station_data_to_df(station_json)
+    station_df = transform_json_api_bdx_station_data_to_df(station_json)
 
     # Create feature basé sur l'absence consécutive de prise de vcub sur la station
     station_df = get_consecutive_no_transactions_out(station_df)
@@ -66,9 +66,8 @@ def test_ml_train_on_ne_station(data_activity, anomaly):
     print(score_anomaly)
 
     if anomaly == 1:  # Station OK
-        # anomaly_score must be at =~ 14.13 (2022/01/26)
-        assert 10 <= score_anomaly <= 26
+        # anomaly_score must be at =~ 33.17 (2025/02/25 with new default K params in logistic_predict_proba_from_model())
+        assert 25 <= score_anomaly <= 38
     elif anomaly == -1:  # Station KO
-        # anomaly_score must be at =~ 54.33 (2022/01/26)
-        # anomaly_score must be at =~ 53.82 with consecutive_no_transaction_out at 58 (2024/09/17)
+        # anomaly_score must be at =~ 59.16 (2025/02/25)
         assert 50 <= score_anomaly <= 65

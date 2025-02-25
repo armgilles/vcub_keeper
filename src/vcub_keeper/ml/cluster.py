@@ -58,7 +58,7 @@ def train_cluster_station(data: pl.LazyFrame, station_id: int, profile_station_a
 
     # on prend uniquement la station quand satus ==1
     # data_station_ok = data_station[data_station["status"] == 1].copy()
-    data_station_ok = data_station.filter(pl.col("status") == 1)
+    data_station_ok = data_station.filter((pl.col("status") == 1) & (pl.col("consecutive_no_transactions_out") <= 144))
 
     # Lecture du profile activité des stations
     if profile_station_activity is None:
@@ -78,10 +78,7 @@ def train_cluster_station(data: pl.LazyFrame, station_id: int, profile_station_a
     contaminsation_station = (
         1
         - stats.percentileofscore(
-            data_station_ok.filter((pl.col("status") == 1) & (pl.col("consecutive_no_transactions_out") <= 144))
-            .select("consecutive_no_transactions_out")
-            .collect()
-            .to_series(),
+            data_station_ok.select("consecutive_no_transactions_out").collect().to_series(),
             PROFILE_STATION_RULE[profile_station_activity],
         )
         / 100
@@ -146,7 +143,7 @@ def predict_anomalies_station(data: pl.LazyFrame, clf: Pipeline, station_id: int
     return data_station
 
 
-def logistic_predict_proba_from_model(x: pl.Series, k: int = 20) -> pl.Series:
+def logistic_predict_proba_from_model(x: pl.Series, k: int = 10) -> pl.Series:
     """
     Logistic function apply to Isolation Forest decision_function
     (https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html#sklearn.ensemble.IsolationForest.decision_function)
