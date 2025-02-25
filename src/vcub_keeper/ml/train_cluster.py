@@ -3,7 +3,7 @@ import polars as pl
 from vcub_keeper.config import NON_USE_STATION_ID, ROOT_DATA_CLEAN, ROOT_DATA_REF, ROOT_MODEL, THRESHOLD_PROFILE_STATION
 from vcub_keeper.ml.cluster import train_cluster_station
 from vcub_keeper.ml.cluster_utils import export_model
-from vcub_keeper.reader.reader import read_station_profile, read_time_serie_activity
+from vcub_keeper.reader.reader import read_learning_dataset, read_station_profile
 from vcub_keeper.transform.features_factory import get_consecutive_no_transactions_out
 
 
@@ -11,7 +11,7 @@ def run_train_cluster():
     """ """
 
     # Lecture du fichier activité
-    ts_activity = read_time_serie_activity(path_directory=ROOT_DATA_CLEAN)
+    ts_activity = read_learning_dataset(file_path=ROOT_DATA_CLEAN, file_name="learning_dataset")
     # Some features engi
     ts_activity = get_consecutive_no_transactions_out(ts_activity)
 
