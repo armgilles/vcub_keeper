@@ -1,8 +1,10 @@
+import pytest
 from vcub_keeper.production.data import (
     get_data_from_api_by_station,
     transform_json_station_data_to_df,
     get_data_from_api_bdx_by_station,
     transform_json_api_bdx_station_data_to_df,
+    chunk_list_,
 )
 
 #############################################
@@ -180,3 +182,18 @@ def test_get_api_bdx_data_with_chunk(capsys):
         "transactions_out",
         "transactions_all",
     ]
+
+
+@pytest.mark.parametrize(
+    "station_id_list, chunk_size, expected",
+    [
+        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3, [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]),
+        ([1, 2, 3, 4, 5], 2, [[1, 2], [3, 4], [5]]),
+        ([1, 2, 3], 1, [[1], [2], [3]]),
+        ([1, 2, 3, 4, 5], 5, [[1, 2, 3, 4, 5]]),
+        ([], 3, []),
+    ],
+)
+def test_chunk_list_(station_id_list, chunk_size, expected):
+    result = list(chunk_list_(station_id_list=station_id_list, chunk_size=chunk_size))
+    assert result == expected
