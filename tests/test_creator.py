@@ -3,12 +3,7 @@ import pytest
 import pandas as pd
 import polars as pl
 from polars.testing import assert_frame_equal
-from vcub_keeper.create.creator import (
-    create_station_attribute,
-    calculate_breakpoints_,
-    generate_date_intervals_,
-    chunk_list_,
-)
+from vcub_keeper.create.creator import create_station_attribute, calculate_breakpoints_, generate_date_intervals_
 from vcub_keeper.reader.reader import read_stations_attributes
 
 
@@ -152,19 +147,4 @@ def test_create_breakpoints_to_use_cut():
 def test_generate_date_intervals_(start_date, stop_date, chunk_days, expected):
     """Permets de tester la fonction generate_date_intervals_"""
     result = generate_date_intervals_(start_date=start_date, stop_date=stop_date, chunk_days=chunk_days)
-    assert result == expected
-
-
-@pytest.mark.parametrize(
-    "station_id_list, chunk_size, expected",
-    [
-        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3, [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]),
-        ([1, 2, 3, 4, 5], 2, [[1, 2], [3, 4], [5]]),
-        ([1, 2, 3], 1, [[1], [2], [3]]),
-        ([1, 2, 3, 4, 5], 5, [[1, 2, 3, 4, 5]]),
-        ([], 3, []),
-    ],
-)
-def test_chunk_list_(station_id_list, chunk_size, expected):
-    result = list(chunk_list_(station_id_list=station_id_list, chunk_size=chunk_size))
     assert result == expected

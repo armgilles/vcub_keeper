@@ -1,4 +1,5 @@
 import time
+from collections.abc import Generator
 
 import numpy as np
 import polars as pl
@@ -136,8 +137,35 @@ def transform_json_station_data_to_df(station_json: dict) -> pl.LazyFrame:
 #############################################
 
 
+def chunk_list_(station_id_list: list, chunk_size: int) -> Generator[list, None, None]:
+    """Divise une liste en sous-listes de taille chunk_size. Est uniquement utilisé par la fonction create_learning_dataset()
+    et get_data_from_api_bdx_by_station()
+
+    Parameters
+    ----------
+    station_id_list : list
+        Liste de station_id
+    chunk_size : int
+        Taille de chaque chunk
+    Returns
+    -------
+    Generator
+        Un générateur qui produit des sous-listes de taille chunk_size
+    Examples
+    --------
+    chunk_list_([1, 2, 3, 4, 5], 2)
+    """
+    for i in range(0, len(station_id_list), chunk_size):
+        yield station_id_list[i : i + chunk_size]
+
+
 def get_data_from_api_bdx_by_station(
-    station_id: str | list, start_date: str, stop_date: str, timeout: int = 10, max_retries: int = 3
+    station_id: str | list,
+    start_date: str,
+    stop_date: str,
+    timeout: int = 10,
+    max_retries: int = 3,
+    chunk_size_station: int = 25,
 ) -> dict:
     """
     Permet d'obtenir les données d'activité d'une station via une API d'open data Bordeaux
@@ -154,6 +182,8 @@ def get_data_from_api_bdx_by_station(
         Timeout for the API request (default is 10 seconds)
     max_retries : int
         Maximum number of retries for the API request (default is 3)
+    chunk_size_station : int
+        Chunk size for number of station to help API request (default is 25)
 
     Returns
     -------
@@ -166,9 +196,9 @@ def get_data_from_api_bdx_by_station(
                                                     stop_date='2020-10-17')
     """
 
-    # Si plusieurs station_id ([124,  15,  60,])
+    # Si plusieurs station_id ([124,  15,  60,]) -> list
     if isinstance(station_id, list | np.ndarray):
-        station_id = ",".join(map(str, station_id))
+        station_id_join = ",".join(map(str, station_id))
 
         url = (
             "https://data.bordeaux-metropole.fr/geojson/aggregate/ci_vcub_p?key="
@@ -176,12 +206,12 @@ def get_data_from_api_bdx_by_station(
             + "&rangeStart="
             + str(start_date)
             + '&filter={"ident":{"$in":['
-            + str(station_id)
+            + str(station_id_join)
             + "]}}&rangeEnd="
             + str(stop_date)
             + '&rangeStep=5min&attributes={"nom": "mode", "etat": "mode", "nbplaces": "max", "nbvelos": "max", "ident": "min"}'
         )
-    # Si une seul station_id
+    # Si une seul station_id -> str
     else:
         url = (
             "https://data.bordeaux-metropole.fr/geojson/aggregate/ci_vcub_p?key="
@@ -199,9 +229,35 @@ def get_data_from_api_bdx_by_station(
     attempts = 0
     while attempts < max_retries:
         try:
-            response = requests.get(url, timeout=timeout)  # noqa: S113
-            response.raise_for_status()  # Raise an exception for HTTP errors
-            return response.json()
+            # Si beaucoup de stations, on les découpe en chunks
+            if (isinstance(station_id, list) or isinstance(station_id, np.ndarray)) and len(
+                station_id
+            ) >= chunk_size_station:
+                total_chunks = len(list(chunk_list_(station_id, chunk_size_station)))
+
+                for chunk_index, station_id_list_chunk in enumerate(
+                    chunk_list_(station_id, chunk_size_station), start=1
+                ):
+                    print(f"Récupération des données pour le chunk {chunk_index} / {total_chunks}")
+                    try:
+                        station_json_chunk = get_data_from_api_bdx_by_station(
+                            station_id=station_id_list_chunk,
+                            start_date=start_date,
+                            stop_date=stop_date,
+                        )
+
+                        if "station_json" not in locals():
+                            station_json = station_json_chunk
+                        else:
+                            station_json["features"].extend(station_json_chunk["features"])
+                    except Exception as e:
+                        print(f"Erreur lors de la récupération des données pour le chunk {station_id_list_chunk}: {e}")
+                return station_json
+
+            else:
+                response = requests.get(url, timeout=timeout)  # noqa: S113
+                response.raise_for_status()  # Raise an exception for HTTP errors
+                return response.json()
         except (Timeout, ChunkedEncodingError) as e:
             attempts += 1
             time.sleep(10)  # Aout d'une time.sleep de 10 secondes
