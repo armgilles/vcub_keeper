@@ -1,8 +1,10 @@
+import pytest
 from vcub_keeper.production.data import (
     get_data_from_api_by_station,
     transform_json_station_data_to_df,
     get_data_from_api_bdx_by_station,
     transform_json_api_bdx_station_data_to_df,
+    chunk_list_,
 )
 
 #############################################
@@ -137,3 +139,61 @@ def test_get_api_bdx_data_many_station():
         "transactions_out",
         "transactions_all",
     ]
+
+
+def test_get_api_bdx_data_with_chunk(capsys):
+    """
+    On test les données de l'API open data de Bordeaux en utilisant le système de chunk
+    On regarde donc les message en output de la foonction ainsi que les résultats
+    """
+
+    station_id = [106, 3, 22]
+    start_date = "2024-12-29"
+    stop_date = "2025-01-07"
+
+    station_json = get_data_from_api_bdx_by_station(
+        station_id=station_id, start_date=start_date, stop_date=stop_date, chunk_size_station=2
+    )
+
+    # Capture la sortie standard
+    captured = capsys.readouterr()
+
+    # Vérifie les messages de chunk
+    assert "Récupération des données pour le chunk 1 / 2" in captured.out
+    assert "Récupération des données pour le chunk 2 / 2" in captured.out
+
+    station_df = transform_json_api_bdx_station_data_to_df(station_json).collect()
+
+    # Check du découpage des call de la fonction get_data_from_api_bdx_by_station
+
+    # Check unique station number
+    assert set(station_df["station_id"].unique().to_list()) == set([3, 106, 22])
+
+    # Check la longeur du DataFrame
+    assert len(station_df) == 1296 * 3
+
+    assert station_df.columns == [
+        "station_id",
+        "date",
+        "available_stands",
+        "available_bikes",
+        "status",
+        "transactions_in",
+        "transactions_out",
+        "transactions_all",
+    ]
+
+
+@pytest.mark.parametrize(
+    "station_id_list, chunk_size, expected",
+    [
+        ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 3, [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]),
+        ([1, 2, 3, 4, 5], 2, [[1, 2], [3, 4], [5]]),
+        ([1, 2, 3], 1, [[1], [2], [3]]),
+        ([1, 2, 3, 4, 5], 5, [[1, 2, 3, 4, 5]]),
+        ([], 3, []),
+    ],
+)
+def test_chunk_list_(station_id_list, chunk_size, expected):
+    result = list(chunk_list_(station_id_list=station_id_list, chunk_size=chunk_size))
+    assert result == expected
