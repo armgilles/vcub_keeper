@@ -1,7 +1,6 @@
 import glob as glob
 import io
 import warnings
-from collections.abc import Generator
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -9,7 +8,11 @@ import polars as pl
 from dotenv import load_dotenv
 
 from vcub_keeper.config import NON_USE_STATION_ID, ROOT_DATA_CLEAN, ROOT_DATA_RAW, ROOT_DATA_REF
-from vcub_keeper.production.data import get_data_from_api_bdx_by_station, transform_json_api_bdx_station_data_to_df
+from vcub_keeper.production.data import (
+    chunk_list_,
+    get_data_from_api_bdx_by_station,
+    transform_json_api_bdx_station_data_to_df,
+)
 from vcub_keeper.reader.reader import read_learning_dataset, read_stations_attributes
 from vcub_keeper.reader.reader_utils import filter_periode
 from vcub_keeper.transform.features_factory import (
@@ -382,12 +385,6 @@ def generate_date_intervals_(start_date: str, stop_date: str, chunk_days: int = 
         current_start = current_stop
 
     return intervals
-
-
-def chunk_list_(station_id_list: list, chunk_size: int) -> Generator[list, None, None]:
-    """Divise une liste en sous-listes de taille chunk_size. Est uniquement utilisé par la fonction create_learning_dataset()"""
-    for i in range(0, len(station_id_list), chunk_size):
-        yield station_id_list[i : i + chunk_size]
 
 
 def create_learning_dataset(

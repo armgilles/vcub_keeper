@@ -3,12 +3,8 @@ import pytest
 import pandas as pd
 import polars as pl
 from polars.testing import assert_frame_equal
-from vcub_keeper.create.creator import (
-    create_station_attribute,
-    calculate_breakpoints_,
-    generate_date_intervals_,
-    chunk_list_,
-)
+from vcub_keeper.create.creator import create_station_attribute, calculate_breakpoints_, generate_date_intervals_
+from vcub_keeper.production.data import chunk_list_
 from vcub_keeper.reader.reader import read_stations_attributes
 
 
