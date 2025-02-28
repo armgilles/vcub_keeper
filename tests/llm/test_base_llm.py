@@ -7,19 +7,36 @@ from unittest.mock import patch
 from vcub_keeper.llm.agent import create_agent, create_chat
 
 
+# ction: calculate_distance
+# Action Input: lat1=44.838, lon1=-0.58437, lat2=44.8407, lon2=-0.581124
+# Observation: 0.32 km
 @pytest.fixture
 def mock_station_data():
     """Create mock station data for testing"""
     data = {
         "station_id": [1, 2, 3, 4, 5, 6],
-        "NOM": ["Stalingrad", "Porte de Bourgogne", "Meriadeck", "Gare Saint-Jean", "Victoire", "Pey Berland"],
+        "NOM": ["Meriadeck", "St Bruno", "Piscine Judaique", "St Seurin", "Place Gambetta", "Square Andre Lhote"],
         "bikes_available": [10, 5, 15, 2, 8, 0],
         "bikes_mechanical": [7, 3, 10, 1, 5, 0],
         "bikes_ebike": [3, 2, 5, 1, 3, 0],
         "stands_available": [20, 15, 5, 18, 12, 20],
         "total_stands": [30, 20, 20, 20, 20, 20],
-        "lat": [44.8431, 44.8378, 44.8380, 44.8256, 44.8317, 44.8376],
-        "lon": [-0.5630, -0.5698, -0.5844, -0.5552, -0.5725, -0.5793],
+        "lat": [
+            44.83803,
+            44.83784,
+            44.840813,
+            44.84221,
+            44.840714,
+            44.83779,
+        ],
+        "lon": [
+            -0.58437,
+            -0.59028,
+            -0.593233,
+            -0.58482,
+            -0.581124,
+            -0.58166,
+        ],
     }
     return pl.DataFrame(data)
 
@@ -50,10 +67,10 @@ def test_most_bikes_available(agent):
     """Test the query about the station with the most bikes"""
     user_message = "Quelle est la station avec le plus de vélos disponibles et combien ?"
     response = agent.invoke({"input": user_message})
-    # La station avec le plus de vélos disponibles est Meriadeck avec 15 vélos.
+    # La station avec le plus de vélos disponibles est "Piscine Judaique" avec 15 vélos.
 
-    # Meriadeck has the most bikes (15)
-    assert "meriadeck" in response["output"].lower()
+    # Piscine Judaique has the most bikes (15)
+    assert "piscine judaique" in response["output"].lower()
     assert "15" in response["output"]
 
 
@@ -61,26 +78,25 @@ def test_least_bikes_available(agent):
     """Test the query about the station with the least bikes"""
     user_message = "Quelle est la station avec le moins de vélos disponibles et combien ?"
     response = agent.invoke({"input": user_message})
-    # La station avec le moins de vélos disponibles est Pey Berland avec 0 vélos
-    # disponibles.
+    # La station avec le moins de vélos disponibles est "Square Andre Lhote"
+    # avec 0 vélos disponibles.
 
     # Pey Berland has the least bikes (0)
-    assert "pey berland" in response["output"].lower()
+    assert "square andre lhote" in response["output"].lower()
     assert "0" in response["output"]
 
 
 def test_distance_calculation(agent):
     """Test the query about distance and travel time"""
-    user_message = "Quelle est la distance entre la place Stalingrad et la porte de Bourgogne ? Si je roule à 15km/h, combien de temps vais-je mettre ?"
+    user_message = "Quelle est la distance entre Meriadeck et la Place Gambetta ? Si je roule à 15km/h, combien de temps vais-je mettre ?"
     response = agent.invoke({"input": user_message})
-    # La distance entre la place Stalingrad et la porte de Bourgogne est de 0.56
-    # km. À une vitesse de 15 km/h, il vous faudra environ 0.037 heures, soit
-    # environ 2.24 minutes.
+    # La distance entre Meriadeck et Place Gambetta est de 0.29 km. Si vous
+    # roulez à 15 km/h, il vous faudra environ 0.02 heures, soit environ 1.2
+    # minutes.
 
-    # The distance should be calculated and time estimated
     assert "km" in response["output"].lower() or "kilomètre" in response["output"].lower()
     assert "minute" in response["output"].lower()
-    assert "2.24" in response["output"].lower()
-    assert "stalingrad" in response["output"].lower()
-    assert "bourgogne" in response["output"].lower()
+    assert "1.2" in response["output"].lower() or "1 minutes" in response["output"].lower()
+    assert "meriadeck" in response["output"].lower()
+    assert "place gambetta" in response["output"].lower()
     assert "15km/h" in response["output"] or "15 km/h" in response["output"]
