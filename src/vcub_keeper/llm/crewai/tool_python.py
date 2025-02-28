@@ -1,6 +1,7 @@
 import math
 
 from langchain_core.tools import tool
+from pydantic import BaseModel, Field
 
 
 @tool
@@ -35,11 +36,11 @@ def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return distance
 
 
-# class get_distance(BaseModel):
-#     """"""
+class get_distance_schema(BaseModel):
+    """"""
 
-#     lat1: float = Field(..., description="Latitude de la première station")
-#     lon1: float = Field(..., description="Longitude de la première station")
-#     lat2: float = Field(..., description="Latitude de la deuxième station")
-#     lon2: float = Field(..., description="Longitude de la deuxième station")
-#     distance: float = Field(..., description="Distance entre les deux stations en kilomètres")
+    lat1: float = Field(..., description="Latitude de la première station")
+    lon1: float = Field(..., description="Longitude de la première station")
+    lat2: float = Field(..., description="Latitude de la deuxième station")
+    lon2: float = Field(..., description="Longitude de la deuxième station")
+    distance: float = Field(..., description="Distance entre les deux stations en kilomètres")

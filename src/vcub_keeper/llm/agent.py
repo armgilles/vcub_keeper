@@ -1,5 +1,4 @@
 import os
-from typing import Literal
 
 import polars as pl
 import requests
@@ -8,7 +7,6 @@ from langchain.agents import AgentExecutor, Tool
 from langchain.agents.agent_types import AgentType
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_mistralai.chat_models import ChatMistralAI
-from pydantic import BaseModel, Field
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from vcub_keeper.llm.crewai.tool_python import get_distance
@@ -63,11 +61,9 @@ Ta réponse doit être structurée selon ce format:
   * tool_input: les paramètres de l'outil
   * thought: ton raisonnement pour cette action
 
-- Si tu connais la réponse finale, indique "response_type: final_answer" et fournis:
-  * thought: ton raisonnement final
-  * answer: la réponse complète à la question
-
-Question: {input}
+- Si tu connais la réponse finale, écris uniquement :
+Final Answer: [ta réponse]
+Ne génère pas d'autres réflexions ou actions après une réponse finale.
 """
 
 
@@ -93,35 +89,6 @@ prompt_gestion_erreurs = """Vérifiez votre sortie et assurez-vous
             qu'elle est conforme ! Ne sortez pas une Action et une réponse
             finale en même temps. Lorsque vous avez une Final Answer, vous
             devez vous arrêter et ne pas continuer à réfléchir."""
-
-
-# Add these Pydantic models for structured output
-class AgentAction(BaseModel):
-    """Agent action with tool and input."""
-
-    tool: Literal["python_repl_ast", "calculate_distance"] = Field(
-        description="The tool to use (either python_repl_ast or calculate_distance)"
-    )
-    tool_input: str = Field(description="The input parameters for the tool")
-    thought: str = Field(description="The reasoning before taking this action")
-
-
-class AgentFinalAnswer(BaseModel):
-    """Agent's final answer response."""
-
-    thought: str = Field(description="The final reasoning process")
-    answer: str = Field(description="The final answer to the user's question")
-
-
-class AgentResponse(BaseModel):
-    """Structured agent response that can be either an action or a final answer."""
-
-    response_type: Literal["action", "final_answer"] = Field(
-        description="Whether this is an action or the final answer"
-    )
-    content: AgentAction | AgentFinalAnswer = Field(
-        description="The content of the response (either action or final answer)"
-    )
 
 
 def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
@@ -221,7 +188,12 @@ def build_tools() -> list[Tool]:
         Tool(
             name="calculate_distance",
             func=get_distance,
-            description="Calculer la distance entre deux stations (en km) grace à leurs coordonnées (lat, lon)",
+            description="""Calculer la distance entre deux stations (en km) grace à leurs coordonnées (lat, lon)
+            Exemple d'utilisation:
+            1. Cherche les coordonnées de la station "Stalingrad": df[df['station_name'] == 'STALINGRAD']
+            2. Cherche les coordonnées de la station "Porte de Bourgogne": df[df['station_name'] == 'PORTE DE BOURGOGNE']
+            3. Utilise calculate_distance(lat1, lon1, lat2, lon2) avec les valeurs numériques obtenues 
+            """,
         ),
     ]
 

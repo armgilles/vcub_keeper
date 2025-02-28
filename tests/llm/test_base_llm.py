@@ -39,6 +39,7 @@ def test_count_stations(agent):
     """Test the query about the number of stations"""
     user_message = "Combien il y a de stations ?"  # 6
     response = agent.invoke({"input": user_message})
+    # Il y a 6 stations.
 
     # The agent should report 6 stations
     assert "6" in response["output"].lower()
@@ -49,6 +50,7 @@ def test_most_bikes_available(agent):
     """Test the query about the station with the most bikes"""
     user_message = "Quelle est la station avec le plus de vélos disponibles et combien ?"
     response = agent.invoke({"input": user_message})
+    # La station avec le plus de vélos disponibles est Meriadeck avec 15 vélos.
 
     # Meriadeck has the most bikes (15)
     assert "meriadeck" in response["output"].lower()
@@ -59,6 +61,8 @@ def test_least_bikes_available(agent):
     """Test the query about the station with the least bikes"""
     user_message = "Quelle est la station avec le moins de vélos disponibles et combien ?"
     response = agent.invoke({"input": user_message})
+    # La station avec le moins de vélos disponibles est Pey Berland avec 0 vélos
+    # disponibles.
 
     # Pey Berland has the least bikes (0)
     assert "pey berland" in response["output"].lower()
@@ -69,12 +73,14 @@ def test_distance_calculation(agent):
     """Test the query about distance and travel time"""
     user_message = "Quelle est la distance entre la place Stalingrad et la porte de Bourgogne ? Si je roule à 15km/h, combien de temps vais-je mettre ?"
     response = agent.invoke({"input": user_message})
+    # La distance entre la place Stalingrad et la porte de Bourgogne est de 0.56
+    # km. À une vitesse de 15 km/h, il vous faudra environ 0.037 heures, soit
+    # environ 2.24 minutes.
 
     # The distance should be calculated and time estimated
     assert "km" in response["output"].lower() or "kilomètre" in response["output"].lower()
     assert "minute" in response["output"].lower()
-    # We can't assert exact values as we don't know the calculation method
-    # But we can check if the response contains relevant information
+    assert "2.24" in response["output"].lower()
     assert "stalingrad" in response["output"].lower()
     assert "bourgogne" in response["output"].lower()
-    assert "15km/h" in response["output"]
+    assert "15km/h" in response["output"] or "15 km/h" in response["output"]
