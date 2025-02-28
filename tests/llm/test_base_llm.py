@@ -7,9 +7,10 @@ from unittest.mock import patch
 from vcub_keeper.llm.agent import create_agent, create_chat
 
 
-# ction: calculate_distance
-# Action Input: lat1=44.838, lon1=-0.58437, lat2=44.8407, lon2=-0.581124
-# Observation: 0.32 km
+# Appliquer le marqueur à tous les tests de ce fichier
+pytestmark = pytest.mark.llm_api  # ou ajout d'un marker sur chaque test - @pytest.mark.llm_api
+
+
 @pytest.fixture
 def mock_station_data():
     """Create mock station data for testing"""
