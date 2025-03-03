@@ -4,10 +4,12 @@ import polars as pl
 from dotenv import load_dotenv
 from langchain.agents import AgentExecutor, Tool
 from langchain.agents.agent_types import AgentType
+from langchain.memory import ConversationBufferMemory
 from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_mistralai.chat_models import ChatMistralAI
 
+from vcub_keeper.config import CONFIG_LLM
 from vcub_keeper.llm.crewai.tool_python import get_distance
 
 load_dotenv()
@@ -120,11 +122,15 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
+    # To have access to older message
+    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
     chat_llm = ChatMistralAI(
         model=model,
         temperature=temperature,
         openai_api_key=MISTRAL_API_KEY,
         rate_limiter=rate_limiter,
+        memory=memory,
         # model_kwargs={
         #     "top_p": 0.92,
         #     "repetition_penalty": 1.1,
@@ -150,18 +156,28 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
         _description_
     """
 
+    # Récupérer la mémoire du modèle chat si elle existe
+    memory = getattr(chat, "memory", None)
+
+    if not memory:
+        # Créer une nouvelle mémoire si le chat n'en a pas
+        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
     # Paramètres par défaut
     default_params = {
         "agent_type": AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        "return_intermediate_steps": True,
+        "return_intermediate_steps": CONFIG_LLM["vcub_agent"]["return_intermediate_steps"],
         "number_of_head_rows": last_info_station.shape[0],
-        "prefix": prompt,
+        "prefix": CONFIG_LLM["vcub_agent_prompt"]["prefix_agent"] + CONFIG_LLM["vcub_agent_prompt"]["template_llm"],
         "extra_tools": build_tools(),
-        "max_iterations": 5,
-        "allow_dangerous_code": True,
-        "verbose": True,
-        "early_stopping_method": "force",
-        "agent_executor_kwargs": {"handle_parsing_errors": prompt_gestion_erreurs},
+        "max_iterations": CONFIG_LLM["vcub_agent"]["max_iterations"],
+        "allow_dangerous_code": CONFIG_LLM["vcub_agent"]["allow_dangerous_code"],
+        "verbose": CONFIG_LLM["vcub_agent"]["verbose"],
+        "early_stopping_method": CONFIG_LLM["vcub_agent"]["early_stopping_method"],
+        "agent_executor_kwargs": {
+            "handle_parsing_errors": CONFIG_LLM["vcub_agent_prompt"]["prompt_gestion_erreurs"],
+            "memory": memory,
+        },
     }
 
     agent = create_pandas_dataframe_agent(
@@ -187,12 +203,7 @@ def build_tools() -> list[Tool]:
         Tool(
             name="calculate_distance",
             func=get_distance,
-            description="""Calculer la distance entre deux stations (en km) grace à leurs coordonnées (lat, lon)
-            Exemple d'utilisation:
-            1. Cherche les coordonnées de la station "Stalingrad": df[df['station_name'] == 'STALINGRAD']
-            2. Cherche les coordonnées de la station "Porte de Bourgogne": df[df['station_name'] == 'PORTE DE BOURGOGNE']
-            3. Utilise calculate_distance(lat1, lon1, lat2, lon2) avec les valeurs numériques obtenues 
-            """,
+            description=CONFIG_LLM["calculate_distance_prompt"]["prompt_descrption"],
         ),
     ]
 
