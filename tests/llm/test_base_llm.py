@@ -43,11 +43,6 @@ def mock_station_data():
     return pl.DataFrame(data)
 
 
-#     tion: calculate_distance
-# Action Input: '48.8566, -0.5769, 48.8566, -0.5769'
-# Observation: La distance entre les stations "Meriadeck" et "Place Gambetta" est de 0.0 km.
-
-
 @pytest.fixture
 def agent(mock_station_data):
     """Create an instance of agent_vcub with mock data"""
@@ -62,6 +57,7 @@ def agent(mock_station_data):
     return agent_vcub
 
 
+@pytest.mark.llm_api
 def test_count_stations(agent):
     """Test the query about the number of stations"""
     user_message = "Combien il y a de stations ?"  # 6
@@ -72,6 +68,7 @@ def test_count_stations(agent):
     assert "station" in response["output"].lower()
 
 
+@pytest.mark.llm_api
 def test_most_bikes_available(agent):
     """Test the query about the station with the most bikes"""
     user_message = "Quelle est la station avec le plus de vélos disponibles et combien ?"
@@ -82,6 +79,7 @@ def test_most_bikes_available(agent):
     assert "20" in response["output"]
 
 
+@pytest.mark.llm_api
 def test_least_bikes_available(agent):
     """Test the query about the station with the least bikes"""
     user_message = "Quelle est la station avec le moins de vélos disponibles et combien ?"
@@ -92,10 +90,17 @@ def test_least_bikes_available(agent):
     assert "5" in response["output"]
 
 
+@pytest.mark.llm_api
 def test_distance_calculation(agent):
     """Test the query about distance and travel time"""
     user_message = "Quelle est la distance entre Meriadeck et la Place Gambetta ? Si je roule à 15km/h, combien de temps vais-je mettre ?"
     response = agent.invoke({"input": user_message})
+
+    # Peut avoir un décalage sur la distance et donc le temps
+    # Action: calculate_distance
+    # Action Input: lat1=44.838, lon1=-0.58437, lat2=44.8407, lon2=-0.581124
+    # Observation: La distance entre Meriadeck et Place Gambetta est de 0.32 km
+
     # La distance entre Meriadeck et Place Gambetta est de 0.29 km. Si vous
     # roulez à 15 km/h, il vous faudra environ 0.02 heures, soit environ 1.2
     # minutes.

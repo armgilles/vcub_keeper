@@ -83,6 +83,8 @@ Tu as accès à un dataframe contenant les colonnes suivantes :
 - lat : la latitude de la station
 - lon : la longitude de la station
 - station_name : le nom de la station
+
+Les données ne sont pas triéer ou filtrées. Tu dois utiliser les bonnes pratiques de Pandas!
 """
 
 prompt = prefix_agent + template_llm
@@ -116,7 +118,7 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     chat_llm = create_chat(model="mistral-small-latest", temperature=0.1)
     """
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
-    rate_limiter = InMemoryRateLimiter(requests_per_second=0.8, check_every_n_seconds=0.1, max_bucket_size=5)
+    rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
     chat_llm = ChatMistralAI(
         model=model,
