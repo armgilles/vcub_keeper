@@ -26,6 +26,9 @@ dependencies = [
     "tables==3.10.1",
     "matplotlib==3.9.2",
     "seaborn==0.13.2",
+    "langchain==0.0.319",
+    "langchain-experimental==0.3.4",
+    "langchain-experimental==0.2.7"
 ]
 
 [project.optional-dependencies]
