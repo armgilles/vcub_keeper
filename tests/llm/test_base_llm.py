@@ -21,7 +21,7 @@ def mock_station_data():
             "Square Andre Lhote",
         ],
         "available_stands": [10, 5, 15, 2, 8, 0],
-        "available_bikes": [20, 15, 5, 18, 12, 20],
+        "available_bikes": [20, 15, 5, 18, 12, 19],
         "status": [1, 1, 1, 1, 1, 1],
         "lat": [
             44.83803,
