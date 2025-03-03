@@ -28,7 +28,7 @@ jobs:
       run: |
           touch .env
           echo KEY_API_BDX=${{ secrets.KEY_API_BDX }} >> .env
-          echo KEY_API_BDX=${{ secrets.MISTRAL_API_KEY }} >> .env
+          echo MISTRAL_API_KEY=${{ secrets.MISTRAL_API_KEY }} >> .env
     - name: Copy test data
       run: |
         cp -r ${{ env.ROOT_TESTS_DATA }}/* ${{ github.workspace }}/tests/
