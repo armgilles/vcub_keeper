@@ -71,15 +71,19 @@ Ne génère pas d'autres réflexions ou actions après une réponse finale.
 # Final Answer: [votre réponse concise]
 # """
 
-prefix_agent = """Tu es un assistant spécialisé dans l'analyse des
-données des stations VCub de Bordeaux.  Le dataframe contient des informations
-sur les stations avec les colonnes suivantes: - station_id: l'id de la station,
-date: la date, available_stands: le nombre de place disponible, available_bikes:
-le nombre de vélos disponibles, status: le statut de la station (1: tout vas
-bien / 0: Maintenance ou problème) , lat: la lattitude de la staion, lon: la
-longitude de la station, station_name: le nom de la station.  Utilise ces
-données pour répondre aux questions de manière précise."""
+prefix_agent = """Tu es un assistant spécialisé dans l'analyse des données des stations VCub de Bordeaux.
 
+Données disponibles :
+Tu as accès à un dataframe contenant les colonnes suivantes :
+- station_id : l'ID de la station
+- date : la date
+- available_stands : le nombre de places disponibles
+- available_bikes : le nombre de vélos disponibles
+- status : le statut de la station (1 : OK, 0 : en maintenance ou problème)
+- lat : la latitude de la station
+- lon : la longitude de la station
+- station_name : le nom de la station
+"""
 
 prompt = prefix_agent + template_llm
 
