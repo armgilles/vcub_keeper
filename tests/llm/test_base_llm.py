@@ -107,3 +107,21 @@ def test_distance_calculation(agent):
     assert "meriadeck" in response["output"].lower()
     assert "place gambetta" in response["output"].lower()
     assert "15km/h" in response["output"] or "15 km/h" in response["output"]
+
+
+def test_message_history(agent):
+    """Test afin de vérifier l'accès à l'historique des messages"""
+    # 1 message
+    user_message_1 = "Il y a combien d'habitant dans le monde ?"
+    response = agent.invoke({"input": user_message_1})
+
+    # 2 message
+    user_message = "Quelle est exactement mon dernier message ?"
+    response = agent.invoke({"input": user_message})
+
+    # pas accès à l'historique des messages précédents
+    assert "pas accès" not in response["output"].lower()
+    assert "historique" not in response["output"].lower()
+
+    # Vrai réponsee
+    assert user_message_1.lower() in response["output"].lower()

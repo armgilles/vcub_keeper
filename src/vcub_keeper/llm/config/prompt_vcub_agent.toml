@@ -31,18 +31,21 @@ Données disponibles :
 Tu as accès à un dataframe contenant les colonnes suivantes :
 - station_id : l'ID de la station
 - date : la date
-- available_stands : le nombre de places disponibles
-- available_bikes : le nombre de vélos disponibles
+- available_stands : le nombre de places disponibles pour y déposer un vélo
+- available_bikes : le nombre de vélos disponibles de la station
 - status : le statut de la station (1 : OK, 0 : en maintenance ou problème)
 - lat : la latitude de la station
 - lon : la longitude de la station
 - station_name : le nom de la station
 
 Les données ne sont pas triéer ou filtrées. Tu dois utiliser les bonnes pratiques de Pandas!
+Tu as accès à l'historique de la conversation précédente dans 
+{chat_history}
 """
 
 # Gestion des erreurs
 prompt_gestion_erreurs = """Vérifiez votre sortie et assurez-vous qu'elle est
 conforme ! Ne sortez pas une Action et une réponse finale en même temps. Lorsque
-vous avez une Final Answer, vous devez vous arrêter et ne pas continuer à
-réfléchir."""
+vous avez une Final Answer, vous devez absolument vous arrêter là et donner
+uniquement la réponse finale ou l'observation si celle-ci est pertinente à la question.
+"""

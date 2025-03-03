@@ -156,12 +156,9 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
         _description_
     """
 
-    # Récupérer la mémoire du modèle chat si elle existe
     memory = getattr(chat, "memory", None)
-
     if not memory:
-        # Créer une nouvelle mémoire si le chat n'en a pas
-        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True, output_key="output")
 
     # Paramètres par défaut
     default_params = {
