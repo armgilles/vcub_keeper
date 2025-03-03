@@ -57,7 +57,6 @@ def agent(mock_station_data):
     return agent_vcub
 
 
-@pytest.mark.llm_api
 def test_count_stations(agent):
     """Test the query about the number of stations"""
     user_message = "Combien il y a de stations ?"  # 6
@@ -68,7 +67,6 @@ def test_count_stations(agent):
     assert "station" in response["output"].lower()
 
 
-@pytest.mark.llm_api
 def test_most_bikes_available(agent):
     """Test the query about the station with the most bikes"""
     user_message = "Quelle est la station avec le plus de vélos disponibles et combien ?"
@@ -79,7 +77,6 @@ def test_most_bikes_available(agent):
     assert "20" in response["output"]
 
 
-@pytest.mark.llm_api
 def test_least_bikes_available(agent):
     """Test the query about the station with the least bikes"""
     user_message = "Quelle est la station avec le moins de vélos disponibles et combien ?"
@@ -90,7 +87,6 @@ def test_least_bikes_available(agent):
     assert "5" in response["output"]
 
 
-@pytest.mark.llm_api
 def test_distance_calculation(agent):
     """Test the query about distance and travel time"""
     user_message = "Quelle est la distance entre Meriadeck et la Place Gambetta ? Si je roule à 15km/h, combien de temps vais-je mettre ?"
