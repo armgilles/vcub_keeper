@@ -1,13 +1,12 @@
 import os
 
 import polars as pl
-import requests
 from dotenv import load_dotenv
 from langchain.agents import AgentExecutor, Tool
 from langchain.agents.agent_types import AgentType
+from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_mistralai.chat_models import ChatMistralAI
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from vcub_keeper.llm.crewai.tool_python import get_distance
 
@@ -112,26 +111,20 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     --------
     chat_llm = create_chat(model="mistral-small-latest", temperature=0.1)
     """
+    # To avoid rate limit errors (429 - Requests rate limit exceeded)
+    rate_limiter = InMemoryRateLimiter(requests_per_second=0.8, check_every_n_seconds=0.1, max_bucket_size=5)
+
     chat_llm = ChatMistralAI(
         model=model,
         temperature=temperature,
         openai_api_key=MISTRAL_API_KEY,
-        # stop=["Observation:", "Thought:", "Action:"],
-        model_kwargs={
-            "top_p": 0.92,
-            "repetition_penalty": 1.1,
-        },
+        rate_limiter=rate_limiter,
+        # model_kwargs={
+        #     "top_p": 0.92,
+        #     "repetition_penalty": 1.1,
+        #     "max_tokens": 1024,  # Limit token generation
+        # },
     )
-
-    @retry(
-        wait=wait_fixed(1.5),  # Attendre 1.1 secondes entre les essais
-        stop=stop_after_attempt(2),  # Maximum 5 tentatives
-        retry=retry_if_exception_type(requests.exceptions.HTTPError),  # Uniquement pour les erreurs HTTP
-    )
-    def _generate_with_retry(*args, **kwargs):
-        return chat_llm._generate(*args, **kwargs)
-
-    chat_llm._generate = _generate_with_retry
 
     return chat_llm
 
