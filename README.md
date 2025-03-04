@@ -49,6 +49,7 @@ Créer un .env à la racine du projet avec :
 - API_METEO="YOUR TOKEN HERE" (finalement, la météo n'est plus utilisé dans le projet).
 - MAPBOX_TOKEN="YOUR TOKEN HERE" (pour l'utilisation des graphiques avec mapbox).
 - KEY_API_BDX="YOUR KEY HERE" (pour l'utilisation de l'API open data de Bordeaux. Pour obtenir une [clef](https://data.bordeaux-metropole.fr/opendata/key))
+- MISTRAL_API_KEY="YOUR KEY HERE" (pour l'utilisation de l'API Mistral. Pour obtenir une [clef](https://mistral.ai/))
 
 ## Études : 
 
