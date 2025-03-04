@@ -42,15 +42,15 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
-    # To have access to older message
-    memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+    # # To have access to older message
+    # memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True, output_key="output")
 
     chat_llm = ChatMistralAI(
         model=model,
         temperature=temperature,
         openai_api_key=MISTRAL_API_KEY,
         rate_limiter=rate_limiter,
-        memory=memory,
+        # memory=memory,
         # model_kwargs={
         #     "top_p": 0.92,
         #     "repetition_penalty": 1.1,
@@ -78,7 +78,15 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
 
     memory = getattr(chat, "memory", None)
     if not memory:
-        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True, output_key="output")
+        memory = ConversationBufferMemory(
+            memory_key="chat_history", return_messages=True, output_key="output", input_key="input"
+        )
+
+    # Check if chat.memory exists - if using the mistral API it might not store memory directly
+    chat_memory = getattr(chat, "memory", None)
+    if chat_memory and hasattr(chat_memory, "chat_memory") and hasattr(chat_memory.chat_memory, "messages"):
+        # Transfer messages from chat memory to agent memory if possible
+        memory.chat_memory.messages = chat_memory.chat_memory.messages
 
     # Paramètres par défaut
     default_params = {
