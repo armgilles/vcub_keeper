@@ -61,6 +61,7 @@ def test_count_stations(agent):
     """Test the query about the number of stations"""
     user_message = "Combien il y a de stations ?"  # 6
     response = agent.invoke({"input": user_message})
+    print(f"response: {response['output']}")
     # Il y a 6 stations.
 
     assert "6" in response["output"].lower()
@@ -71,6 +72,7 @@ def test_most_bikes_available(agent):
     """Test the query about the station with the most bikes"""
     user_message = "Quelle est la station avec le plus de vélos disponibles et combien ?"
     response = agent.invoke({"input": user_message})
+    print(f"response: {response['output']}")
     # La station avec le plus de vélos disponibles est "Meriadeck" avec 20 vélos disponibles.
 
     assert "meriadeck" in response["output"].lower()
@@ -81,6 +83,7 @@ def test_least_bikes_available(agent):
     """Test the query about the station with the least bikes"""
     user_message = "Quelle est la station avec le moins de vélos disponibles et combien ?"
     response = agent.invoke({"input": user_message})
+    print(f"response: {response['output']}")
     # La station avec le moins de vélos disponibles est "Piscine Judaique" avec 5 vélos disponibles.
 
     assert "piscine judaique" in response["output"].lower()
@@ -91,6 +94,7 @@ def test_distance_calculation(agent):
     """Test the query about distance and travel time"""
     user_message = "Quelle est la distance entre Meriadeck et la Place Gambetta ? Si je roule à 15km/h, combien de temps vais-je mettre ?"
     response = agent.invoke({"input": user_message})
+    print(f"response: {response['output']}")
 
     # Peut avoir un décalage sur la distance et donc le temps
     # Action: calculate_distance
@@ -118,6 +122,7 @@ def test_message_history(agent):
     # 2 message
     user_message = "Quelle est exactement mon dernier message ?"
     response = agent.invoke({"input": user_message})
+    print(f"response: {response['output']}")
 
     # pas accès à l'historique des messages précédents
     assert "pas accès" not in response["output"].lower()
