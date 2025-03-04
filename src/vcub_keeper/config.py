@@ -46,7 +46,7 @@ try:
     ROOT_DATA_REF = str(ROOT_DIR) + "/data/ref/"
     ROOT_MODEL = str(ROOT_DIR) + "/model/"
     ROOT_TESTS_DATA = str(ROOT_DIR) + "/tests/data_for_tests/"
-    ROOT_LLM_CONFIG = str(ROOT_DIR) + "/src/vcub_keeper/llm/config/"
+    ROOT_LLM_CONFIG = str(ROOT_DIR) + "/config_llm/"
 
 except Exception as e:
     print("Can't have repository variables:", str(e))
