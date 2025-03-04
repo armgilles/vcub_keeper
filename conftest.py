@@ -2,9 +2,9 @@ import time
 
 import pytest
 
-# Variables globales pour suivre le timing des appels API
+# Variables globales pour suivre le timing des appels API Mistral
 last_api_call = 0
-MIN_DELAY = 2  # Minimum delay in seconds
+MIN_DELAY = 1.4  # Minimum delay in seconds
 
 
 # Créez un marqueur pour les tests LLM
