@@ -71,6 +71,11 @@ def get_geocoding(adresse: str) -> tuple[float, float]:
     geolocator = Nominatim(user_agent="vcub_keeper")
     location = geolocator.geocode(adresse)
 
+    if location is None:
+        raise ValueError(
+            f"Impossible de trouver les coordonnées de '{adresse}'. Vérifiez l'orthographe ou essayez une adresse plus précise."
+        )
+
     return location.latitude, location.longitude
 
 
