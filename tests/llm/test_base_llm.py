@@ -1,3 +1,4 @@
+from datetime import datetime
 import pytest
 import polars as pl
 from vcub_keeper.llm.agent import create_agent, create_chat
@@ -12,6 +13,17 @@ def mock_station_data():
     """Create mock station data for testing"""
     data = {
         "station_id": [1, 2, 3, 4, 5, 6],
+        "date": [
+            datetime(
+                2025,
+                3,
+                5,
+                12,
+                30,
+                0,
+            )
+        ]
+        * 6,
         "station_name": [
             "Meriadeck",
             "St Bruno",
@@ -39,8 +51,42 @@ def mock_station_data():
             -0.581124,
             -0.58166,
         ],
+        "anomaly": [1, 1, 1, 1, 1, -1],
+        "commune_name": [
+            "Bordeaux",
+            "Bordeaux",
+            "Bordeaux",
+            "Bordeaux",
+            "Bordeaux",
+            "Bordeaux",
+        ],
     }
-    return pl.DataFrame(data)
+
+    df = pl.DataFrame(data)
+    df = df.with_columns(
+        [
+            pl.col("station_id").cast(pl.UInt16),
+            pl.col("date").cast(pl.Datetime),
+            pl.col("available_stands").cast(pl.UInt16),
+            pl.col("available_bikes").cast(pl.UInt16),
+            pl.col("status").cast(pl.UInt8),
+            pl.col("anomaly").cast(pl.Float32),
+            pl.col("lat").cast(pl.Float32),
+            pl.col("lon").cast(pl.Float32),
+            pl.col("station_name").cast(pl.Categorical),
+            pl.col("commune_name").cast(pl.Categorical),
+        ]
+    )
+
+    # Rounding
+    df = df.with_columns(
+        [
+            pl.col("lat").round(4).alias("lat"),
+            pl.col("lon").round(4).alias("lon"),
+        ]
+    )
+
+    return df
 
 
 @pytest.fixture
@@ -116,7 +162,7 @@ def test_distance_calculation(agent):
 def test_message_history(agent):
     """Test afin de vérifier l'accès à l'historique des messages"""
     # 1 message
-    user_message_1 = "Il y a combien d'habitant dans le monde ?"
+    user_message_1 = "Combien il y a de vélos disponibles à la station St Bruno ?"
     response = agent.invoke({"input": user_message_1})
 
     # 2 message
@@ -130,3 +176,12 @@ def test_message_history(agent):
 
     # Vrai réponsee
     assert user_message_1.lower() in response["output"].lower()
+
+
+def test_message_anomaly(agent):
+    """Test afin de vérifier les anomalies dans les stations"""
+    user_message = "Quelle station est en anomalie ?"
+    response = agent.invoke({"input": user_message})
+    # La station en anomalie est Square Andre Lhote.
+
+    assert "Square Andre Lhote".lower() in response["output"].lower()
