@@ -6,3 +6,17 @@ leurs coordonnées (lat, lon) Exemple d'utilisation:
 2. Chercheles coordonnées de la station "Porte de Bourgogne": df[df['station_name'] =='PORTE DE BOURGOGNE']
 3. Utilise calculate_distance(lat1, lon1, lat2, lon2) avec les valeurs numériques obtenues
 """
+
+[get_geocoding_prompt]
+prompt_descrption = """Récupérer la latitude et la longitude d'une adresse postale en France.
+Exemple d'utilisation: lat, lon = get_geocoding("1 rue de la République, Bordeaux").
+"""
+
+[find_nearest_stations_prompt]
+prompt_descrption = """Trouve les X (paramètre "nombre_station_proche") stations les plus proches d'une coordonnée (lat, lon).
+Exemple pour avoir les 2 stations les plus proche d'une latitude (ex: 44.0485) et d'une longitude (ex: -0.5785):
+nearest_stations_df = find_nearest_stations(last_info_station=last_info_station.to_pandas(),
+                                            lat=44.0485, lon=-0.5785, nombre_station_proche=2)
+Cela renvoie un dataframe avec les 2 stations les plus proches avec une colonne "distance" en km
+ainsi que les informations liées à la station.
+"""
