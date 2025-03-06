@@ -162,7 +162,7 @@ def test_distance_calculation(agent):
 def test_message_history(agent):
     """Test afin de vérifier l'accès à l'historique des messages"""
     # 1 message
-    user_message_1 = "Il y a combien d'habitant dans le monde ?"
+    user_message_1 = "Combien il y a de vélos disponibles à la station St Bruno ?"
     response = agent.invoke({"input": user_message_1})
 
     # 2 message
