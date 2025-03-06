@@ -10,7 +10,7 @@ from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_mistralai.chat_models import ChatMistralAI
 
 from vcub_keeper.config import CONFIG_LLM
-from vcub_keeper.llm.crewai.tool_python import get_distance
+from vcub_keeper.llm.crewai.tool_python import find_nearest_stations, get_distance, get_geocoding
 
 load_dotenv()
 
@@ -126,6 +126,16 @@ def build_tools() -> list[Tool]:
             name="calculate_distance",
             func=get_distance,
             description=CONFIG_LLM["calculate_distance_prompt"]["prompt_descrption"],
+        ),
+        Tool(
+            name="get_geocoding",
+            func=get_geocoding,
+            description=CONFIG_LLM["get_geocoding_prompt"]["prompt_descrption"],
+        ),
+        Tool(
+            name="find_nearest_stations",
+            func=find_nearest_stations,
+            description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
         ),
     ]
 
