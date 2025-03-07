@@ -39,8 +39,19 @@ Tu as accès à l'historique de la conversation précédente dans
 """
 
 # Gestion des erreurs
-prompt_gestion_erreurs = """Vérifiez votre sortie et assurez-vous qu'elle est
-conforme ! Ne sortez pas une Action et une réponse finale en même temps. Lorsque
-vous avez une Final Answer, vous devez absolument vous arrêter là et donner
-uniquement la réponse finale ou l'observation si celle-ci est pertinente à la question.
+prompt_gestion_erreurs = """
+ERREUR DE FORMAT DÉTECTÉE! Suivez STRICTEMENT ce format:
+
+Pour utiliser un outil:
+Thought: <votre réflexion>
+Action: <nom_outil>
+Action Input: <paramètres>
+
+Pour donner la réponse finale:
+Thought: <votre réflexion>
+Final Answer: <réponse concise>
+
+N'UTILISEZ JAMAIS "response_type:". 
+N'INCLUEZ JAMAIS une action ET une réponse finale ensemble.
+Si vous avez les informations pour répondre, donnez UNIQUEMENT votre "Final Answer".
 """

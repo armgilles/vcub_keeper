@@ -123,9 +123,9 @@ def build_tools() -> list[Tool]:
 
     tools = [
         Tool(
-            name="calculate_distance",
+            name="get_distance",
             func=get_distance,
-            description=CONFIG_LLM["calculate_distance_prompt"]["prompt_descrption"],
+            description=CONFIG_LLM["get_distance_prompt"]["prompt_descrption"],
         ),
         Tool(
             name="get_geocoding",

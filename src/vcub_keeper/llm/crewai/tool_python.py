@@ -82,13 +82,15 @@ def get_geocoding(adresse: str) -> tuple[float, float]:
 
 # Fonction pour calculer les distances et trier
 @tool
-def find_nearest_stations(df: pd.DataFrame, lat: float, lon: float, nombre_station_proche: int = 3) -> pd.DataFrame:
+def find_nearest_stations(
+    last_info_station: pd.DataFrame, lat: float, lon: float, nombre_station_proche: int = 3, return_df: bool = False
+) -> pd.DataFrame | list[dict]:
     """
     Permets de trouver les station les plus proches d'une position donnée
 
     Parameters
     ----------
-    df : pl.DataFrame
+    df : pd.DataFrame
         DataFrame contenant les informations sur les stations à la date la plus récentes
     lat : float
         Latitude de la position
@@ -99,17 +101,23 @@ def find_nearest_stations(df: pd.DataFrame, lat: float, lon: float, nombre_stati
 
     Returns
     -------
-    pd.DataFrame
-        DataFrame contenant les stations les plus proches avec "distance" en km
+    pd.DataFrame | list[dict]
+        Si return_df est True, retourne un DataFrame contenant les stations les plus proches
+        Sinon, retourne une liste de dictionnaires contenant les stations les plus proches
+        avec "distance" en km
 
     Examples
     -------
-    nearest_stations = find_nearest_stations(df=last_info_station.to_pandas(),
+    nearest_stations = find_nearest_stations(last_info_station=last_info_station.to_pandas(),
                                              lat=44.8378, lon=-0.5792, nombre_station_proche=3)
     """
 
-    # last_info_station = last_info_station.to_pandas()
+    last_info_station["distance"] = last_info_station.apply(
+        lambda row: geodesic((lat, lon), (row["lat"], row["lon"])).km, axis=1
+    )
 
-    df["distance"] = df.apply(lambda row: geodesic((lat, lon), (row["lat"], row["lon"])).km, axis=1)
-
-    return df.nsmallest(nombre_station_proche, "distance")  # Trier et prendre les k plus proches
+    if return_df:
+        return last_info_station.nsmallest(nombre_station_proche, "distance")  # Trier et prendre les k plus proches
+    # dict
+    else:
+        return last_info_station.to_dict(orient="records")

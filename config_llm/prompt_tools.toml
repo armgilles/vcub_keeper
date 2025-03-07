@@ -1,4 +1,4 @@
-[calculate_distance_prompt]
+[get_distance_prompt]
 # Description du tool
 prompt_descrption = """Calculer la distance entre deux stations (en km) grace à
 leurs coordonnées (lat, lon) Exemple d'utilisation: 
