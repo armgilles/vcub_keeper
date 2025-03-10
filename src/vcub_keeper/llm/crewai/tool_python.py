@@ -6,6 +6,8 @@ from geopy.geocoders import Nominatim
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
+from vcub_keeper.llm.utils_agent import get_current_dataframe
+
 
 @tool
 def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -81,9 +83,12 @@ def get_geocoding(adresse: str) -> tuple[float, float]:
 
 
 # Fonction pour calculer les distances et trier
-@tool
 def find_nearest_stations(
-    last_info_station: pd.DataFrame, lat: float, lon: float, nombre_station_proche: int = 3, return_df: bool = False
+    last_info_station: pd.DataFrame,
+    lat: float,
+    lon: float,
+    nombre_station_proche: int = 3,
+    return_df: bool = False,
 ) -> pd.DataFrame | list[dict]:
     """
     Permets de trouver les station les plus proches d'une position donnée
@@ -120,4 +125,40 @@ def find_nearest_stations(
         return last_info_station.nsmallest(nombre_station_proche, "distance")  # Trier et prendre les k plus proches
     # dict
     else:
-        return last_info_station.to_dict(orient="records")
+        return last_info_station.nsmallest(nombre_station_proche, "distance").to_dict(orient="records")
+
+
+@tool
+def find_nearest_stations_wrapper(query: str) -> list:
+    """
+    Wrapper pour la fonction find_nearest_stations afin de l'utiliser avec LangChain
+    avec en entrée une chaîne de caractères contenant les paramètres de la requête.
+
+    Parameters
+    ----------
+    query : str
+        Chaîne de caractères contenant les paramètres de la requête au format "lat=..., lon=..., nombre_station_proche=..."
+        Exemple : "lat=44.8378, lon=-0.5792, nombre_station_proche=3"
+
+    Returns
+    -------
+    list
+        Liste de dictionnaires contenant les stations les plus proches avec "distance" en km
+
+    """
+    # Parse the query string
+    params = {}
+    for param in query.split(","):
+        key, value = param.strip().split("=")
+        params[key.strip()] = value.strip()
+
+    # Extract parameters with defaults
+    lat = float(params.get("lat"))
+    lon = float(params.get("lon"))
+    nombre_station_proche = int(params.get("nombre_station_proche", 3))
+
+    # Get last_info_station_pd datatframe from thread-local storage
+    last_info_station_pd = get_current_dataframe()
+    return find_nearest_stations(
+        last_info_station=last_info_station_pd, lat=lat, lon=lon, nombre_station_proche=nombre_station_proche
+    )
