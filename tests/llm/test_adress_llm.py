@@ -120,7 +120,7 @@ def test_message_geocoding(agent):
 
 
 def test_message_station_near_adress_coordonne(agent):
-    """Test à partir d'une adresse de trouver les 2 stations les plus proches"""
+    """Test à partir d'une adresse (lat / lon) de trouver les 2 stations les plus proches"""
     # user_message = "Quelles sont les 2 stations les plus proche de 12 Rue des Faussets Bordeaux ?"
     user_message = (
         "Quelles sont les 2 stations les plus proche de La latitude est 44.8404215 et la longitude est -0.5704848 ?"
