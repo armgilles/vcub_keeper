@@ -132,3 +132,16 @@ def test_message_station_near_adress_coordonne(agent):
 
     assert "Place de la Bourse".lower() in response["output"].lower()
     assert "Place du Palais".lower() in response["output"].lower()
+
+
+def test_message_station_near_adress(agent):
+    """Test à partir d'une adresse de trouver les 2 stations les plus proches"""
+    # user_message = "Quelles sont les 2 stations les plus proche de 12 Rue des Faussets Bordeaux ?"
+    user_message = "Quelles sont les 2 stations les plus proche du 12 Rue des Faussets Bordeaux uniquement ?"
+    response = agent.invoke({"input": user_message})
+    # Les 2 stations les plus proches du 12 Rue des Faussets, Bordeaux sont :
+    # 1. Place de la Bourse à 0.11 km
+    # 2. Place du Palais à 0.29 km
+
+    assert "Place de la Bourse".lower() in response["output"].lower()
+    assert "Place du Palais".lower() in response["output"].lower()
