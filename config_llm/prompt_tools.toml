@@ -1,8 +1,46 @@
-[calculate_distance_prompt]
+[get_distance_prompt]
 # Description du tool
 prompt_descrption = """Calculer la distance entre deux stations (en km) grace à
 leurs coordonnées (lat, lon) Exemple d'utilisation: 
 1. Cherche les coordonnées de la station "Stalingrad": df[df['station_name'] == 'STALINGRAD']
 2. Chercheles coordonnées de la station "Porte de Bourgogne": df[df['station_name'] =='PORTE DE BOURGOGNE']
 3. Utilise calculate_distance(lat1, lon1, lat2, lon2) avec les valeurs numériques obtenues
+"""
+
+[get_geocoding_prompt]
+prompt_descrption = """Récupérer la latitude et la longitude d'une adresse postale en France.
+Exemple d'utilisation: lat, lon = get_geocoding("1 rue de la République, Bordeaux").
+"""
+
+[find_nearest_stations_prompt]
+prompt_descrption = """Trouve les X stations les plus proches d'une coordonnée GPS. 
+IMPORTANT: Les paramètres doivent être fournis comme des arguments séparés et typés correctement: 
+lat (float), lon (float), nombre_station_proche (int, optionnel).
+Exemple pour avoir les 2 stations les plus proche d'une latitude (ex: 44.0485) et d'une longitude (ex: -0.5785) qui sont des float:
+nearest_stations_json = find_nearest_stations(last_info_station=df,
+                                            lat=44.0485, lon=-0.5785, nombre_station_proche=2)
+Cela renvoie un json avec les 2 stations les plus proches avec une colonne "distance" en km
+ainsi que les informations liées à la station : 
+[{'station_id': 103,
+  'date': Timestamp('2025-03-05 15:40:00'),
+  'available_stands': 10,
+  'available_bikes': 22,
+  'status': 1,
+  'anomaly': 1.0,
+  'station_name': 'Place du Palais',
+  'commune_name': 'Bordeaux',
+  'lat': 44.837799072265625,
+  'lon': -0.5702999830245972,
+  'distance': 0.0672468849653659},
+ {'station_id': 42,
+  'date': Timestamp('2025-03-05 15:40:00'),
+  'available_stands': 15,
+  'available_bikes': 0,
+  'status': 1,
+  'anomaly': 1.0,
+  'station_name': 'Camille Jullian',
+  'commune_name': 'Bordeaux',
+  'lat': 44.83919906616211,
+  'lon': -0.5720000267028809,
+  'distance': 0.15456434694289684}]
 """

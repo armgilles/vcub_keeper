@@ -10,7 +10,15 @@ from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_mistralai.chat_models import ChatMistralAI
 
 from vcub_keeper.config import CONFIG_LLM
-from vcub_keeper.llm.crewai.tool_python import get_distance
+from vcub_keeper.llm.crewai.tool_python import (
+    # find_nearest_stations,
+    find_nearest_stations_wrapper,
+    # find_nearest_stations_schema,
+    get_distance,
+    get_distance_schema,
+    get_geocoding,
+)
+from vcub_keeper.llm.utils_agent import set_current_dataframe
 
 load_dotenv()
 
@@ -102,9 +110,16 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
         },
     }
 
+    # Convert DataFrame once
+    last_info_station_pd = last_info_station.to_pandas()
+
+    # Store in thread-local state for tools to access
+    # Pour avoir accès par la suite avec les fonctions de wrapper
+    set_current_dataframe(last_info_station_pd)
+
     agent = create_pandas_dataframe_agent(
         llm=chat,
-        df=last_info_station.to_pandas(),
+        df=last_info_station_pd,
         **default_params,
     )
 
@@ -123,9 +138,21 @@ def build_tools() -> list[Tool]:
 
     tools = [
         Tool(
-            name="calculate_distance",
+            name="get_distance",
             func=get_distance,
-            description=CONFIG_LLM["calculate_distance_prompt"]["prompt_descrption"],
+            description=CONFIG_LLM["get_distance_prompt"]["prompt_descrption"],
+            arg_schemas=get_distance_schema,
+        ),
+        Tool(
+            name="get_geocoding",
+            func=get_geocoding,
+            description=CONFIG_LLM["get_geocoding_prompt"]["prompt_descrption"],
+        ),
+        Tool(
+            name="find_nearest_stations",
+            func=find_nearest_stations_wrapper,
+            description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
+            # arg_schemas=find_nearest_stations_schema,
         ),
     ]
 

@@ -185,3 +185,12 @@ def test_message_anomaly(agent):
     # La station en anomalie est Square Andre Lhote.
 
     assert "Square Andre Lhote".lower() in response["output"].lower()
+
+
+def test_message_bonjour(agent):
+    """Test afin de vérifier le bonjour de l'agent"""
+    user_message = "Bonjour"
+    response = agent.invoke({"input": user_message})
+    # Bonjour! Comment puis-je vous aider avec les données des stations VCub de Bordeaux?
+
+    assert "Bonjour".lower() in response["output"].lower()
