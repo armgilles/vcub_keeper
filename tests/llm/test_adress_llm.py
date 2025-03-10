@@ -49,7 +49,7 @@ def mock_station_data():
             -0.59028,
             -0.593233,
             -0.58482,
-            44.840302,
+            -0.5691,
             -0.5703,
         ],
         "anomaly": [1, 1, 1, 1, 1, -1],
@@ -126,6 +126,9 @@ def test_message_station_near_adress_coordonne(agent):
         "Quelles sont les 2 stations les plus proche de La latitude est 44.8404215 et la longitude est -0.5704848 ?"
     )
     response = agent.invoke({"input": user_message})
+    #  stations les plus proches de la latitude 44.8404215 et de la longitude -0.5704848 sont :
+    # 1. Place de la Bourse à 0.110 km
+    # 2. Place du Palais à 0.292 km
 
-    assert "Place du Palais".lower() in response["output"].lower()
     assert "Place de la Bourse".lower() in response["output"].lower()
+    assert "Place du Palais".lower() in response["output"].lower()
