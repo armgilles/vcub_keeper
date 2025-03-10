@@ -54,4 +54,5 @@ Final Answer: <réponse concise>
 N'UTILISEZ JAMAIS "response_type:". 
 N'INCLUEZ JAMAIS une action ET une réponse finale ensemble.
 Si vous avez les informations pour répondre, donnez UNIQUEMENT votre "Final Answer".
+Si "Final Answer" est présent dans votre réponse précédente, il FAUT IMPÉRATIVEMENT donner cette réponse dans la réponse actuelle.
 """
