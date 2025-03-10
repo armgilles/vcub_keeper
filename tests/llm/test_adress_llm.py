@@ -119,7 +119,7 @@ def test_message_geocoding(agent):
     assert "44.840" in response["output"]  # lat : 44.8404215
 
 
-def test_message_station_near_adress(agent):
+def test_message_station_near_adress_coordonne(agent):
     """Test à partir d'une adresse de trouver les 2 stations les plus proches"""
     # user_message = "Quelles sont les 2 stations les plus proche de 12 Rue des Faussets Bordeaux ?"
     user_message = (
