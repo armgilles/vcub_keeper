@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import polars as pl
 
 import numpy as np
+from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model
 from vcub_keeper.ml.prediction_station.utils import create_target
 
 
@@ -95,3 +96,51 @@ def test_create_target(
     # Assert the target column is created
     assert station_to_pred.collect().head(5).select(pl.col("target")).to_series().to_list() == first_5_target_values
     assert station_to_pred.collect().tail(5).select(pl.col("target")).to_series().to_list() == last_5_target_values
+
+
+def test_get_feature_to_use_for_model():
+    """ """
+
+    target_col = "available_stands"
+    feat_to_use = get_feature_to_use_for_model(target_col=target_col)
+    assert feat_to_use == [
+        "Sin_weekday",
+        "Cos_weekday",
+        "Sin_hours",
+        "Cos_hours",
+        "Sin_minutes",
+        "Cos_minutes",
+        "available_stands_lag_1",
+        "available_stands_lag_2",
+        "available_stands_lag_3",
+        "available_stands_rolling_max_6",
+        "available_stands_rolling_max_12",
+        "available_stands_rolling_max_1d",
+        "available_stands_rolling_max_7d",
+        "available_stands_rolling_min_6",
+        "available_stands_rolling_min_12",
+        "available_stands_rolling_min_1d",
+        "available_stands_rolling_min_7d",
+    ]
+
+    target_col = "available_bikes"
+    feat_to_use = get_feature_to_use_for_model(target_col=target_col)
+    assert feat_to_use == [
+        "Sin_weekday",
+        "Cos_weekday",
+        "Sin_hours",
+        "Cos_hours",
+        "Sin_minutes",
+        "Cos_minutes",
+        "available_bikes_lag_1",
+        "available_bikes_lag_2",
+        "available_bikes_lag_3",
+        "available_bikes_rolling_max_6",
+        "available_bikes_rolling_max_12",
+        "available_bikes_rolling_max_1d",
+        "available_bikes_rolling_max_7d",
+        "available_bikes_rolling_min_6",
+        "available_bikes_rolling_min_12",
+        "available_bikes_rolling_min_1d",
+        "available_bikes_rolling_min_7d",
+    ]
