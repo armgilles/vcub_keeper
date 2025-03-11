@@ -1,9 +1,11 @@
 import pytest
 from datetime import datetime, timedelta
 import polars as pl
+from polars.testing import assert_frame_equal
 
 import numpy as np
 from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model
+from vcub_keeper.ml.prediction_station.transform import build_feat_for_regression
 from vcub_keeper.ml.prediction_station.utils import create_target
 
 
@@ -83,10 +85,6 @@ def test_create_target(
     # Mock data
     df_historical_station = mock_histo_data
 
-    # # Test create_target function
-    # target_col = "available_stands"
-
-    # horizon_prediction = "30m"
     station_to_pred = df_historical_station.filter(pl.col("station_id") == station_id)
     len_df = station_to_pred.collect().shape[0]
     station_to_pred = create_target(station_to_pred, target_col, horizon_prediction)
@@ -144,3 +142,41 @@ def test_get_feature_to_use_for_model():
         "available_bikes_rolling_min_1d",
         "available_bikes_rolling_min_7d",
     ]
+
+
+def test_build_feat_for_regression(mock_histo_data):
+    """ """
+
+    target_col = "available_bikes"
+    feat_to_use = get_feature_to_use_for_model(target_col=target_col)
+
+    # Mock data
+    df_historical_station = mock_histo_data
+
+    station_to_pred = df_historical_station.filter(pl.col("station_id") == 102)
+    station_to_pred = build_feat_for_regression(station_to_pred, target_col=target_col)
+
+    expected_data = {
+        "Sin_weekday": [0.7818314824680298, 0.7818314824680298],
+        "Cos_weekday": [0.6234898018587336, 0.6234898018587336],
+        "Sin_hours": [-0.25881904510252157, -0.25881904510252157],
+        "Cos_hours": [0.9659258262890681, 0.9659258262890681],
+        "Sin_minutes": [-0.8660254037844355, 0.8660254037844408],
+        "Cos_minutes": [-0.5000000000000056, -0.49999999999999617],
+        "available_bikes_lag_1": [15, 18],
+        "available_bikes_lag_2": [10, 15],
+        "available_bikes_lag_3": [14, 10],
+        "available_bikes_rolling_max_6": [18, 18],
+        "available_bikes_rolling_max_12": [18, 18],
+        "available_bikes_rolling_max_1d": [19, 19],
+        "available_bikes_rolling_max_7d": [None, None],
+        "available_bikes_rolling_min_6": [10, 10],
+        "available_bikes_rolling_min_12": [1, 1],
+        "available_bikes_rolling_min_1d": [0, 0],
+        "available_bikes_rolling_min_7d": [None, None],
+    }
+    df_expected = pl.DataFrame(expected_data)
+
+    assert_frame_equal(
+        station_to_pred.select(feat_to_use).tail(2), df_expected, check_exact=False, rtol=1e-5, check_dtypes=False
+    )
