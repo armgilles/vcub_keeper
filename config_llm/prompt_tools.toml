@@ -56,13 +56,12 @@ On ne peut pas faire de prédiction sur une période supérieure à 24h ou 1 jou
 
 Exemple d'utilisation: L'utilsateur souhaiterait prédire le nombre de vélos disponibles à la station Berges du Lac dans 2 heures.
 Il faut donc trouver l'id de la station Berges du Lac dans le dataframe last_info_station ainsi que la date actuelle.
-Ensuite exécuter la fonction get_prediction_station avec les paramètres suivants en JSON (un dictionnaire VALIDE)
-comme ci-dessous:
-  params = {"target_station_id": 175, "target_col": "available_bike_stands","horizon_prediction": "30m", "return_df": True}
+Ensuite exécuter la fonction get_prediction_station avec les paramètres comme ci-dessous:
+params = {"target_station_id": 175, "target_col": "available_bike_stands","horizon_prediction": "30m", "return_df": True}
 prediction = get_prediction_station(params)
-La fonction renvoie un DataFrame Polars, la valeur prédite est la colonne "y_pred" et il y a la colonne "date" qui peut être utilile 
-pour l'utilisateur pour savoir à quel moment la prédiction a été faite. Si uniquement besoin de la prédiction alors tu mettre la clef
-"return_df" à False, cela renvera uniquement la valeur prédite (int).
+La fonction renvoie un DataFrame Polars, la valeur prédite est la colonne "y_pred" et il y a la colonne "date" qui peut être utile 
+pour l'utilisateur pour savoir à quel moment la prédiction a été faite (date + horizon de prédiction).
+Si uniquement besoin de la prédiction alors tu mettre la clef "return_df" à False, cela renvera uniquement la valeur prédite (int).
 """
 
 # La fonction renvoie un json avec la date de la prédiction et la valeur prédite.
