@@ -115,14 +115,14 @@ def create_agent(chat: ChatMistralAI, list_dfs: list[pl.DataFrame, pl.LazyFrame]
         },
     }
 
-    # Convert DataFrame once
+    # Convert to Pandas DataFrame
     last_info_station_pd = last_info_station.to_pandas()
 
     # Store in thread-local state for tools to access
     # Pour avoir accès par la suite avec les fonctions de wrapper
     set_current_dataframes(
         {
-            "last_info_station": last_info_station_pd,
+            "last_info_station_pd": last_info_station_pd,
             "df_historical_station": df_historical_station,  # Keep as LazyFrame
         }
     )

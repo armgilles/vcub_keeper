@@ -96,7 +96,7 @@ def agent(mock_station_data):
     # Assuming AgentVcub is initialized with a dataframe
 
     chat_llm = create_chat(model="mistral-small-latest", temperature=0.0)
-    agent_vcub = create_agent(chat=chat_llm, last_info_station=mock_station_data)
+    agent_vcub = create_agent(chat=chat_llm, list_dfs=[mock_station_data, pl.LazyFrame()])
 
     return agent_vcub
 
@@ -117,6 +117,7 @@ def test_message_geocoding(agent):
     # La latitude est 44.8404215 et la longitude est -0.5704848
 
     assert "44.840" in response["output"]  # lat : 44.8404215
+    assert "-0.570" in response["output"]  # lon : -0.5704848
 
 
 def test_message_station_near_adress_coordonne(agent):
