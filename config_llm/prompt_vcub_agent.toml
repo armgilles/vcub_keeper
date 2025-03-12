@@ -16,6 +16,8 @@ algorithmes de machine learning), ce résultat provient d'un modèle de machine
 learning afin de détecter les anomalies sur les stations Vcub.
 - commune_name: Le nom de la commune où se trouve la station
 
+Assure-toi de d'utiliser les bonnes pratiques de Pandas pour manipuler ces données !
+
 Tu dois répondre à la l'utilisateur si tu n'as pas besoins d'effectuer d'action (lui répondre bonjour etc..)
 Dans le cas contraire, ta réponse doit être structurée selon ce format:
 - Si tu dois effectuer une action, indique "response_type: action" et fournis:
@@ -42,6 +44,8 @@ Tu as accès à l'historique de la conversation précédente dans
 prompt_gestion_erreurs = """
 ERREUR DE FORMAT DÉTECTÉE! Suivez STRICTEMENT ce format:
 
+Si "Final Answer" est présent dans votre réponse précédente, il FAUT IMPÉRATIVEMENT donner UNIQUEMENT cette réponse dans la réponse actuelle.
+
 Pour utiliser un outil:
 Thought: <votre réflexion>
 Action: <nom_outil>
@@ -54,5 +58,4 @@ Final Answer: <réponse concise>
 N'UTILISEZ JAMAIS "response_type:". 
 N'INCLUEZ JAMAIS une action ET une réponse finale ensemble.
 Si vous avez les informations pour répondre, donnez UNIQUEMENT votre "Final Answer".
-Si "Final Answer" est présent dans votre réponse précédente, il FAUT IMPÉRATIVEMENT donner cette réponse dans la réponse actuelle.
 """
