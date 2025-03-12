@@ -17,8 +17,9 @@ from vcub_keeper.llm.crewai.tool_python import (
     get_distance,
     get_distance_schema,
     get_geocoding,
+    get_prediction_station,
 )
-from vcub_keeper.llm.utils_agent import set_current_dataframe
+from vcub_keeper.llm.utils_agent import set_current_dataframes
 
 load_dotenv()
 
@@ -65,7 +66,7 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     return chat_llm
 
 
-def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs) -> AgentExecutor:
+def create_agent(chat: ChatMistralAI, list_dfs: list[pl.DataFrame, pl.LazyFrame], **kwargs) -> AgentExecutor:
     """
 
 
@@ -79,6 +80,10 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
     create_pandas_dataframe_agent
         _description_
     """
+
+    # On suppose que list_dfs[0] est le dernier état de la station et list_dfs[1] est l'historique
+    last_info_station = list_dfs[0]
+    df_historical_station = list_dfs[1]
 
     # Gestion de la mémoire pour que l'agent puisse se souvenir des messages précédents
     memory = getattr(chat, "memory", None)
@@ -115,7 +120,12 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
 
     # Store in thread-local state for tools to access
     # Pour avoir accès par la suite avec les fonctions de wrapper
-    set_current_dataframe(last_info_station_pd)
+    set_current_dataframes(
+        {
+            "last_info_station": last_info_station_pd,
+            "df_historical_station": df_historical_station,  # Keep as LazyFrame
+        }
+    )
 
     agent = create_pandas_dataframe_agent(
         llm=chat,
@@ -153,6 +163,11 @@ def build_tools() -> list[Tool]:
             func=find_nearest_stations_wrapper,
             description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
             # arg_schemas=find_nearest_stations_schema,
+        ),
+        Tool(
+            name="get_prediction_station",
+            func=get_prediction_station,
+            description=CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
         ),
     ]
 

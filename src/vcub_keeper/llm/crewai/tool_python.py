@@ -1,12 +1,17 @@
 import math
 
 import pandas as pd
+import polars as pl
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
 from vcub_keeper.llm.utils_agent import get_current_dataframe
+from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model, train_model_for_station
+from vcub_keeper.ml.prediction_station.production import make_prediction_for_user
+from vcub_keeper.ml.prediction_station.transform import build_feat_for_regression
+from vcub_keeper.ml.prediction_station.utils import create_target
 
 
 @tool
@@ -158,7 +163,63 @@ def find_nearest_stations_wrapper(query: str) -> list:
     nombre_station_proche = int(params.get("nombre_station_proche", 3))
 
     # Get last_info_station_pd datatframe from thread-local storage
-    last_info_station_pd = get_current_dataframe()
+    last_info_station_pd = get_current_dataframe("last_info_station_pd")
     return find_nearest_stations(
         last_info_station=last_info_station_pd, lat=lat, lon=lon, nombre_station_proche=nombre_station_proche
     )
+
+
+@tool
+def get_prediction_station(params: dict) -> int:
+    """
+    Permets de faire une prédiction sur une station donnée à partir des données historiques
+    disponibles dans l'application.
+
+    Parameters
+    ----------
+    target_station_id : int
+        ID de la station à prédire
+    target_col : str
+        Colonne cible à prédire (ex: "available_bike_stands", "available_bikes")
+    horizon_prediction : str
+        Horizon de prédiction
+
+    Returns
+    -------
+    int
+        Valeur prédite pour la station cible
+
+    Examples
+    -------
+    prediction = get_prediction_station(target_station_id=22, target_col="available_bike_stands", horizon_prediction="1h")
+    """
+
+    target_station_id = dict.get("target_station_id")
+    target_col = dict.get("target_col")
+    horizon_prediction = dict.get("horizon_prediction")
+    return_df = dict.get("return_df", False)
+
+    # Get df_historical_station datatframe from thread-local storage
+    df_historical_station = get_current_dataframe("df_historical_station")
+
+    # Filter station
+    station_to_pred = df_historical_station.filter(pl.col("station_id") == target_station_id)
+    feat_to_use = get_feature_to_use_for_model(target_col=target_col)
+    # Create target
+    station_to_pred = create_target(station_to_pred, target_col=target_col, horizon_prediction=horizon_prediction)
+    # Create features
+    station_to_pred = build_feat_for_regression(
+        station_to_pred=station_to_pred, target_col=target_col
+    )  # collect lazyframe
+
+    # Train model
+    model = train_model_for_station(station_to_pred=station_to_pred, feat_to_use=feat_to_use)
+    # Make prediction
+    prediction = make_prediction_for_user(
+        station_to_pred=station_to_pred,
+        horizon_prediction=horizon_prediction,
+        model=model,
+        feat_to_use=feat_to_use,
+        return_df=return_df,
+    )
+    return prediction

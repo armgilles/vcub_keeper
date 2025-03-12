@@ -44,3 +44,26 @@ ainsi que les informations liées à la station :
   'lon': -0.5720000267028809,
   'distance': 0.15456434694289684}]
 """
+
+[get_prediction_station_prompt]
+prompt_descrption = """Permet de faire une prédiction sur une station donnée à partir des données historiques disponibles.
+Les paramètres requis sont : 'target_station_id' (ID de la station à prédire),
+'target_col' (Colonne cible à prédire, par exemple 'available_bike_stands' ou 'available_bikes' UNIQUEMENT),
+et 'horizon_prediction' (Horizon de prédiction par période de 10 minutes par exemple '20m', '2h', '4h', '1d' etc.).
+On ne peut pas faire de prédiction sur une période supérieure à 24h ou 1 jours
+Retourne la valeur prédite pour la station cible.
+Exemple d'utilisation: L'utilsateur souhaiterait prédire le nombre de vélos disponibles à la station Berges du Lac dans 2 heures.
+Il faut donc trouver l'id de la station Berges du Lac dans le dataframe last_info_station.
+Ensuite exécuter la fonction get_prediction_station avec les paramètres suivants en JSON (un dictionnaire VALIDE)
+params = {
+    "target_station_id": 175, # id de la station Berges du Lac
+    "target_col": "available_bike_stands", # colonne à prédire
+    "horizon_prediction": "30m" # horizon de prédiction
+    "return_df": True # renvoie un DataFrame Polars
+}
+prediction = get_prediction_station(params)
+La fonction renvoie un DataFrame Polars, la valeur prédite est la colonne "y_pred" et il y a la colonne "date" qui peut être utilile 
+pour l'utilisateur pour savoir à quel moment la prédiction a été faite.
+"""
+
+# La fonction renvoie un json avec la date de la prédiction et la valeur prédite.
