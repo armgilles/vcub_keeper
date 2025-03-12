@@ -6,7 +6,6 @@ from vcub_keeper.config import SEED
 
 def train_model_for_station(
     station_to_pred: pl.DataFrame,
-    horizon_prediction: str,
     feat_to_use: list[str],
 ) -> RandomForestRegressor:
     """
@@ -26,7 +25,7 @@ def train_model_for_station(
 
     Example
     -------
-    model = train_model_for_station(station_to_pred, horizon_prediction=horizon_prediction, feat_to_use=feat_to_use)
+    model = train_model_for_station(station_to_pred, feat_to_use=feat_to_use)
     """
 
     x_train = station_to_pred.filter(pl.col("target").is_not_null()).select(feat_to_use)

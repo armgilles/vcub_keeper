@@ -197,12 +197,14 @@ def test_train_model_and_prediction(mock_histo_data):
     station_to_pred = df_historical_station.filter(pl.col("station_id") == target_station_id)
 
     # Create target
-    station_to_pred = create_target(station_to_pred, target_col=target_col, horizon_prediction=horizon_prediction)
+    station_to_pred = create_target(
+        station_to_pred=station_to_pred, target_col=target_col, horizon_prediction=horizon_prediction
+    )
 
     station_to_pred = build_feat_for_regression(station_to_pred, target_col=target_col)
 
     # Train model
-    model = train_model_for_station(station_to_pred, horizon_prediction=horizon_prediction, feat_to_use=feat_to_use)
+    model = train_model_for_station(station_to_pred, feat_to_use=feat_to_use)
 
     # Make prediction with df return
     prediction_df = make_prediction_for_user(

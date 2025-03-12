@@ -5,7 +5,7 @@ def create_target(station_to_pred: pl.LazyFrame, target_col: str, horizon_predic
     """
     Permets de créer la target avant le learniong du modèle suivant une colonne cible
     et un horizon de prédiction (offset) donné.
-    available units are: 'y', 'mo', 'q', 'w', 'd', 'h', 'm', 's', 'ms', 'us', 'ns'"
+    available units for horizon_prediction are: 'y', 'mo', 'q', 'w', 'd', 'h', 'm', 's', 'ms', 'us', 'ns'"
 
     Parameters
     ----------
