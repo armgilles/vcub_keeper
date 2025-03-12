@@ -4,7 +4,8 @@ import polars as pl
 from polars.testing import assert_frame_equal
 
 import numpy as np
-from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model
+from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model, train_model_for_station
+from vcub_keeper.ml.prediction_station.production import make_prediction_for_user
 from vcub_keeper.ml.prediction_station.transform import build_feat_for_regression
 from vcub_keeper.ml.prediction_station.utils import create_target
 
@@ -180,3 +181,52 @@ def test_build_feat_for_regression(mock_histo_data):
     assert_frame_equal(
         station_to_pred.select(feat_to_use).tail(2), df_expected, check_exact=False, rtol=1e-5, check_dtypes=False
     )
+
+
+def test_train_model_and_prediction(mock_histo_data):
+    """ """
+
+    target_col = "available_bikes"
+    horizon_prediction = "30m"
+    target_station_id = 102
+
+    feat_to_use = get_feature_to_use_for_model(target_col=target_col)
+
+    # Mock data
+    df_historical_station = mock_histo_data
+    station_to_pred = df_historical_station.filter(pl.col("station_id") == target_station_id)
+
+    # Create target
+    station_to_pred = create_target(station_to_pred, target_col=target_col, horizon_prediction=horizon_prediction)
+
+    station_to_pred = build_feat_for_regression(station_to_pred, target_col=target_col)
+
+    # Train model
+    model = train_model_for_station(station_to_pred, horizon_prediction=horizon_prediction, feat_to_use=feat_to_use)
+
+    # Make prediction with df return
+    prediction_df = make_prediction_for_user(
+        station_to_pred=station_to_pred,
+        horizon_prediction=horizon_prediction,
+        model=model,
+        feat_to_use=feat_to_use,
+        return_df=True,
+    )
+
+    # Check the prediction df
+    assert prediction_df.select(pl.col("date")).item() == datetime(
+        2025, 3, 4, 0, 20
+    )  # 2025-03-04 00:20:00, last date + 30min
+
+    assert prediction_df.select(pl.col("y_pred")).item() == 10
+
+    # Make prediction (return only the prediction value)
+    prediction = make_prediction_for_user(
+        station_to_pred=station_to_pred,
+        horizon_prediction=horizon_prediction,
+        model=model,
+        feat_to_use=feat_to_use,
+        return_df=False,
+    )
+
+    assert prediction == 10
