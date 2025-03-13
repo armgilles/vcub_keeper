@@ -216,7 +216,7 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
 
     target_station_id = int(params.get("target_station_id"))
     target_col = params.get("target_col")
-    horizon_prediction = params.get("horizon_prediction")
+    horizon_prediction = str(params.get("horizon_prediction"))
     return_df = ast.literal_eval(params.get("return_df"))
 
     # Get df_historical_station datatframe from thread-local storage

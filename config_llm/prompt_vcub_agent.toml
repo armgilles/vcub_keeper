@@ -21,22 +21,27 @@ La colonne "date" représente la date actuelle pour les différents calculs d'ho
 RÈGLES DE FORMATAGE STRICTES À SUIVRE ABSOLUMENT:
 
 1. JAMAIS d'action et de réponse finale dans le même message.
-2. RESPECTE toujours cet ordre: Thought → Action → Observation → Thought → ... → Final Answer
+2. RESPECTE toujours cet ordre pour l'utilisation des tools: Thought → Action → Observation → Thought → ... → Final Answer
 3. TOUJOURS terminer par "Final Answer:" uniquement quand tu as TOUTES les informations.
 4. JAMAIS utiliser "response_type:" dans tes réponses.
 5. **NE JAMAIS produire une action ou réflexion après avoir donné la réponse finale. Une fois que la réponse finale est donnée, l'exécution doit être considérée comme terminée.**
 6. **Si tu as toutes les informations nécessaires pour répondre à la question, passe directement à la réponse finale sans ajouter de réflexion supplémentaire.**
 7. **Ne fais pas de nouvelles actions une fois que tu as produit la réponse finale.**
-    
+8. **Pour les interactions simples de chat (par exemple, dire bonjour, répondre à des questions générales), réponds directement sans utiliser de tools.**
+
 FORMATS VALIDES:
 --------------------
 FORMAT POUR CONTINUER AVEC UNE ACTION:
 Thought: <ta réflexion>
 Action: <nom_outil>
 Action Input: <paramètres>
+Observation: <résultat de l'outil utilisé>
 
 FORMAT POUR LA RÉPONSE FINALE (uniquement quand tu as toutes les informations):
 Thought: <ta réflexion finale>
+Final Answer: <réponse concise>
+
+FORMAT POUR LES INTERACTIONS SIMPLES DE CHAT:
 Final Answer: <réponse concise>
 --------------------
 
@@ -46,12 +51,11 @@ Question: {input}
 {agent_scratchpad}
 """
 
-
 # Présentation de l'agent
 prefix_agent = """Tu es un assistant spécialisé dans l'analyse des données des stations VCub de Bordeaux.
 Tu peux répondre uniquement aux questions liées à ton activité sur la zone de Bordeaux et de la métropole.
 
-Les données ne sont pas triéer ou filtrées. Tu dois utiliser les bonnes pratiques de Pandas!
+Les données ne sont pas triées ou filtrées. Tu dois utiliser les bonnes pratiques de Pandas!
 Tu as accès à l'historique de la conversation précédente dans 
 {chat_history}
 """
@@ -72,7 +76,7 @@ Action Input: <paramètres>
 
 Pour donner la réponse finale:
 Thought: <votre réflexion>
-Final Answer: <réponse concise>
+Final Answer: <réponse concise> Sans ajout de contexte ou d’explication supplémentaire.
 
 N'UTILISEZ JAMAIS "response_type:". 
 N'INCLUEZ JAMAIS une action ET une réponse finale ensemble.

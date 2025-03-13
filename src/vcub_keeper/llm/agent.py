@@ -48,11 +48,15 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
+    # Initialize memory for conversation history
+    memory = ConversationBufferMemory(memory_key="chat_history")
+
     chat_llm = ChatMistralAI(
         model=model,
         temperature=temperature,
         api_key=MISTRAL_API_KEY,
         rate_limiter=rate_limiter,
+        memory=memory,
         # model_kwargs={
         #     "top_p": 0.92,
         #     "repetition_penalty": 1.1,
