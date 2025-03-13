@@ -38,7 +38,6 @@ Action Input: <paramètres>
 Observation: <résultat de l'outil utilisé>
 
 FORMAT POUR LA RÉPONSE FINALE (uniquement quand tu as toutes les informations):
-Thought: <ta réflexion finale>
 Final Answer: <réponse concise>
 
 FORMAT POUR LES INTERACTIONS SIMPLES DE CHAT:
@@ -75,7 +74,6 @@ Action: <nom_outil>
 Action Input: <paramètres>
 
 Pour donner la réponse finale:
-Thought: <votre réflexion>
 Final Answer: <réponse concise> Sans ajout de contexte ou d’explication supplémentaire.
 
 N'UTILISEZ JAMAIS "response_type:". 

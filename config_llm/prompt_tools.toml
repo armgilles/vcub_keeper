@@ -54,23 +54,33 @@ ainsi que les informations liées à la station :
 """
 
 [get_prediction_station_prompt]
-prompt_descrption = """Permet de faire une prédiction sur une station donnée à partir des données historiques disponibles.
-Les paramètres requis sont : 'target_station_id' (ID de la station à prédire),
-'target_col' (Colonne cible à prédire, par exemple 'available_bike_stands' ou 'available_bikes' UNIQUEMENT),
-et 'horizon_prediction' (Horizon de prédiction par période de 10 minutes par exemple '20m', '2h', '4h', '1d' etc.).
-Pour le calcul de l'horizon, il faut la date actuelle (présent dans last_info_station) et interpréter la demande de l'utilisateur
-pour calculer l'horizon de prédiction.
-On ne peut pas faire de prédiction sur une période supérieure à 24h ou 1 jours maximum, dans le cas contraire, indiquer à l'utilisateur
-que ce n'est pas possible d'aller au-delà de 24h.
+prompt_descrption = """
+Permet de faire une prédiction sur une station donnée à partir des données historiques disponibles.
 
-Exemple d'utilisation: L'utilsateur souhaiterait prédire le nombre de vélos disponibles à la station Berges du Lac dans 2 heures.
-Il faut donc trouver l'id de la station Berges du Lac dans le dataframe last_info_station ainsi que la date actuelle.
-Ensuite exécuter la fonction get_prediction_station avec les paramètres comme ci-dessous au chaine de caractères (string):
-params = target_station_id=175,target_col=available_bike_stands,horizon_prediction=30m,return_df=True
+Paramètres requis :
+- 'target_station_id' (int) : ID de la station à prédire.
+- 'target_col' (str) : Colonne cible à prédire, par exemple 'available_bike_stands' ou 'available_bikes' UNIQUEMENT.
+- 'horizon_prediction' (str) : Horizon de prédiction par période de 10 minutes, par exemple '20m', '2h', '4h', '1d', etc.
+- 'return_df' (bool) : Indique si le résultat doit être retourné sous forme de DataFrame (True) ou de valeur prédite (False).
+
+Calcul de l'horizon de prédiction :
+- Utilisez la date actuelle (présente dans last_info_station).
+- Interprétez la demande de l'utilisateur pour calculer l'horizon de prédiction (date désirée par l'utilisateur - date actuelle).
+- Ne faites pas de prédiction sur une période supérieure à 24 heures. Si la période dépasse 24 heures, indiquez à l'utilisateur que ce n'est pas possible.
+
+Exemple d'utilisation :
+L'utilisateur souhaite prédire le nombre de vélos disponibles à la station Berges du Lac dans 2 heures.
+1. Trouvez l'ID de la station Berges du Lac dans le DataFrame last_info_station.
+2. Utilisez la date actuelle pour calculer l'horizon de prédiction.
+3. Exécutez la fonction get_prediction_station avec les paramètres suivants :
+   params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h,return_df=False"
+4. La fonction renvoie la prédiction du nombre de vélos disponibles.
+
+Vous pouvez également utiliser return_df=True pour renvoyer un DataFrame Polars avec la date (date la plus récente + horizon de prédiction) et la valeur prédite (y_pred).
+
+Exemple de code :
+```python
+params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h,return_df=False"
 prediction = get_prediction_station(params)
-La fonction renvoie un DataFrame Polars, la valeur prédite est la colonne "y_pred" et il y a la colonne "date" qui peut être utile 
-pour l'utilisateur pour savoir à quel moment la prédiction a été faite (date + horizon de prédiction).
-Si uniquement besoin de la prédiction alors tu mettre la clef "return_df" à False, cela renvera uniquement la valeur prédite.
+```
 """
-
-# La fonction renvoie un json avec la date de la prédiction et la valeur prédite.
