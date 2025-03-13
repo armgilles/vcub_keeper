@@ -1,3 +1,4 @@
+import ast
 import math
 
 import pandas as pd
@@ -187,37 +188,36 @@ def find_nearest_stations_wrapper(query: str) -> list:
 
 
 @tool
-def get_prediction_station(params: dict | str) -> int:
+def get_prediction_station(params: str) -> int | pl.DataFrame:
     """
     Permets de faire une prédiction sur une station donnée à partir des données historiques
     disponibles dans l'application.
 
     Parameters
     ----------
-    target_station_id : int
-        ID de la station à prédire
-    target_col : str
-        Colonne cible à prédire (ex: "available_bike_stands", "available_bikes")
-    horizon_prediction : str
-        Horizon de prédiction
+    params : str
+        Chaîne de caractères contenant les paramètres de la requête au format "target_station_id=..., target_col=..., horizon_prediction=..., return_df=..."
+        Exemple :  "target_station_id=102,target_col=available_bikes,horizon_prediction=10m,return_df=False"
 
     Returns
     -------
-    int
-        Valeur prédite pour la station cible
+    int  | pl.DataFrame
+        Si return_df est False, retourne la valeur prédite pour la station cible
+        sinon, retourne un DataFrame contenant les informations de la station cible
 
     Examples
     -------
-    prediction = get_prediction_station(target_station_id=22, target_col="available_bike_stands", horizon_prediction="1h")
+    prediction = get_prediction_station(params="target_station_id=102,target_col=available_bikes,horizon_prediction=10m,return_df=False")
     """
+
     # if params is a string, parse it
     if isinstance(params, str):
         params = dict(item.split("=") for item in params.split(","))
 
-    target_station_id = params.get("target_station_id")
+    target_station_id = int(params.get("target_station_id"))
     target_col = params.get("target_col")
     horizon_prediction = params.get("horizon_prediction")
-    return_df = params.get("return_df", False)
+    return_df = ast.literal_eval(params.get("return_df"))
 
     # Get df_historical_station datatframe from thread-local storage
     df_historical_station = get_current_dataframe("df_historical_station")

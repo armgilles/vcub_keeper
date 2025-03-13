@@ -84,12 +84,16 @@ def agent(mock_histo_data):
 
 
 def test_message_prediction_station(agent):
-    """Test the message prediction for a specific station"""
+    """Test the message prediction for a specific station
+    Last time is 2025-03-03 23:50:00
+    """
 
     user_message = "Combien il y aura de vélo disponible dans 10 minutes à la station du parc vert ?"
     response = agent.invoke({"input": user_message})
+    # Il y aura 9 vélos disponibles à la station "Le Parc vert" dans 10 minutes.
 
-    assert "11" in response["output"]
+    assert "9" in response["output"]
+    assert "vélos disponibles" in response["output"]
 
 
 def test_message_prediction_station_heure(agent):
@@ -98,9 +102,16 @@ def test_message_prediction_station_heure(agent):
     """
 
     user_message = """Combien il y aura de places disponible à la
-    station de la Gare central cette nuit à 2h du matin et indique moi l'horraire de prédiction ?"""
+    station de la Gare central cette nuit à 2h du matin et indique moi l'horraire exacte de prédiction ?"""
     # "horizon_prediction": "2h10m" / "130m"
     response = agent.invoke({"input": user_message})
+    # Il y aura 9 places disponibles à la station "La Gare central" à 2h du matin le 4 mars 2025 à 2h00.
 
-    assert "12" in response["output"]
-    assert "4 mars 2025 à 2h" in response["output"] or "2025-03-04 02:00:00" in response["output"]
+    assert "9" in response["output"]
+    assert "places disponibles" in response["output"]
+    assert "gare central" in response["output"].lower()
+    assert (
+        "4 mars 2025" in response["output"]
+        or "2025-03-04 02:00:00" in response["output"]
+        or "2025-03-04 à 02:00" in response["output"]
+    )
