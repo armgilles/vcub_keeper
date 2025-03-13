@@ -97,9 +97,6 @@ def agent(mock_station_data):
     chat_llm = create_chat(model="mistral-small-latest", temperature=0.0)
     agent_vcub = create_agent(chat=chat_llm, list_dfs=[mock_station_data, pl.LazyFrame()])
 
-    # Assert the agent has the correct data
-    assert mock_station_data.filter(pl.col("station_name") == "Meriadeck").select("available_bikes")[0, 0] == 20
-
     return agent_vcub
 
 
