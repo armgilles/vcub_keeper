@@ -51,7 +51,7 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     chat_llm = ChatMistralAI(
         model=model,
         temperature=temperature,
-        openai_api_key=MISTRAL_API_KEY,
+        api_key=MISTRAL_API_KEY,
         rate_limiter=rate_limiter,
         # model_kwargs={
         #     "top_p": 0.92,
