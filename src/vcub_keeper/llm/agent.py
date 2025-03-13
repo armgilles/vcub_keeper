@@ -11,11 +11,8 @@ from langchain_mistralai.chat_models import ChatMistralAI
 
 from vcub_keeper.config import CONFIG_LLM
 from vcub_keeper.llm.crewai.tool_python import (
-    # find_nearest_stations,
     find_nearest_stations_wrapper,
-    # find_nearest_stations_schema,
-    get_distance,
-    get_distance_schema,
+    get_distance_wrapper,
     get_geocoding,
     get_prediction_station,
 )
@@ -149,9 +146,8 @@ def build_tools() -> list[Tool]:
     tools = [
         Tool(
             name="get_distance",
-            func=get_distance,
+            func=get_distance_wrapper,
             description=CONFIG_LLM["get_distance_prompt"]["prompt_descrption"],
-            arg_schemas=get_distance_schema,
         ),
         Tool(
             name="get_geocoding",
@@ -162,7 +158,6 @@ def build_tools() -> list[Tool]:
             name="find_nearest_stations",
             func=find_nearest_stations_wrapper,
             description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
-            # arg_schemas=find_nearest_stations_schema,
         ),
         Tool(
             name="get_prediction_station",

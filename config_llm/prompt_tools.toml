@@ -1,10 +1,18 @@
 [get_distance_prompt]
 # Description du tool
-prompt_descrption = """Calculer la distance entre deux stations (en km) grace à
-leurs coordonnées (lat, lon) Exemple d'utilisation: 
-1. Cherche les coordonnées de la station "Stalingrad": df[df['station_name'] == 'STALINGRAD']
-2. Chercheles coordonnées de la station "Porte de Bourgogne": df[df['station_name'] =='PORTE DE BOURGOGNE']
-3. Utilise calculate_distance(lat1, lon1, lat2, lon2) avec les valeurs numériques obtenues
+prompt_descrption = """Calculer la distance entre deux stations (en km) grâce à leurs coordonnées (lat, lon).
+
+IMPORTANT: Les paramètres doivent être fournis en gardant leurs précisions: 
+
+Exemple d'utilisation:
+1. Chercher les coordonnées de la station "Stalingrad":
+   df[df['station_name'] == 'STALINGRAD']
+2. Chercher les coordonnées de la station "Porte de Bourgogne":
+   df[df['station_name'] == 'PORTE DE BOURGOGNE']
+3. Utiliser get_distance(lat1,lon1,lat2,lon2) avec les valeurs numériques obtenues:
+   distance = get_distance(lat1=44.8378,lon1=-0.5792,lat2=44.8407,lon2=-0.5811)
+
+Cela renvoie la distance en kilomètres entre les deux stations.
 """
 
 [get_geocoding_prompt]

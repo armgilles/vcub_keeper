@@ -5,7 +5,6 @@ import polars as pl
 from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 from langchain_core.tools import tool
-from pydantic import BaseModel, Field
 
 from vcub_keeper.llm.utils_agent import get_current_dataframe
 from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model, train_model_for_station
@@ -14,7 +13,6 @@ from vcub_keeper.ml.prediction_station.transform import build_feat_for_regressio
 from vcub_keeper.ml.prediction_station.utils import create_target
 
 
-@tool
 def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calcule la distance entre deux points géographiques en utilisant la formule de Haversine.
@@ -46,14 +44,33 @@ def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return distance
 
 
-class get_distance_schema(BaseModel):
-    """"""
+@tool
+def get_distance_wrapper(params: dict | str) -> float:
+    """
+    Wrapper pour la fonction get_distance afin de l'utiliser avec LangChain
+    avec en entrée une chaîne de caractères contenant les paramètres de la requête.
 
-    lat1: float = Field(..., description="Latitude de la première station")
-    lon1: float = Field(..., description="Longitude de la première station")
-    lat2: float = Field(..., description="Latitude de la deuxième station")
-    lon2: float = Field(..., description="Longitude de la deuxième station")
-    distance: float = Field(..., description="Distance entre les deux stations en kilomètres")
+    Parameters
+    ----------
+    params : dict | str
+        Chaîne de caractères contenant les paramètres de la requête au format "lat1=...,lon1=...,lat2=...,lon2=..."
+        Exemple : "lat1=44.8378,lon1=-0.5792,lat2=44.8407,lon2=-0.581124"
+    Returns
+    -------
+    float
+        Distance entre les deux points géographiques en kilomètres
+    """
+    # Parse the query string
+    if isinstance(params, str):
+        params = dict(item.strip().split("=") for item in params.split(","))
+
+    # Extract parameters
+    lat1 = float(params.get("lat1"))
+    lon1 = float(params.get("lon1"))
+    lat2 = float(params.get("lat2"))
+    lon2 = float(params.get("lon2"))
+
+    return get_distance(lat1=lat1, lon1=lon1, lat2=lat2, lon2=lon2)
 
 
 @tool
@@ -170,7 +187,7 @@ def find_nearest_stations_wrapper(query: str) -> list:
 
 
 @tool
-def get_prediction_station(params: dict) -> int:
+def get_prediction_station(params: dict | str) -> int:
     """
     Permets de faire une prédiction sur une station donnée à partir des données historiques
     disponibles dans l'application.
@@ -193,11 +210,14 @@ def get_prediction_station(params: dict) -> int:
     -------
     prediction = get_prediction_station(target_station_id=22, target_col="available_bike_stands", horizon_prediction="1h")
     """
+    # if params is a string, parse it
+    if isinstance(params, str):
+        params = dict(item.split("=") for item in params.split(","))
 
-    target_station_id = dict.get("target_station_id")
-    target_col = dict.get("target_col")
-    horizon_prediction = dict.get("horizon_prediction")
-    return_df = dict.get("return_df", False)
+    target_station_id = params.get("target_station_id")
+    target_col = params.get("target_col")
+    horizon_prediction = params.get("horizon_prediction")
+    return_df = params.get("return_df", False)
 
     # Get df_historical_station datatframe from thread-local storage
     df_historical_station = get_current_dataframe("df_historical_station")
