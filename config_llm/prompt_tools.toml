@@ -10,7 +10,7 @@ Exemple d'utilisation:
 2. Chercher les coordonnées de la station "Porte de Bourgogne":
    df[df['station_name'] == 'PORTE DE BOURGOGNE']
 3. Utiliser get_distance(lat1,lon1,lat2,lon2) avec les valeurs numériques obtenues:
-   distance = get_distance(lat1=44.8378,lon1=-0.5792,lat2=44.8407,lon2=-0.5811)
+   distance = get_distance(lat1=44.8378,lon1=-0.57921,lat2=44.8407,lon2=-0.5811) sans arrondir les valeurs !
 
 Cela renvoie la distance en kilomètres entre les deux stations.
 """
