@@ -65,22 +65,23 @@ Paramètres requis :
 
 Calcul de l'horizon de prédiction :
 - Utilisez la date actuelle (présente dans last_info_station).
-- Interprétez la demande de l'utilisateur pour calculer l'horizon de prédiction (date désirée par l'utilisateur - date actuelle).
-- Ne faites pas de prédiction sur une période supérieure à 24 heures. Si la période dépasse 24 heures, indiquez à l'utilisateur que ce n'est pas possible.
+- Interprétez la demande de l'utilisateur pour calculer l'horizon de prédiction -> date désirée par l'utilisateur - date actuelle !
+(PAS BESOIN d'utiliser python_repl_ast pour calculer l'horizon de prédiction !)
+- Ne faites pas de prédiction sur une période supérieure à 24 heures. Si la
+période dépasse 24 heures, indiquez à l'utilisateur que ce n'est pas possible.
 
 Exemple d'utilisation :
 L'utilisateur souhaite prédire le nombre de vélos disponibles à la station Berges du Lac dans 2 heures.
 1. Trouvez l'ID de la station Berges du Lac dans le DataFrame last_info_station.
 2. Utilisez la date actuelle pour calculer l'horizon de prédiction.
 3. Exécutez la fonction get_prediction_station avec les paramètres suivants :
-   params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h,return_df=False"
-4. La fonction renvoie la prédiction du nombre de vélos disponibles.
+   params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
+4. La fonction renvoie la prédiction du nombre de vélos disponibles (y_pred) sous la forme d'un df Polars.
 
-Vous pouvez également utiliser return_df=True pour renvoyer un DataFrame Polars avec la date (date la plus récente + horizon de prédiction) et la valeur prédite (y_pred).
 
 Exemple de code :
 ```python
-params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h,return_df=False"
+params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
 prediction = get_prediction_station(params)
 ```
 """

@@ -9,7 +9,7 @@ def make_prediction_for_user(
     horizon_prediction: str,
     model: RandomForestRegressor,
     feat_to_use: list[str],
-    return_df: bool = False,
+    return_df: bool = True,
 ) -> pl.LazyFrame | int:
     """
     Permets de réaliser la prédiciton pour l'utilisateur. Par exemple, Combien il y aura

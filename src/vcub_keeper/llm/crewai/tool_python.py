@@ -1,4 +1,3 @@
-import ast
 import math
 
 import pandas as pd
@@ -207,7 +206,7 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
 
     Examples
     -------
-    prediction = get_prediction_station(params="target_station_id=102,target_col=available_bikes,horizon_prediction=10m,return_df=False")
+    prediction = get_prediction_station(params="target_station_id=102,target_col=available_bikes,horizon_prediction=10m")
     """
 
     # if params is a string, parse it
@@ -217,7 +216,7 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
     target_station_id = int(params.get("target_station_id"))
     target_col = params.get("target_col")
     horizon_prediction = str(params.get("horizon_prediction"))
-    return_df = ast.literal_eval(params.get("return_df"))
+    # return_df = ast.literal_eval(params.get("return_df"))
 
     # Get df_historical_station datatframe from thread-local storage
     df_historical_station = get_current_dataframe("df_historical_station")
@@ -240,6 +239,6 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
         horizon_prediction=horizon_prediction,
         model=model,
         feat_to_use=feat_to_use,
-        return_df=return_df,
+        # return_df=return_df,
     )
     return prediction

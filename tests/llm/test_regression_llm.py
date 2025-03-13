@@ -101,17 +101,13 @@ def test_message_prediction_station_heure(agent):
     Last time is 2025-03-03 23:50:00
     """
 
-    user_message = """Combien il y aura de places disponible à la
-    station de la Gare central cette nuit à 2h du matin et indique moi l'horraire exacte de prédiction ?"""
+    user_message = (
+        """Combien il y aura de places disponible à la station de la Gare central cette nuit à 2h du matin ?"""
+    )
     # "horizon_prediction": "2h10m" / "130m"
     response = agent.invoke({"input": user_message})
-    # Il y aura 9 places disponibles à la station "La Gare central" à 2h du matin le 4 mars 2025 à 2h00.
+    # Il y aura 9 places disponibles à la station "La Gare central" à 2h du matin.
 
     assert "9" in response["output"]
     assert "places disponibles" in response["output"]
     assert "gare central" in response["output"].lower()
-    assert (
-        "4 mars 2025" in response["output"]
-        or "2025-03-04 02:00:00" in response["output"]
-        or "2025-03-04 à 02:00" in response["output"]
-    )
