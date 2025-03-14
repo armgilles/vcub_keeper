@@ -1,10 +1,24 @@
 [get_distance_prompt]
 # Description du tool
-prompt_descrption = """Calculer la distance entre deux stations (en km) grace à
-leurs coordonnées (lat, lon) Exemple d'utilisation: 
-1. Cherche les coordonnées de la station "Stalingrad": df[df['station_name'] == 'STALINGRAD']
-2. Chercheles coordonnées de la station "Porte de Bourgogne": df[df['station_name'] =='PORTE DE BOURGOGNE']
-3. Utilise calculate_distance(lat1, lon1, lat2, lon2) avec les valeurs numériques obtenues
+prompt_descrption = """Calculer la distance entre deux stations (en km) grâce à leurs coordonnées (lat, lon).
+
+IMPORTANT: Les paramètres doivent être fournis en gardant leurs précisions: 
+
+Exemple d'utilisation:
+1. Chercher les coordonnées de la station "Stalingrad":
+   df[df["station_name"] == "STALINGRAD"]
+2. Observer le résultat.
+3. Chercher les coordonnées de la station "Porte de Bourgogne":
+   df[df["station_name"] == "PORTE DE BOURGOGNE"]
+4. Observer le résultat.
+5. Utiliser get_distance(lat1,lon1,lat2,lon2) avec les valeurs numériques obtenues:
+   distance = get_distance(lat1=44.8378,lon1=-0.57921,lat2=44.8407,lon2=-0.5811) sans arrondir les valeurs !
+
+Note: Dans le cas ou tu n'arrives pas à trouver les données pour une station, tu peux essayer 
+df[df["station_name"].str.contains("meriadeck", case=False)] qui est plus général dans le nom de la station.
+
+Cela renvoie la distance en kilomètres entre les deux stations, un vélo roule en moyenne à 15 km/h.
+donc tu peux indiquer aussi le temps de trajet en minutes.
 """
 
 [get_geocoding_prompt]
@@ -43,4 +57,40 @@ ainsi que les informations liées à la station :
   'lat': 44.83919906616211,
   'lon': -0.5720000267028809,
   'distance': 0.15456434694289684}]
+"""
+
+[get_prediction_station_prompt]
+prompt_descrption = """
+Permet de faire une prédiction sur une station donnée à partir des données historiques disponibles.
+Réflexion :
+1. Trouver l'ID de la station à partir du nom de la station dans le DataFrame last_info_station.
+2. Calculer l'horizon de prédiction.
+3. Utiliser la fonction get_prediction_station pour faire la prédiction.
+
+Paramètres requis :
+- 'target_station_id' (int) : ID de la station à prédire.
+- 'target_col' (str) : Colonne cible à prédire, par exemple 'available_bike_stands' ou 'available_bikes' UNIQUEMENT.
+- 'horizon_prediction' (str) : Horizon de prédiction par période de 10 minutes, par exemple '20m', '2h', '4h', '1d', etc.
+
+Calcul de l'horizon de prédiction :
+- Utilisez la date actuelle (présente dans last_info_station).
+- Interprétez la demande de l'utilisateur pour en déduire l'horizon de prédiction -> date désirée par l'utilisateur - date actuelle !
+IMPORTANT : NE PAS UTILISER python_repl_ast pour calculer l'horizon de prédiction !
+- Ne faites pas de prédiction sur une période supérieure à 24 heures. Si la
+période dépasse 24 heures, indiquez à l'utilisateur que ce n'est pas possible.
+
+Exemple d'utilisation :
+L'utilisateur souhaite prédire le nombre de vélos disponibles à la station Berges du Lac dans 2 heures.
+1. Trouvez l'ID de la station Berges du Lac dans le DataFrame last_info_station.
+2. Utilisez la date actuelle pour calculer l'horizon de prédiction.
+3. Exécutez la fonction get_prediction_station avec les paramètres suivants :
+   params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
+4. La fonction renvoie la prédiction du nombre de vélos disponibles (y_pred) sous la forme d'un df Polars.
+
+
+Exemple de code :
+```python
+params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
+prediction = get_prediction_station(params)
+```
 """

@@ -1,15 +1,24 @@
 from threading import local
 
-import pandas as pd
-
 _thread_local = local()
 
 
-def set_current_dataframe(df: pd.DataFrame):
-    """Set the current DataFrame for tools to access."""
-    _thread_local.dataframe = df
+def set_current_dataframes(dataframes: dict):
+    """
+    To load dataframes in thread-local storage for use in tools.
+    set_current_dataframes({
+        "last_info_station_pd": last_info_station_pd,
+        "df_historical_station": df_historical_station  # Keep as LazyFrame
+    })
+    """
+    global current_dataframes
+    current_dataframes = dataframes
 
 
-def get_current_dataframe() -> pd.DataFrame:
-    """Get the current DataFrame."""
-    return getattr(_thread_local, "dataframe", None)
+def get_current_dataframe(name: str):
+    """
+    To get dataframes from thread-local storage for use in tools.
+    last_info_station_pd = get_current_dataframe("last_info_station_pd") OR
+    df_historical_station = get_current_dataframe("df_historical_station")
+    """
+    return current_dataframes.get(name)

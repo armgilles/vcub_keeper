@@ -11,14 +11,12 @@ from langchain_mistralai.chat_models import ChatMistralAI
 
 from vcub_keeper.config import CONFIG_LLM
 from vcub_keeper.llm.crewai.tool_python import (
-    # find_nearest_stations,
     find_nearest_stations_wrapper,
-    # find_nearest_stations_schema,
-    get_distance,
-    get_distance_schema,
+    get_distance_wrapper,
     get_geocoding,
+    get_prediction_station,
 )
-from vcub_keeper.llm.utils_agent import set_current_dataframe
+from vcub_keeper.llm.utils_agent import set_current_dataframes
 
 load_dotenv()
 
@@ -50,11 +48,15 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
+    # Initialize memory for conversation history
+    memory = ConversationBufferMemory(memory_key="chat_history")
+
     chat_llm = ChatMistralAI(
         model=model,
         temperature=temperature,
-        openai_api_key=MISTRAL_API_KEY,
+        api_key=MISTRAL_API_KEY,
         rate_limiter=rate_limiter,
+        memory=memory,
         # model_kwargs={
         #     "top_p": 0.92,
         #     "repetition_penalty": 1.1,
@@ -65,7 +67,7 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     return chat_llm
 
 
-def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs) -> AgentExecutor:
+def create_agent(chat: ChatMistralAI, list_dfs: list[pl.DataFrame, pl.LazyFrame], **kwargs) -> AgentExecutor:
     """
 
 
@@ -79,6 +81,10 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
     create_pandas_dataframe_agent
         _description_
     """
+
+    # On suppose que list_dfs[0] est le dernier état de la station et list_dfs[1] est l'historique
+    last_info_station = list_dfs[0]
+    df_historical_station = list_dfs[1]
 
     # Gestion de la mémoire pour que l'agent puisse se souvenir des messages précédents
     memory = getattr(chat, "memory", None)
@@ -110,12 +116,17 @@ def create_agent(chat: ChatMistralAI, last_info_station: pl.DataFrame, **kwargs)
         },
     }
 
-    # Convert DataFrame once
+    # Convert to Pandas DataFrame
     last_info_station_pd = last_info_station.to_pandas()
 
     # Store in thread-local state for tools to access
     # Pour avoir accès par la suite avec les fonctions de wrapper
-    set_current_dataframe(last_info_station_pd)
+    set_current_dataframes(
+        {
+            "last_info_station_pd": last_info_station_pd,
+            "df_historical_station": df_historical_station,  # Keep as LazyFrame
+        }
+    )
 
     agent = create_pandas_dataframe_agent(
         llm=chat,
@@ -139,9 +150,8 @@ def build_tools() -> list[Tool]:
     tools = [
         Tool(
             name="get_distance",
-            func=get_distance,
+            func=get_distance_wrapper,
             description=CONFIG_LLM["get_distance_prompt"]["prompt_descrption"],
-            arg_schemas=get_distance_schema,
         ),
         Tool(
             name="get_geocoding",
@@ -152,7 +162,11 @@ def build_tools() -> list[Tool]:
             name="find_nearest_stations",
             func=find_nearest_stations_wrapper,
             description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
-            # arg_schemas=find_nearest_stations_schema,
+        ),
+        Tool(
+            name="get_prediction_station",
+            func=get_prediction_station,
+            description=CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
         ),
     ]
 
