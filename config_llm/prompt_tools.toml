@@ -56,17 +56,20 @@ ainsi que les informations liées à la station :
 [get_prediction_station_prompt]
 prompt_descrption = """
 Permet de faire une prédiction sur une station donnée à partir des données historiques disponibles.
+Réflexion :
+1. Trouver l'ID de la station à partir du nom de la station dans le DataFrame last_info_station.
+2. Calculer l'horizon de prédiction.
+3. Utiliser la fonction get_prediction_station pour faire la prédiction.
 
 Paramètres requis :
 - 'target_station_id' (int) : ID de la station à prédire.
 - 'target_col' (str) : Colonne cible à prédire, par exemple 'available_bike_stands' ou 'available_bikes' UNIQUEMENT.
 - 'horizon_prediction' (str) : Horizon de prédiction par période de 10 minutes, par exemple '20m', '2h', '4h', '1d', etc.
-- 'return_df' (bool) : Indique si le résultat doit être retourné sous forme de DataFrame (True) ou de valeur prédite (False).
 
 Calcul de l'horizon de prédiction :
 - Utilisez la date actuelle (présente dans last_info_station).
-- Interprétez la demande de l'utilisateur pour calculer l'horizon de prédiction -> date désirée par l'utilisateur - date actuelle !
-(PAS BESOIN d'utiliser python_repl_ast pour calculer l'horizon de prédiction !)
+- Interprétez la demande de l'utilisateur pour en déduire l'horizon de prédiction -> date désirée par l'utilisateur - date actuelle !
+IMPORTANT : NE PAS UTILISER python_repl_ast pour calculer l'horizon de prédiction !
 - Ne faites pas de prédiction sur une période supérieure à 24 heures. Si la
 période dépasse 24 heures, indiquez à l'utilisateur que ce n'est pas possible.
 
