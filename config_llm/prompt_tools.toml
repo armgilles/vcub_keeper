@@ -6,13 +6,19 @@ IMPORTANT: Les paramètres doivent être fournis en gardant leurs précisions:
 
 Exemple d'utilisation:
 1. Chercher les coordonnées de la station "Stalingrad":
-   df[df['station_name'] == 'STALINGRAD']
-2. Chercher les coordonnées de la station "Porte de Bourgogne":
-   df[df['station_name'] == 'PORTE DE BOURGOGNE']
-3. Utiliser get_distance(lat1,lon1,lat2,lon2) avec les valeurs numériques obtenues:
+   df[df["station_name"] == "STALINGRAD"]
+2. Observer le résultat.
+3. Chercher les coordonnées de la station "Porte de Bourgogne":
+   df[df["station_name"] == "PORTE DE BOURGOGNE"]
+4. Observer le résultat.
+5. Utiliser get_distance(lat1,lon1,lat2,lon2) avec les valeurs numériques obtenues:
    distance = get_distance(lat1=44.8378,lon1=-0.57921,lat2=44.8407,lon2=-0.5811) sans arrondir les valeurs !
 
-Cela renvoie la distance en kilomètres entre les deux stations.
+Note: Dans le cas ou tu n'arrives pas à trouver les données pour une station, tu peux essayer 
+df[df["station_name"].str.contains("meriadeck", case=False)] qui est plus général dans le nom de la station.
+
+Cela renvoie la distance en kilomètres entre les deux stations, un vélo roule en moyenne à 15 km/h.
+donc tu peux indiquer aussi le temps de trajet en minutes.
 """
 
 [get_geocoding_prompt]
