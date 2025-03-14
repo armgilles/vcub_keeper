@@ -66,8 +66,8 @@ def test_ml_train_on_ne_station(data_activity, anomaly):
     print(score_anomaly)
 
     if anomaly == 1:  # Station OK
-        # anomaly_score must be at =~ 33.17 (2025/02/25 with new default K params in logistic_predict_proba_from_model())
-        assert 25 <= score_anomaly <= 38
+        # anomaly_score must be at =~ 19 (2025/03/14)
+        assert 15 <= score_anomaly <= 38
     elif anomaly == -1:  # Station KO
         # anomaly_score must be at =~ 59.16 (2025/02/25)
         assert 50 <= score_anomaly <= 65

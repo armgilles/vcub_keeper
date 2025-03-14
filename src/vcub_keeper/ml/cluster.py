@@ -143,7 +143,7 @@ def predict_anomalies_station(data: pl.LazyFrame, clf: Pipeline, station_id: int
     return data_station
 
 
-def logistic_predict_proba_from_model(x: pl.Series, k: int = 10) -> pl.Series:
+def logistic_predict_proba_from_model(x: pl.Series, k: int = 20) -> pl.Series:
     """
     Logistic function apply to Isolation Forest decision_function
     (https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html#sklearn.ensemble.IsolationForest.decision_function)
