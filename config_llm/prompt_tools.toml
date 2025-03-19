@@ -89,8 +89,6 @@ L'utilisateur souhaite prédire le nombre de vélos disponibles à la station Be
 
 
 Exemple de code :
-```python
 params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
 prediction = get_prediction_station(params)
-```
 """
