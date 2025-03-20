@@ -163,7 +163,7 @@ def test_message_history(agent):
     response = agent.invoke({"input": user_message_1})
 
     # 2 message
-    user_message = "Quelle est exactement mon dernier message ?"
+    user_message = "Quelle était exactement mon dernier message ?"
     response = agent.invoke({"input": user_message})
     print(f"response: {response['output']}")
 
