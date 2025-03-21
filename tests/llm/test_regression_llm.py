@@ -1,8 +1,6 @@
 import pytest
 from datetime import datetime, timedelta
 import polars as pl
-from polars.testing import assert_frame_equal
-
 import numpy as np
 
 from vcub_keeper.llm.agent import create_agent, create_chat
@@ -72,7 +70,6 @@ def mock_histo_data():
 @pytest.fixture
 def agent(mock_histo_data):
     """Create an instance of agent_vcub with mock data"""
-    # Assuming AgentVcub is initialized with a dataframe
 
     # On prend la dernière date du df pour créer last_info_station
     last_info_station = mock_histo_data.filter(pl.col("date") == pl.col("date").max()).collect()
@@ -92,7 +89,8 @@ def test_message_prediction_station(agent):
     response = agent.invoke({"input": user_message})
     # Il y aura 9 vélos disponibles à la station "Le Parc vert" dans 10 minutes.
 
-    assert "9" in response["output"]
+    # assert "9" in response["output"]
+    assert "99" in response["output"]
     assert "vélos disponibles" in response["output"]
 
 

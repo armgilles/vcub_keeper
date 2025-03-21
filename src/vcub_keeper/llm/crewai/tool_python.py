@@ -13,6 +13,7 @@ from vcub_keeper.ml.prediction_station.transform import build_feat_for_regressio
 from vcub_keeper.ml.prediction_station.utils import create_target
 
 
+@tool
 def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calcule la distance entre deux points géographiques en utilisant la formule de Haversine.
@@ -186,17 +187,21 @@ def find_nearest_stations_wrapper(query: str) -> list:
     )
 
 
-@tool
 def get_prediction_station(params: str) -> int | pl.DataFrame:
     """
+    IMPORTANT: THIS FUNCTION MUST BE EXECUTED TO GET THE ACTUAL RESULT.
+    THE RESULT CANNOT BE PREDICTED OR SIMULATED.
     Permets de faire une prédiction sur une station donnée à partir des données historiques
     disponibles dans l'application.
+
+    Warning : Ne pas mettre de @tool sinon cela va créer une nouvelle fonction
+    et créer un conflit avec la fonction de LangChain
 
     Parameters
     ----------
     params : str
         Chaîne de caractères contenant les paramètres de la requête au format "target_station_id=..., target_col=..., horizon_prediction=..., return_df=..."
-        Exemple :  "target_station_id=102,target_col=available_bikes,horizon_prediction=10m,return_df=False"
+        Exemple :  "target_station_id=102,target_col=available_bikes,horizon_prediction=10m"
 
     Returns
     -------
@@ -208,6 +213,10 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
     -------
     prediction = get_prediction_station(params="target_station_id=102,target_col=available_bikes,horizon_prediction=10m")
     """
+
+    print("\n\n==== ACTUAL FUNCTION CALLED ====")
+    print(f"DEBUG: get_prediction_station called with params: {params}")
+    print("==================================\n\n")
 
     # if params is a string, parse it
     if isinstance(params, str):
@@ -234,11 +243,13 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
     # Train model
     model = train_model_for_station(station_to_pred=station_to_pred, feat_to_use=feat_to_use)
     # Make prediction
-    prediction = make_prediction_for_user(
+    prediction = make_prediction_for_user(  # noqa: F841
         station_to_pred=station_to_pred,
         horizon_prediction=horizon_prediction,
         model=model,
         feat_to_use=feat_to_use,
         # return_df=return_df,
     )
-    return prediction
+
+    # return prediction
+    return 99

@@ -57,6 +57,8 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
         api_key=MISTRAL_API_KEY,
         rate_limiter=rate_limiter,
         memory=memory,
+        random_seed=42,
+        verbose=True,
         # model_kwargs={
         #     "top_p": 0.92,
         #     "repetition_penalty": 1.1,
@@ -134,6 +136,9 @@ def create_agent(chat: ChatMistralAI, list_dfs: list[pl.DataFrame, pl.LazyFrame]
         **default_params,
     )
 
+    print("\n\n==== ACTUAL AGENT CALL ====")
+    print("==================================\n\n")
+
     return agent
 
 
@@ -164,9 +169,13 @@ def build_tools() -> list[Tool]:
             description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
         ),
         Tool(
-            name="get_prediction_station",
+            name="get_prediction_station_tool",
             func=get_prediction_station,
-            description=CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
+            description="""CAUTION: This tool MUST BE EXECUTED to get accurate predictions.
+            You MUST NOT try to predict the output yourself, simulate the function, or guess what it might return."""
+            + CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
+            # return_direct=False,
+            verbose=True,
         ),
     ]
 
