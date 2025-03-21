@@ -29,6 +29,9 @@ RÈGLES DE FORMATAGE STRICTES À SUIVRE ABSOLUMENT:
 7. **Ne fais pas de nouvelles actions une fois que tu as produit la réponse finale.**
 8. **Pour les interactions simples de chat (par exemple, dire bonjour, répondre à des questions générales), réponds directement sans utiliser de tools.**
 
+Quand tu produis l'Observation, reproduis exactement la sortie Python sans mise en forme supplémentaire (pas de tableaux Markdown ou de reformattage).
+
+
 FORMATS VALIDES:
 --------------------
 FORMAT POUR CONTINUER AVEC UNE ACTION:
