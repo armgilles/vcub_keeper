@@ -28,6 +28,7 @@ RÈGLES DE FORMATAGE STRICTES À SUIVRE ABSOLUMENT:
 6. **Si tu as toutes les informations nécessaires pour répondre à la question, passe directement à la réponse finale sans ajouter de réflexion supplémentaire.**
 7. **Ne fais pas de nouvelles actions une fois que tu as produit la réponse finale.**
 8. **Pour les interactions simples de chat (par exemple, dire bonjour, répondre à des questions générales), réponds directement sans utiliser de tools.**
+9. Lorsque tu utilises un tool, tu dois toujours observer la sortie de l'outil et l'utiliser pour ta réflexion suivante.
 
 Quand tu produis l'Observation, reproduis exactement la sortie Python sans mise en forme supplémentaire (pas de tableaux Markdown ou de reformattage).
 

@@ -136,9 +136,6 @@ def create_agent(chat: ChatMistralAI, list_dfs: list[pl.DataFrame, pl.LazyFrame]
         **default_params,
     )
 
-    print("\n\n==== ACTUAL AGENT CALL ====")
-    print("==================================\n\n")
-
     return agent
 
 
@@ -171,11 +168,14 @@ def build_tools() -> list[Tool]:
         Tool(
             name="get_prediction_station_tool",
             func=get_prediction_station,
-            # func=lambda **kwargs: str(get_prediction_station(**kwargs)),
-            # func=lambda input_str: str(get_prediction_station(input_str)),
-            description="""CAUTION: This tool MUST BE EXECUTED to get accurate predictions.
-            You MUST NOT try to predict the output yourself, simulate the function, or guess what it might return."""
-            + CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
+            description="""CRITICAL TOOL: This tool MUST be used for ALL predictions regardless of time horizon.
+            This function returns unpredictable results with a unique verification token that cannot be guessed.
+            You MUST pass the exact parameters as specified and report the EXACT result returned by the tool."""
+            + CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"]
+            + """
+            or prediction several hours ahead, use hours and minutes notation like:
+            "horizon_prediction=2h30m" for 2 hours and 30 minutes
+            "horizon_prediction=10h20m" for 10 hours and 20 minutes""",
             # return_direct=True,
             verbose=True,
         ),

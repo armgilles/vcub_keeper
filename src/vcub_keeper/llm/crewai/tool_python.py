@@ -187,7 +187,7 @@ def find_nearest_stations_wrapper(query: str) -> list:
     )
 
 
-def get_prediction_station(params: str) -> int | pl.DataFrame:
+def get_prediction_station(params: str) -> str:  # int | pl.DataFrame:
     """
     IMPORTANT: THIS FUNCTION MUST BE EXECUTED TO GET THE ACTUAL RESULT.
     THE RESULT CANNOT BE PREDICTED OR SIMULATED.
@@ -222,10 +222,15 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
     if isinstance(params, str):
         params = dict(item.split("=") for item in params.split(","))
 
-    target_station_id = int(params.get("target_station_id"))
-    target_col = params.get("target_col")
-    horizon_prediction = str(params.get("horizon_prediction"))
-    # return_df = ast.literal_eval(params.get("return_df"))
+    try:
+        target_station_id = int(params.get("target_station_id"))
+        target_col = params.get("target_col")
+        horizon_prediction = str(params.get("horizon_prediction"))
+        # # return_df = ast.literal_eval(params.get("return_df"))
+    except ValueError as e:
+        raise ValueError(
+            "Invalid parameters. Please provide params as string with the format 'target_station_id=..., target_col=..., horizon_prediction=...'"
+        ) from e
 
     # Get df_historical_station datatframe from thread-local storage
     df_historical_station = get_current_dataframe("df_historical_station")
@@ -252,4 +257,8 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
     )
 
     # return prediction
-    return 99
+    import uuid
+
+    token = str(uuid.uuid4())[:8]  # Generate unique token
+    # hack
+    return f"PREDICTION_VERIFIED_{token}_VALUE_99"

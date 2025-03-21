@@ -16,6 +16,13 @@ Exemple d'utilisation:
 
 Note: Dans le cas ou tu n'arrives pas à trouver les données pour une station, tu peux essayer 
 df[df["station_name"].str.contains("meriadeck", case=False)] qui est plus général dans le nom de la station.
+comme : 
+Action: python_repl_ast
+
+Action Input:
+```python
+df[df["station_name"].str.contains("meriadeck", case=False)]
+```
 
 Cela renvoie la distance en kilomètres entre les deux stations, un vélo roule en moyenne à 15 km/h.
 donc tu peux indiquer aussi le temps de trajet en minutes.
@@ -86,12 +93,13 @@ Exemple d'utilisation :
 L'utilisateur souhaite prédire le nombre de vélos disponibles à la station Berges du Lac dans 2 heures.
 1. Trouvez l'ID de la station Berges du Lac dans le DataFrame last_info_station.
 2. Utilisez la date actuelle pour calculer l'horizon de prédiction.
-3. Exécutez la fonction get_prediction_station avec les paramètres suivants :
-   params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
+3. Exécutez la fonction get_prediction_station avec en paramètres une chaine de caractères contenant :
+   - target_station_id=175
+   - target_col=available_bike_stands
+   - horizon_prediction=2h
 4. La fonction renvoie la prédiction.
 
-
-Exemple de code :
-params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
-prediction = get_prediction_station(params)
+Exemple de code pour la station 175 sur la prédiciton de place disponible dans 2 heures :
+"target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
+prediction = get_prediction_station("target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h")
 """
