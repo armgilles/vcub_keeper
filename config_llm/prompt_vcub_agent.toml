@@ -48,6 +48,7 @@ Final Answer: <réponse concise>
 --------------------
 
 Utilise un des outils suivants: {tool_names}
+Tu ne dois JAMAIS inventer ou simuler une Observation. Elle provient EXCLUSIVEMENT de l'exécution effective d'un tool.
 
 Question: {input}
 {agent_scratchpad}

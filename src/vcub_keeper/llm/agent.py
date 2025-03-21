@@ -171,10 +171,12 @@ def build_tools() -> list[Tool]:
         Tool(
             name="get_prediction_station_tool",
             func=get_prediction_station,
+            # func=lambda **kwargs: str(get_prediction_station(**kwargs)),
+            # func=lambda input_str: str(get_prediction_station(input_str)),
             description="""CAUTION: This tool MUST BE EXECUTED to get accurate predictions.
             You MUST NOT try to predict the output yourself, simulate the function, or guess what it might return."""
             + CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
-            # return_direct=False,
+            # return_direct=True,
             verbose=True,
         ),
     ]
