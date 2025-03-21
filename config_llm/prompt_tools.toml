@@ -85,7 +85,7 @@ L'utilisateur souhaite prédire le nombre de vélos disponibles à la station Be
 2. Utilisez la date actuelle pour calculer l'horizon de prédiction.
 3. Exécutez la fonction get_prediction_station avec les paramètres suivants :
    params = "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
-4. La fonction renvoie la prédiction du nombre de vélos disponibles (y_pred) sous la forme d'un df Polars.
+4. La fonction renvoie la prédiction.
 
 
 Exemple de code :
