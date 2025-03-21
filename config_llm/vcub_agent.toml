@@ -1,6 +1,5 @@
 [vcub_agent]
 return_intermediate_steps = true
-prefix = ""  # Vous devrez définir la valeur appropriée
 max_iterations = 7
 allow_dangerous_code = true
 verbose = true
