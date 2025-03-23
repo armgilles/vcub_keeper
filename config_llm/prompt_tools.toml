@@ -2,7 +2,7 @@
 # Description du tool
 prompt_descrption = """Calculer la distance entre deux stations (en km) grâce à leurs coordonnées (lat, lon).
 
-Il est obligatoire de passer par ce tool pour calculer la distance entre deux stations !
+Il est obligatoire et critique d'utiliser ce tools pour m'importe qu'elle calcul de distance entre deux stations.
 IMPORTANT: Les paramètres doivent être fournis en gardant leurs précisions: 
 
 Exemple d'utilisation:
@@ -12,7 +12,8 @@ Exemple d'utilisation:
 3. Chercher les coordonnées de la station "Porte de Bourgogne":
    df[df["station_name"] == "PORTE DE BOURGOGNE"]
 4. Observer le résultat.
-5. Utiliser get_distance(lat1,lon1,lat2,lon2) avec les valeurs numériques obtenues:
+5. Utiliser l'outil get_distance(lat1,lon1,lat2,lon2) avec les valeurs numériques obtenues en gardant leurs précisions.
+   Exemple de code pour utiliser l'outil:
    distance = get_distance(lat1=44.8378,lon1=-0.57921,lat2=44.8407,lon2=-0.5811) sans arrondir les valeurs !
 
 Note: Dans le cas ou tu n'arrives pas à trouver les données pour une station, tu peux essayer 
@@ -24,7 +25,7 @@ Action Input:
 df[df["station_name"].str.contains("meriadeck", case=False)]
 
 Cela renvoie la distance en kilomètres entre les deux stations, un vélo roule en moyenne à 15 km/h.
-donc tu peux indiquer aussi le temps de trajet en minutes.
+donc tu peux indiquer aussi le temps de trajet en minutes via Temps=Vitesse/Distance
 """
 
 [get_geocoding_prompt]

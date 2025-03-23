@@ -15,6 +15,9 @@ Le dataframe contient des informations sur les stations à LA DATE LA PLUS RÉCE
 
 Assure-toi de d'utiliser les bonnes pratiques de Pandas pour manipuler ces données !
 La colonne "date" représente la date actuelle pour les différents calculs d'horizon de prédiction.
+important :
+Tu es obligé de passer par un tools afin de faire uné prédiction et un calcul de distance et d'attendre
+le retour de l'outil avant de continuer.
 
 {tools}
 
@@ -52,7 +55,7 @@ Utilise un des outils suivants: {tool_names}
 Tu ne dois JAMAIS inventer ou simuler une Observation. Elle provient EXCLUSIVEMENT de l'exécution effective d'un tool.
 
 Question: {input}
-{agent_scratchpad}
+Thought:{agent_scratchpad}
 """
 
 # Présentation de l'agent

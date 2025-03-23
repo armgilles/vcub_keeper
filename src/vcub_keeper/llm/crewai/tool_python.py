@@ -14,7 +14,6 @@ from vcub_keeper.ml.prediction_station.transform import build_feat_for_regressio
 from vcub_keeper.ml.prediction_station.utils import create_target
 
 
-@tool
 def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calcule la distance entre deux points géographiques en utilisant la formule de Haversine.
@@ -52,6 +51,7 @@ def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return distance
 
 
+@tool
 def get_distance_wrapper(params: dict | str) -> float:
     """
     Wrapper pour la fonction get_distance afin de l'utiliser avec LangChain
@@ -67,6 +67,11 @@ def get_distance_wrapper(params: dict | str) -> float:
     float
         Distance entre les deux points géographiques en kilomètres
     """
+
+    # To check in LLM realy pass by this function or hallucinate the result
+    print("\n\n==== ACTUAL FUNCTION CALLED ====")
+    print(f"CHECK: get_distance_wrapper called with params: {params}")
+    print("==================================\n\n")
 
     # Parse the query string
     if isinstance(params, str):
@@ -193,10 +198,6 @@ def find_nearest_stations_wrapper(query: str) -> list:
         Liste de dictionnaires contenant les stations les plus proches avec "distance" en km
 
     """
-
-    print("\n\n==== ACTUAL FUNCTION CALLED ====")
-    print("info: find_nearest_stations_wrapper called")
-    print("==================================\n\n")
 
     # Parse the query string
     params = {}
