@@ -5,6 +5,8 @@ import numpy as np
 
 from vcub_keeper.llm.agent import create_agent, create_chat
 
+pytestmark = pytest.mark.llm_api  # ou ajout d'un marker sur chaque test - @pytest.mark.llm_api
+
 
 @pytest.fixture
 def mock_histo_data():
@@ -80,7 +82,7 @@ def agent(mock_histo_data):
     return agent_vcub
 
 
-def test_message_prediction_station(agent):
+def test_message_prediction_station(agent, capfd):
     """Test the message prediction for a specific station
     Last time is 2025-03-03 23:50:00
     """
@@ -89,12 +91,18 @@ def test_message_prediction_station(agent):
     response = agent.invoke({"input": user_message})
     # Il y aura 9 vélos disponibles à la station "Le Parc vert" dans 10 minutes.
 
+    output, _ = capfd.readouterr()
+    print(f"output: {output}")
+
+    # Check if pass into function
+    assert "CHECK: get_prediction_station" in output
+
     # assert "9" in response["output"]
     assert "99" in response["output"]
     assert "vélos disponibles" in response["output"]
 
 
-def test_message_prediction_station_heure(agent):
+def test_message_prediction_station_heure(agent, capfd):
     """Test the message prediction for a specific station with a specific time
     Last time is 2025-03-03 23:50:00
     """
@@ -106,6 +114,13 @@ def test_message_prediction_station_heure(agent):
     response = agent.invoke({"input": user_message})
     # Il y aura 9 places disponibles à la station "La Gare central" à 2h du matin.
 
-    assert "9" in response["output"]
+    output, _ = capfd.readouterr()
+    print(f"output: {output}")
+
+    # Check if pass into function
+    assert "CHECK: get_prediction_station" in output
+
+    # assert "9" in response["output"]
+    assert "99" in response["output"]
     assert "places disponibles" in response["output"]
     assert "gare central" in response["output"].lower()

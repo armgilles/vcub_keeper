@@ -2,6 +2,7 @@
 # Description du tool
 prompt_descrption = """Calculer la distance entre deux stations (en km) grâce à leurs coordonnées (lat, lon).
 
+Il est obligatoire de passer par ce tool pour calculer la distance entre deux stations !
 IMPORTANT: Les paramètres doivent être fournis en gardant leurs précisions: 
 
 Exemple d'utilisation:
@@ -20,9 +21,7 @@ comme :
 Action: python_repl_ast
 
 Action Input:
-```python
 df[df["station_name"].str.contains("meriadeck", case=False)]
-```
 
 Cela renvoie la distance en kilomètres entre les deux stations, un vélo roule en moyenne à 15 km/h.
 donc tu peux indiquer aussi le temps de trajet en minutes.

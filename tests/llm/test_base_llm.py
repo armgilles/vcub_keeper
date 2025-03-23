@@ -133,7 +133,7 @@ def test_least_bikes_available(agent):
     assert "5" in response["output"]
 
 
-def test_distance_calculation(agent):
+def test_distance_calculation(agent, capfd):
     """Test the query about distance and travel time"""
     user_message = "Quelle est la distance entre Meriadeck et la Place Gambetta ? Si je roule à 15km/h, combien de temps vais-je mettre ?"
     response = agent.invoke({"input": user_message})
@@ -147,6 +147,12 @@ def test_distance_calculation(agent):
     # La distance entre Meriadeck et la Place Gambetta est de 0.312 km. Si vous
     # roulez à 15 km/h, il vous faudra environ 1.25 minutes pour parcourir cette
     # distance.
+
+    output, _ = capfd.readouterr()
+    print(f"output: {output}")
+
+    # Check if pass into function
+    assert "CHECK: get_distance" in output
 
     assert "km" in response["output"].lower() or "kilomètre" in response["output"].lower()
     assert "minute" in response["output"].lower()
