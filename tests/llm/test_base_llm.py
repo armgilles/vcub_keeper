@@ -144,10 +144,10 @@ def test_distance_calculation(agent, capfd):
     # Action Input: lat1=44.838, lon1=-0.58437, lat2=44.8407, lon2=-0.581124
     # 0.3972871020812553 km
     # Observation: La distance entre Meriadeck et Place Gambetta est de 0.32 km
-    # 0.3972871020812553 / 15 * 60 = 1.58 minutes
+    # 0.3972871020812553 / 15 * 60 ~= 1.6 minutes
 
-    # La distance entre Meriadeck et la Place Gambetta est de 0.3972871020812553
-    # km. Si tu roules à 15 km/h, le temps de trajet sera de 1.59 minutes.
+    # La distance entre Meriadeck et la Place Gambetta est d'environ 397 mètres.
+    # Si tu roules à 15 km/h, cela te prendra environ 1.6 minutes.
 
     output, _ = capfd.readouterr()
     print(f"output: {output}")
@@ -157,7 +157,11 @@ def test_distance_calculation(agent, capfd):
 
     assert "km" in response["output"].lower() or "kilomètre" in response["output"].lower()
     assert "minute" in response["output"].lower()
-    assert "1.59" in response["output"].lower() or "1 minute" in response["output"].lower()
+    assert (
+        "1.6La distance entre Meriadeck et la Place Gambetta est d'environ 397 mètres. Si tu roules à 15 km/h, cela te prendra environ 1.6 minutes."
+        in response["output"].lower()
+        or "1 minute" in response["output"].lower()
+    )
     assert "meriadeck" in response["output"].lower()
     assert "place gambetta" in response["output"].lower()
     assert "15km/h" in response["output"] or "15 km/h" in response["output"]

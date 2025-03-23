@@ -53,6 +53,7 @@ Final Answer: <réponse concise>
 
 Utilise un des outils suivants: {tool_names}
 Tu ne dois JAMAIS inventer ou simuler une Observation. Elle provient EXCLUSIVEMENT de l'exécution effective d'un tool.
+Tu peux arrondir la distance à 1 mètre près et utiliser les mêtres plutot que les km si la ditance est inférieure à 1 km.
 
 Question: {input}
 Thought:{agent_scratchpad}

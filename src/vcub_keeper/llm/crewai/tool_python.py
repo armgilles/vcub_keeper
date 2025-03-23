@@ -68,11 +68,6 @@ def get_distance_wrapper(params: dict | str) -> float:
         Distance entre les deux points géographiques en kilomètres
     """
 
-    # To check in LLM realy pass by this function or hallucinate the result
-    print("\n\n==== ACTUAL FUNCTION CALLED ====")
-    print(f"CHECK: get_distance_wrapper called with params: {params}")
-    print("==================================\n\n")
-
     # Parse the query string
     if isinstance(params, str):
         params = dict(item.strip().split("=") for item in params.split(","))
