@@ -27,7 +27,7 @@ PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
 PORTKEY_VIRTUAL_KEY = os.getenv("PORTKEY_VIRTUAL_KEY")
 
 
-def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
+def create_chat(model: str, temperature: float = 0.1, agent_name_monitor: str = "chat_vcub_keeper") -> ChatMistralAI:
     """
 
 
@@ -38,6 +38,8 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
         _description_
     temperature : float, optional
         _description_, by default 0.0
+    agent_name_monitor : str, optional
+        Nom du user pour le monitoring via portkey, by default "chat_vcub_keeper"
 
     Returns
     -------
@@ -55,7 +57,7 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
         api_key=PORTKEY_API_KEY,
         virtual_key=PORTKEY_VIRTUAL_KEY,
         provider="mistral",
-        metadata={"_user": "chat_vcub_keeper"},
+        metadata={"_user": agent_name_monitor},
     )
 
     chat_llm = ChatOpenAI(
