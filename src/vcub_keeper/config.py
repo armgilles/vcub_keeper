@@ -40,13 +40,14 @@ if "site-packages" in str(Path(__file__).resolve().parent):  # install via pip
 
 # In case where ROOT_DIR is None (pre-prod) but we don't need these variables
 try:
-    print("root_llm_config: ", str(ROOT_DIR) + "/llm/config/")
     ROOT_DATA_RAW = str(ROOT_DIR) + "/data/raw/"
     ROOT_DATA_CLEAN = str(ROOT_DIR) + "/data/clean/"
     ROOT_DATA_REF = str(ROOT_DIR) + "/data/ref/"
     ROOT_MODEL = str(ROOT_DIR) + "/model/"
     ROOT_TESTS_DATA = str(ROOT_DIR) + "/tests/data_for_tests/"
     ROOT_LLM_CONFIG = str(ROOT_DIR) + "/config_llm/"
+    print(f"root_llm_config: {ROOT_LLM_CONFIG}")
+
 
 except Exception as e:
     print("Can't have repository variables:", str(e))

@@ -120,7 +120,7 @@ def test_message_geocoding(agent):
     assert "-0.570" in response["output"]  # lon : -0.5704848
 
 
-def test_message_station_near_adress_coordonne(agent):
+def test_message_station_near_adress_coordonne(agent, capfd):
     """Test à partir d'une adresse (lat / lon) de trouver les 2 stations les plus proches"""
     # user_message = "Quelles sont les 2 stations les plus proche de 12 Rue des Faussets Bordeaux ?"
     user_message = (
@@ -131,11 +131,17 @@ def test_message_station_near_adress_coordonne(agent):
     # 1. Place de la Bourse à 0.110 km
     # 2. Place du Palais à 0.292 km
 
+    output, _ = capfd.readouterr()
+    print(f"output: {output}")
+
+    # Check if pass into function
+    assert "CHECK: find_nearest_stations" in output
+
     assert "Place de la Bourse".lower() in response["output"].lower()
     assert "Place du Palais".lower() in response["output"].lower()
 
 
-def test_message_station_near_adress(agent):
+def test_message_station_near_adress(agent, capfd):
     """Test à partir d'une adresse de trouver les 2 stations les plus proches"""
     # user_message = "Quelles sont les 2 stations les plus proche de 12 Rue des Faussets Bordeaux ?"
     user_message = "Quelles sont les 2 stations les plus proche du 12 Rue des Faussets Bordeaux uniquement ?"
@@ -143,6 +149,13 @@ def test_message_station_near_adress(agent):
     # Les 2 stations les plus proches du 12 Rue des Faussets, Bordeaux sont :
     # 1. Place de la Bourse à 0.11 km
     # 2. Place du Palais à 0.29 km
+
+    output, _ = capfd.readouterr()
+    print(f"output: {output}")
+
+    # Check if pass into function
+    assert "CHECK: get_geocoding" in output
+    assert "CHECK: find_nearest_stations" in output
 
     assert "Place de la Bourse".lower() in response["output"].lower()
     assert "Place du Palais".lower() in response["output"].lower()

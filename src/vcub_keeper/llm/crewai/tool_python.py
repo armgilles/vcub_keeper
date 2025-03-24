@@ -1,3 +1,4 @@
+import ast
 import math
 
 import pandas as pd
@@ -22,6 +23,12 @@ def get_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         lat2 (float): Latitude du deuxième point.
         lon2 (float): Longitude du deuxième point.
     """
+
+    # To check in LLM realy pass by this function or hallucinate the result
+    print("\n\n==== ACTUAL FUNCTION CALLED ====")
+    print(f"CHECK: get_distance called with params: lat1={lat1}, lon1={lon1}, lat2={lat2}, lon2={lon2}")
+    print("==================================\n\n")
+
     # Rayon de la Terre en kilomètres
     R = 6371.0
 
@@ -60,15 +67,21 @@ def get_distance_wrapper(params: dict | str) -> float:
     float
         Distance entre les deux points géographiques en kilomètres
     """
+
     # Parse the query string
     if isinstance(params, str):
         params = dict(item.strip().split("=") for item in params.split(","))
 
     # Extract parameters
-    lat1 = float(params.get("lat1"))
-    lon1 = float(params.get("lon1"))
-    lat2 = float(params.get("lat2"))
-    lon2 = float(params.get("lon2"))
+    try:
+        lat1 = float(ast.literal_eval(params.get("lat1")))
+        lon1 = float(ast.literal_eval(params.get("lon1")))
+        lat2 = float(ast.literal_eval(params.get("lat2")))
+        lon2 = float(ast.literal_eval(params.get("lon2")))
+    except ValueError as e:
+        raise ValueError(
+            "Invalid parameters. Please provide params as string with the format 'lat1=..., lon1=..., lat2=..., lon2=...'"
+        ) from e
 
     return get_distance(lat1=lat1, lon1=lon1, lat2=lat2, lon2=lon2)
 
@@ -92,6 +105,11 @@ def get_geocoding(adresse: str) -> tuple[float, float]:
     -------
     lat, lon = get_geocoding("place de la bourse, bordeaux")
     """
+
+    # To check in LLM realy pass by this function or hallucinate the result
+    print("\n\n==== ACTUAL FUNCTION CALLED ====")
+    print(f"CHECK: get_geocoding called with params: {adresse}")
+    print("==================================\n\n")
 
     geolocator = Nominatim(user_agent="vcub_keeper")
     location = geolocator.geocode(adresse)
@@ -139,6 +157,13 @@ def find_nearest_stations(
                                              lat=44.8378, lon=-0.5792, nombre_station_proche=3)
     """
 
+    # To check in LLM realy pass by this function or hallucinate the result
+    print("\n\n==== ACTUAL FUNCTION CALLED ====")
+    print(
+        f"CHECK: find_nearest_stations called with params: lat={lat}, lon={lon}, nombre_station_proche={nombre_station_proche}"
+    )
+    print("==================================\n\n")
+
     last_info_station["distance"] = last_info_station.apply(
         lambda row: geodesic((lat, lon), (row["lat"], row["lon"])).km, axis=1
     )
@@ -168,6 +193,7 @@ def find_nearest_stations_wrapper(query: str) -> list:
         Liste de dictionnaires contenant les stations les plus proches avec "distance" en km
 
     """
+
     # Parse the query string
     params = {}
     for param in query.split(","):
@@ -186,17 +212,21 @@ def find_nearest_stations_wrapper(query: str) -> list:
     )
 
 
-@tool
-def get_prediction_station(params: str) -> int | pl.DataFrame:
+def get_prediction_station(params: str) -> str:  # int | pl.DataFrame:
     """
+    IMPORTANT: THIS FUNCTION MUST BE EXECUTED TO GET THE ACTUAL RESULT.
+    THE RESULT CANNOT BE PREDICTED OR SIMULATED.
     Permets de faire une prédiction sur une station donnée à partir des données historiques
     disponibles dans l'application.
+
+    Warning : Ne pas mettre de @tool sinon cela va créer une nouvelle fonction
+    et créer un conflit avec la fonction de LangChain
 
     Parameters
     ----------
     params : str
         Chaîne de caractères contenant les paramètres de la requête au format "target_station_id=..., target_col=..., horizon_prediction=..., return_df=..."
-        Exemple :  "target_station_id=102,target_col=available_bikes,horizon_prediction=10m,return_df=False"
+        Exemple :  "target_station_id=102,target_col=available_bikes,horizon_prediction=10m"
 
     Returns
     -------
@@ -209,14 +239,24 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
     prediction = get_prediction_station(params="target_station_id=102,target_col=available_bikes,horizon_prediction=10m")
     """
 
+    # To check in LLM realy pass by this function or hallucinate the result
+    print("\n\n==== ACTUAL FUNCTION CALLED ====")
+    print(f"CHECK: get_prediction_station called with params: {params}")
+    print("==================================\n\n")
+
     # if params is a string, parse it
     if isinstance(params, str):
         params = dict(item.split("=") for item in params.split(","))
 
-    target_station_id = int(params.get("target_station_id"))
-    target_col = params.get("target_col")
-    horizon_prediction = str(params.get("horizon_prediction"))
-    # return_df = ast.literal_eval(params.get("return_df"))
+    try:
+        target_station_id = int(params.get("target_station_id"))
+        target_col = params.get("target_col")
+        horizon_prediction = str(params.get("horizon_prediction"))
+        # # return_df = ast.literal_eval(params.get("return_df"))
+    except ValueError as e:
+        raise ValueError(
+            "Invalid parameters. Please provide params as string with the format 'target_station_id=..., target_col=..., horizon_prediction=...'"
+        ) from e
 
     # Get df_historical_station datatframe from thread-local storage
     df_historical_station = get_current_dataframe("df_historical_station")
@@ -234,11 +274,12 @@ def get_prediction_station(params: str) -> int | pl.DataFrame:
     # Train model
     model = train_model_for_station(station_to_pred=station_to_pred, feat_to_use=feat_to_use)
     # Make prediction
-    prediction = make_prediction_for_user(
+    prediction = make_prediction_for_user(  # noqa: F841
         station_to_pred=station_to_pred,
         horizon_prediction=horizon_prediction,
         model=model,
         feat_to_use=feat_to_use,
         # return_df=return_df,
     )
+
     return prediction

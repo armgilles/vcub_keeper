@@ -49,14 +49,16 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
     # Initialize memory for conversation history
-    memory = ConversationBufferMemory(memory_key="chat_history")
+    # memory = ConversationBufferMemory(memory_key="chat_history")
 
     chat_llm = ChatMistralAI(
         model=model,
         temperature=temperature,
         api_key=MISTRAL_API_KEY,
         rate_limiter=rate_limiter,
-        memory=memory,
+        # memory=memory,
+        random_seed=42,
+        verbose=True,
         # model_kwargs={
         #     "top_p": 0.92,
         #     "repetition_penalty": 1.1,
@@ -164,9 +166,10 @@ def build_tools() -> list[Tool]:
             description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
         ),
         Tool(
-            name="get_prediction_station",
+            name="get_prediction_station_tool",
             func=get_prediction_station,
             description=CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
+            # verbose=True,
         ),
     ]
 
