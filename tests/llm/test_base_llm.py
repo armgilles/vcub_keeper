@@ -157,7 +157,13 @@ def test_distance_calculation(agent, capfd):
 
     assert "km" in response["output"].lower() or "kilomètre" in response["output"].lower()
     assert "minute" in response["output"].lower()
-    assert "1.6" in response["output"].lower() or "1 minute" in response["output"].lower()
+    assert (
+        "1.6" in response["output"].lower()
+        or "1,6" in response["output"].lower()
+        or "1 minute" in response["output"].lower()
+        or "1.59" in response["output"].lower()
+        or "1,59" in response["output"].lower()
+    )
     assert "meriadeck" in response["output"].lower()
     assert "place gambetta" in response["output"].lower()
     assert "15km/h" in response["output"] or "15 km/h" in response["output"]

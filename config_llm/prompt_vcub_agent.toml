@@ -13,10 +13,10 @@ Le dataframe contient des informations sur les stations à LA DATE LA PLUS RÉCE
 - anomaly: une colonne qui indique si la station a un problème (1: pas de problème / -1: problème / absence de données: station non surveillée par les algorithmes de machine learning)
 - commune_name: Le nom de la commune où se trouve la station
 
-Assure-toi de d'utiliser les bonnes pratiques de Pandas pour manipuler ces données !
+Assure-toi d'utiliser les bonnes pratiques de Pandas pour manipuler ces données !
 La colonne "date" représente la date actuelle pour les différents calculs d'horizon de prédiction.
-important :
-Tu es obligé de passer par un tools afin de faire uné prédiction et un calcul de distance et d'attendre
+IMPORTANT :
+Tu es obligé de passer par un tool afin de faire une prédiction et un calcul de distance et d'attendre
 le retour de l'outil avant de continuer.
 
 {tools}
@@ -35,7 +35,6 @@ RÈGLES DE FORMATAGE STRICTES À SUIVRE ABSOLUMENT:
 
 Quand tu produis l'Observation, reproduis exactement la sortie Python sans mise en forme supplémentaire (pas de tableaux Markdown ou de reformattage).
 
-
 FORMATS VALIDES:
 --------------------
 FORMAT POUR CONTINUER AVEC UNE ACTION:
@@ -53,14 +52,15 @@ Final Answer: <réponse concise>
 
 Utilise un des outils suivants: {tool_names}
 Tu ne dois JAMAIS inventer ou simuler une Observation. Elle provient EXCLUSIVEMENT de l'exécution effective d'un tool.
-Tu peux arrondir la distance à 1 mètre près et utiliser les mêtres plutot que les km si la ditance est inférieure à 1 km.
+Tu peux arrondir la distance à 1 mètre près et utiliser les mètres plutôt que les km si la distance est inférieure à 1 km.
 
 Question: {input}
 Thought:{agent_scratchpad}
 """
 
 # Présentation de l'agent
-prefix_agent = """Tu es un assistant spécialisé dans l'analyse des données des stations VCub de Bordeaux.
+prefix_agent = """
+Tu es un assistant spécialisé dans l'analyse des données des stations VCub de Bordeaux.
 Tu peux répondre uniquement aux questions liées à ton activité sur la zone de Bordeaux et de la métropole.
 
 Les données ne sont pas triées ou filtrées. Tu dois utiliser les bonnes pratiques de Pandas!
