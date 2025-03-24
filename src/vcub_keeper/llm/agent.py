@@ -8,6 +8,8 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.rate_limiters import InMemoryRateLimiter
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_mistralai.chat_models import ChatMistralAI
+from langchain_openai import ChatOpenAI
+from portkey_ai import PORTKEY_GATEWAY_URL, createHeaders
 
 from vcub_keeper.config import CONFIG_LLM
 from vcub_keeper.llm.crewai.tool_python import (
@@ -21,10 +23,11 @@ from vcub_keeper.llm.utils_agent import set_current_dataframes
 load_dotenv()
 
 
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
+PORTKEY_VIRTUAL_KEY = os.getenv("PORTKEY_VIRTUAL_KEY")
 
 
-def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
+def create_chat(model: str, temperature: float = 0.1, agent_name_monitor: str = "chat_vcub_keeper") -> ChatMistralAI:
     """
 
 
@@ -35,6 +38,8 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
         _description_
     temperature : float, optional
         _description_, by default 0.0
+    agent_name_monitor : str, optional
+        Nom du user pour le monitoring via portkey, by default "chat_vcub_keeper"
 
     Returns
     -------
@@ -48,22 +53,22 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
-    # Initialize memory for conversation history
-    # memory = ConversationBufferMemory(memory_key="chat_history")
+    portkey_headers = createHeaders(
+        api_key=PORTKEY_API_KEY,
+        virtual_key=PORTKEY_VIRTUAL_KEY,
+        provider="mistral",
+        metadata={"_user": agent_name_monitor},
+    )
 
-    chat_llm = ChatMistralAI(
+    chat_llm = ChatOpenAI(
+        api_key="X",
+        base_url=PORTKEY_GATEWAY_URL,
+        rate_limiter=rate_limiter,
+        default_headers=portkey_headers,
         model=model,
         temperature=temperature,
-        api_key=MISTRAL_API_KEY,
-        rate_limiter=rate_limiter,
-        # memory=memory,
-        random_seed=42,
+        seed=42,
         verbose=True,
-        # model_kwargs={
-        #     "top_p": 0.92,
-        #     "repetition_penalty": 1.1,
-        #     "max_tokens": 1024,  # Limit token generation
-        # },
     )
 
     return chat_llm
