@@ -50,6 +50,8 @@ Créer un .env à la racine du projet avec :
 - MAPBOX_TOKEN="YOUR TOKEN HERE" (pour l'utilisation des graphiques avec mapbox).
 - KEY_API_BDX="YOUR KEY HERE" (pour l'utilisation de l'API open data de Bordeaux. Pour obtenir une [clef](https://data.bordeaux-metropole.fr/opendata/key))
 - MISTRAL_API_KEY="YOUR KEY HERE" (pour l'utilisation de l'API Mistral. Pour obtenir une [clef](https://mistral.ai/))
+- PORTKEY_API_KEY="YOUR KEY HERE" (pour l'utilisation de l'API Portkey. Pour obtenir une [clef](https://app.portkey.ai/))
+- PORTKEY_VIRTUAL_KEY="YOUR KEY HERE" (endpoint configuré sur-mesure dans Portkey . Pour obtenir une [clef](https://app.portkey.ai/))
 
 ## Études : 
 
@@ -68,3 +70,14 @@ Identique à l'image précédente, mais en 3D afin de mieux observer certains ph
 ![image](https://user-images.githubusercontent.com/8374843/96337330-a2ec7680-1086-11eb-84ec-c42c4cd5f7f6.png)
 
 Détection d'anomalies sur la station `Rue de la Croix Blanche` à partir des données en temps réel de la station.
+
+
+### LLM :
+
+- Monitoring via [Portkey AI](https://app.portkey.ai/) (Open Source : https://github.com/Portkey-AI/gateway)
+- Utilisation de l'API Mistral.
+- Exemple de use-cases :
+  - Poser des questions sur le statut / nombre de vélos disponibles sur une station (données internes via open data).
+  - Connaitre les stations les plus proches d'une adresse.
+  - Calculer la distance entre deux stations et le temps pour s'y rendre.
+  - Prédiction sur le nombre de vélos / places disponibles sur une station sur un horizon défini par l'utilisateur (inférieur à plus d'un jour).
