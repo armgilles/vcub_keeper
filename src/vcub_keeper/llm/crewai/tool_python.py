@@ -282,9 +282,4 @@ def get_prediction_station(params: str) -> str:  # int | pl.DataFrame:
         # return_df=return_df,
     )
 
-    # return prediction
-    import uuid
-
-    token = str(uuid.uuid4())[:8]  # Generate unique token
-    # hack
-    return f"PREDICTION_VERIFIED_{token}_VALUE_99"
+    return prediction

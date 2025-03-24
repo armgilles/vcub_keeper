@@ -97,8 +97,7 @@ def test_message_prediction_station(agent, capfd):
     # Check if pass into function
     assert "CHECK: get_prediction_station" in output
 
-    # assert "9" in response["output"]
-    assert "99" in response["output"]
+    assert "9" in response["output"]
     assert "vélos disponibles" in response["output"]
 
 
@@ -120,7 +119,6 @@ def test_message_prediction_station_heure(agent, capfd):
     # Check if pass into function
     assert "CHECK: get_prediction_station" in output
 
-    # assert "9" in response["output"]
-    assert "99" in response["output"]
+    assert "9" in response["output"]
     assert "places disponibles" in response["output"]
     assert "gare central" in response["output"].lower()

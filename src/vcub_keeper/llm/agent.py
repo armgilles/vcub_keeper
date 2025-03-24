@@ -168,16 +168,8 @@ def build_tools() -> list[Tool]:
         Tool(
             name="get_prediction_station_tool",
             func=get_prediction_station,
-            description="""CRITICAL TOOL: This tool MUST be used for ALL predictions regardless of time horizon.
-            This function returns unpredictable results with a unique verification token that cannot be guessed.
-            You MUST pass the exact parameters as specified and report the EXACT result returned by the tool."""
-            + CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"]
-            + """
-            or prediction several hours ahead, use hours and minutes notation like:
-            "horizon_prediction=2h30m" for 2 hours and 30 minutes
-            "horizon_prediction=10h20m" for 10 hours and 20 minutes""",
-            # return_direct=True,
-            verbose=True,
+            description=CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
+            # verbose=True,
         ),
     ]
 
