@@ -157,11 +157,7 @@ def test_distance_calculation(agent, capfd):
 
     assert "km" in response["output"].lower() or "kilomètre" in response["output"].lower()
     assert "minute" in response["output"].lower()
-    assert (
-        "1.6La distance entre Meriadeck et la Place Gambetta est d'environ 397 mètres. Si tu roules à 15 km/h, cela te prendra environ 1.6 minutes."
-        in response["output"].lower()
-        or "1 minute" in response["output"].lower()
-    )
+    assert "1.6" in response["output"].lower() or "1 minute" in response["output"].lower()
     assert "meriadeck" in response["output"].lower()
     assert "place gambetta" in response["output"].lower()
     assert "15km/h" in response["output"] or "15 km/h" in response["output"]
