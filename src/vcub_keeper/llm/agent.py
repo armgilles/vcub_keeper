@@ -51,7 +51,12 @@ def create_chat(model: str, temperature: float = 0.1) -> ChatMistralAI:
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
 
-    portkey_headers = createHeaders(api_key=PORTKEY_API_KEY, virtual_key=PORTKEY_VIRTUAL_KEY, provider="mistral")
+    portkey_headers = createHeaders(
+        api_key=PORTKEY_API_KEY,
+        virtual_key=PORTKEY_VIRTUAL_KEY,
+        provider="mistral",
+        metadata={"_user": "chat_vcub_keeper"},
+    )
 
     chat_llm = ChatOpenAI(
         api_key="X",
