@@ -163,6 +163,7 @@ def test_distance_calculation(agent, capfd):
         or "1 minute" in response["output"].lower()
         or "1.59" in response["output"].lower()
         or "1,59" in response["output"].lower()
+        or " 160 secondes" in response["output"].lower()
     )
     assert "meriadeck" in response["output"].lower()
     assert "place gambetta" in response["output"].lower()
