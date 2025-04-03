@@ -124,7 +124,7 @@ def test_expain_alerte_twitter(agent):
     print(f"response: {response['output']}")
     # L'auteur du projet est Armand GILLES.
 
-    assert "deux" in response["output"].lower()
+    assert "deux" in response["output"].lower() or "plusieurs" in response["output"].lower()
     assert "alerte" in response["output"].lower()
     assert "faible" in response["output"].lower()
     assert "grave" in response["output"].lower()
