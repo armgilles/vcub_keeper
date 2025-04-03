@@ -80,10 +80,11 @@ def get_documents_from_website() -> list:
     for doc in loader.load():
         docs.append(doc)
 
+    # TODO : A voir si on garde cette partie
     # Filter documents to include only those with "emphasized_text_contents" in metadata
-    filtered_docs = [doc for doc in docs if "emphasized_text_contents" in doc.metadata]
+    # filtered_docs = [doc for doc in docs if "emphasized_text_contents" in doc.metadata]
 
-    return filtered_docs
+    return docs
 
 
 def create_vector_store_with_embed(path_to_db: str, force_to_recreate_vector_base: bool = False) -> Chroma:
@@ -164,7 +165,7 @@ def delete_vector_store(path_to_db: str) -> None:
 
 
 def build_retriver_rag(
-    usual_number_of_docs: int = 22, force_rebuild_vector_store: bool = False
+    usual_number_of_docs: int = 49, force_rebuild_vector_store: bool = False
 ) -> VectorStoreRetriever:
     """
     Permets la création d'un retriever pour la recherche de documents à partir d'une base vectorielle
@@ -187,7 +188,7 @@ def build_retriver_rag(
 
     Example
     -------
-    retriever = build_retriver_rag(usual_number_of_docs=22, force_rebuild_vector_store=False)
+    retriever = build_retriver_rag()
 
     """
 
@@ -215,6 +216,8 @@ def build_retriver_rag(
 
     print(f"Nombre de documents dans la base vectorielle : {vector_store._collection.count()}")
 
-    retriever = vector_store.as_retriever()
+    retriever = vector_store.as_retriever(
+        k=3,
+    )
 
     return retriever

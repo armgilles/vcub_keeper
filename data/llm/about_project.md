@@ -17,7 +17,7 @@ C'est lorsque l'activité de la station est très faible et que cela dure depuis
 Une station inactive est une station qui a été déconnectée du système des Vcub. TBM peut ainsi déconnecter une station pour diverses raisons (travaux, maintenance ...)
 
 ### Pourquoi il y a des stations non surveillées
-L'algorithme est basé sur l'activité des stations. Si une station a trop peu d'activité en général, il n'est pas possible de détecter convenablement de possibles anomalies dans son fonctionnement.
+L'algorithme est basé sur l'activité des stations. Si une station a trop peu d'activité en général, il n'est pas possible de détecter convenablement de possibles anomalies dans son fonctionnement, c'est pourquoi ces stations ne sont pas surveillées par l'algorithme. Il est possible que ces stations soient surveillées par la suite si elles commencent à avoir une activité plus importante.
 
 ### J'ai vu une station qui ne marchait pas or ce n'est pas le cas ici
 Pour qu'une station soit suspectée de mauvais fonctionnement, il faut que des vélos y soient disponibles. Nous avons déterminé qu'il fallait au moins 2 vélos disponibles pour que la station soit analysable par l'algorithme (vélos cassés ...)
