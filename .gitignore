@@ -10,7 +10,8 @@ model
 !/tests/data_for_tests/*
 *.parquet
 # Vector database
-chroma_langchain_db/*
+**/chroma_langchain_db/
+*.sqlite3
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
