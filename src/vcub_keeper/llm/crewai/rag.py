@@ -115,14 +115,7 @@ def create_vector_store_with_embed(path_to_db: str, force_to_recreate_vector_bas
     persist_directory = f"{path_to_db}chroma_langchain_db"
 
     if force_to_recreate_vector_base:
-        print("Recréation de la base vectorielle...")
-        if os.path.exists(persist_directory):
-            shutil.rmtree(persist_directory)
-            time.sleep(1)
-        if "vector_store" in locals():
-            # Supprimer les données et variables
-            vector_store.reset_collection()  # noqa: F821
-            del vector_store  # noqa: F821
+        delete_vector_store(path_to_db=ROOT_DATA_LLM)
 
     # Vérifier si le répertoire contient une base existante
     if os.path.exists(persist_directory) and os.listdir(persist_directory):
@@ -130,7 +123,7 @@ def create_vector_store_with_embed(path_to_db: str, force_to_recreate_vector_bas
         vector_store = Chroma(
             collection_name="vcub_keeper_vector", embedding_function=embeddings, persist_directory=persist_directory
         )
-
+    # TODO : Redondance de code
     else:
         print("Aucune base vectorielle existante trouvée. Création d'une nouvelle...")
         vector_store = Chroma(
@@ -142,8 +135,36 @@ def create_vector_store_with_embed(path_to_db: str, force_to_recreate_vector_bas
     return vector_store
 
 
+def delete_vector_store(path_to_db: str) -> None:
+    """
+    Permets de supprimer la base vectorielle Chroma si elle existe.
+
+    Parameters
+    ----------
+    path_to_db : str
+
+    Returns
+    -------
+    None
+
+    Example
+    -------
+    delete_vector_store(path_to_db=ROOT_DATA_LLM)
+    """
+
+    # Chemin vers le répertoire de persistance
+    persist_directory = f"{path_to_db}chroma_langchain_db"
+
+    if os.path.exists(persist_directory):
+        shutil.rmtree(persist_directory)
+        time.sleep(1)
+        print(f"Base vectorielle supprimée : {persist_directory}")
+    else:
+        print(f"Aucune base vectorielle trouvée à supprimer : {persist_directory}")
+
+
 def build_retriver_rag(
-    usual_number_of_docs: int = 21, force_rebuild_vector_store: bool = False
+    usual_number_of_docs: int = 22, force_rebuild_vector_store: bool = False
 ) -> VectorStoreRetriever:
     """
     Permets la création d'un retriever pour la recherche de documents à partir d'une base vectorielle
@@ -166,27 +187,28 @@ def build_retriver_rag(
 
     Example
     -------
-    retriever = build_retriver_rag(usual_number_of_docs=21, force_rebuild_vector_store=False)
+    retriever = build_retriver_rag(usual_number_of_docs=22, force_rebuild_vector_store=False)
 
     """
-    # Create vector store
-    vector_store = create_vector_store_with_embed(
-        path_to_db=ROOT_DATA_LLM, force_to_recreate_vector_base=force_rebuild_vector_store
-    )
+
+    if force_rebuild_vector_store:
+        delete_vector_store(path_to_db=ROOT_DATA_LLM)
+
+    vector_store = create_vector_store_with_embed(path_to_db=ROOT_DATA_LLM)
 
     if vector_store._collection.count() != usual_number_of_docs:
         print("La collection de documents est vide ou ne correspond pas au nombre attendu de documents.")
         print("Chargement des documents...")
 
-        # Recreate vector store
-        vector_store = create_vector_store_with_embed(path_to_db=ROOT_DATA_LLM, force_to_recreate_vector_base=True)
-        time.sleep(0.5)
+        # Si il y a déjà des documents dans la base vectorielle, on les supprime
+        if vector_store._collection.count() != 0:
+            delete_vector_store(path_to_db=ROOT_DATA_LLM)
 
-        # Information from markdown file
+        # Informations from markdown file
         sections = get_documents_about_project(path_directory=ROOT_DATA_LLM)
         vector_store.add_documents(documents=sections)
 
-        # Information from web_site
+        # Informations from web_site
         web_docs = get_documents_from_website()
         vector_store.add_documents(filter_complex_metadata(documents=web_docs))
         time.sleep(0.5)
