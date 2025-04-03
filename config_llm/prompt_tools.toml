@@ -104,3 +104,14 @@ Exemple de code pour la station 175 sur la prédiction de place disponible dans 
 "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
 prediction = get_prediction_station("target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h")
 """
+
+
+[retriever_tool_prompt]
+prompt_descrption = """
+Permets de pouvoir intéroger une base de connaissance (base vectorielle) pour récupérer des documents pertinents
+en ceux qui concerne 2 points particuliers:
+1. Répondre a des interrogations sur le projet en lui même.
+2. Répondre a des interrogations sur l'utilisation des Vcub, leurs prix etc...
+
+Tu peux aussi faire un résumé de la réponse en te basant sur les documents pertinents qui te sont retournés.
+"""
