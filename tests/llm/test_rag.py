@@ -157,7 +157,7 @@ def test_find_vcub_price(agent):
     print(f"response: {response['output']}")
     # Le prix d'un Vcub classique est de 1€ pour le décrochage, puis 10 centimes
     # par minute au-delà de 30 minutes. Il est également possible de souscrire à
-    # un abonnement annuel pour 30€, qui inclut 30 minutes gratuites à chaque
+    # un abonnement annuel pour 30€, ce qui inclut 30 minutes gratuites à chaque
     # décrochage.
 
     assert "10 centimes" in response["output"].lower()
@@ -165,3 +165,26 @@ def test_find_vcub_price(agent):
     assert "abonnement" in response["output"].lower()
     assert "annuel" in response["output"].lower()
     assert "30€" in response["output"].lower()
+
+
+def test_find_vcub_elec_price(agent):
+    """
+    Permets de tester si l'IA trouve la bonne réponse sur sur le prix d'un
+    vcub (électrique)
+    """
+
+    user_message = "Quel est le prix d'un vcub électrique ?"
+    response = agent.invoke({"input": user_message})
+    print(f"response: {response['output']}")
+    # Le prix d'un Vcub électrique est de 2€ pour le décrochage, puis 10
+    # centimes par minute au-delà de 30 minutes. L'abonnement annuel pour un
+    # Vcub électrique est de 45€ pour les abonnés annuels TBM ou de 75€ pour les
+    # autres
+
+    assert "10 centimes" in response["output"].lower()
+    assert "30 minutes" in response["output"].lower()
+    assert "2€" in response["output"].lower()
+    assert "abonnement" in response["output"].lower()
+    assert "annuel" in response["output"].lower()
+    assert "45€" in response["output"].lower()
+    assert "75€" in response["output"].lower()
