@@ -57,6 +57,7 @@ def get_distance_wrapper(params: dict | str) -> float:
     """
     Wrapper pour la fonction get_distance afin de l'utiliser avec LangChain
     avec en entrée une chaîne de caractères contenant les paramètres de la requête.
+    Permets de calculer la distance de façon précise entre deux points géographiques
 
     Parameters
     ----------
