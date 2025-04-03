@@ -7,7 +7,7 @@ from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 from langchain_core.tools import tool
 
-from vcub_keeper.llm.crewai.rag import build_retriver_rag
+from vcub_keeper.llm.crewai.rag import build_retriever_rag
 from vcub_keeper.llm.utils_agent import get_current_dataframe
 from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model, train_model_for_station
 from vcub_keeper.ml.prediction_station.production import make_prediction_for_user
@@ -307,6 +307,6 @@ def use_rag(param: str | dict) -> str:
     """
 
     # Get retriever
-    retriever = build_retriver_rag()
+    retriever = build_retriever_rag()
 
     return retriever

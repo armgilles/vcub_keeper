@@ -164,7 +164,7 @@ def delete_vector_store(path_to_db: str) -> None:
         print(f"Aucune base vectorielle trouvée à supprimer : {persist_directory}")
 
 
-def build_retriver_rag(
+def build_retriever_rag(
     usual_number_of_docs: int = 49, force_rebuild_vector_store: bool = False
 ) -> VectorStoreRetriever:
     """

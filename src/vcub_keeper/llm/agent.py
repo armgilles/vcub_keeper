@@ -14,7 +14,7 @@ from portkey_ai import PORTKEY_GATEWAY_URL, createHeaders
 
 from vcub_keeper.config import CONFIG_LLM
 from vcub_keeper.llm.crewai.tool_python import (
-    build_retriver_rag,
+    build_retriever_rag,
     find_nearest_stations_wrapper,
     get_distance_wrapper,
     get_geocoding,
@@ -179,7 +179,7 @@ def build_tools() -> list[Tool]:
             # verbose=True,
         ),
         create_retriever_tool(
-            retriever=build_retriver_rag(),
+            retriever=build_retriever_rag(),
             name="retriever_tool",
             description=CONFIG_LLM["retriever_tool_prompt"]["prompt_description"],
         ),
