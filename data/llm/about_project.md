@@ -27,3 +27,6 @@ Nous nous servons de l'Open Data pour réaliser l'application, nous ne sommes pa
 
 ### Informations sur le projet
 Ce projet a été réalisé par Armand GILLES, il a pour but d'être un projet bac à sable tout en étant utile pour la communauté avec des contraintes de production comme dans la vraie vie. Il est très utile pour utlisé les dernières technologies avec des données réelless. Une partie du projet est open-source, il est possible de le retrouver sur GitHub. Le projet est réalisé en Python.
+
+### Pourquoi faire un chatbot
+L'idée de faire un chatbot est de rendre l'application plus accessible et de permettre à l'utilisateur d'interagir avec elle de manière plus naturelle. Dans un second temps, c'est aussi pour le côté fun et utilisation d'IA de type LLM. Le chatbot est basé sur un modèle de MistralIA, il est de type "Agentic IA", c'est à dire qu'il peut agir de manière indépendante pour atteindre des objectifs définis. Il ne se contente pas de réagir passivement aux entrées, mais peut initier des actions basées sur son environnement et avec les outils à sa disposition (données internes, calcul géographique, prédictions, RAG etc...).
