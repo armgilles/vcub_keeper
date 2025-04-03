@@ -160,28 +160,28 @@ def build_tools() -> list[Tool]:
         Tool(
             name="get_distance",
             func=get_distance_wrapper,
-            description=CONFIG_LLM["get_distance_prompt"]["prompt_descrption"],
+            description=CONFIG_LLM["get_distance_prompt"]["prompt_description"],
         ),
         Tool(
             name="get_geocoding",
             func=get_geocoding,
-            description=CONFIG_LLM["get_geocoding_prompt"]["prompt_descrption"],
+            description=CONFIG_LLM["get_geocoding_prompt"]["prompt_description"],
         ),
         Tool(
             name="find_nearest_stations",
             func=find_nearest_stations_wrapper,
-            description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_descrption"],
+            description=CONFIG_LLM["find_nearest_stations_prompt"]["prompt_description"],
         ),
         Tool(
             name="get_prediction_station_tool",
             func=get_prediction_station,
-            description=CONFIG_LLM["get_prediction_station_prompt"]["prompt_descrption"],
+            description=CONFIG_LLM["get_prediction_station_prompt"]["prompt_description"],
             # verbose=True,
         ),
         create_retriever_tool(
             retriever=build_retriver_rag(),
             name="retriever_tool",
-            description=CONFIG_LLM["retriever_tool_prompt"]["prompt_descrption"],
+            description=CONFIG_LLM["retriever_tool_prompt"]["prompt_description"],
         ),
     ]
 
