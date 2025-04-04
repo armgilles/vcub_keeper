@@ -1,5 +1,5 @@
 [get_distance_prompt]
-prompt_descrption = """
+prompt_description = """
 Calculer la distance entre deux stations (en km) grâce à leurs coordonnées (lat, lon).
 
 Il est obligatoire et critique d'utiliser ce tool pour n'importe quel calcul de distance entre deux stations.
@@ -29,13 +29,13 @@ Donc tu peux indiquer aussi le temps de trajet en minutes via Temps=Distance/Vit
 """
 
 [get_geocoding_prompt]
-prompt_descrption = """
+prompt_description = """
 Récupérer la latitude et la longitude d'une adresse postale en France.
 Exemple d'utilisation: lat, lon = get_geocoding("1 rue de la République, Bordeaux").
 """
 
 [find_nearest_stations_prompt]
-prompt_descrption = """
+prompt_description = """
 Trouve les X stations les plus proches d'une coordonnée GPS. 
 IMPORTANT: Les paramètres doivent être fournis comme des arguments séparés et typés correctement: 
 lat (float), lon (float), nombre_station_proche (int, optionnel).
@@ -69,7 +69,7 @@ ainsi que les informations liées à la station :
 """
 
 [get_prediction_station_prompt]
-prompt_descrption = """
+prompt_description = """
 Il est formellement interdit de deviner la valeur retournée par cet outil ou de simuler sa sortie.
 Toute prédiction doit passer par son appel effectif. Si cet outil n’a pas été exécuté, tu ne peux pas répondre !
 
@@ -103,4 +103,19 @@ L'utilisateur souhaite prédire le nombre de vélos disponibles à la station Be
 Exemple de code pour la station 175 sur la prédiction de place disponible dans 2 heures :
 "target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h"
 prediction = get_prediction_station("target_station_id=175,target_col=available_bike_stands,horizon_prediction=2h")
+"""
+
+
+[retriever_tool_prompt]
+prompt_description = """
+Permets de pouvoir intéroger une base de connaissance (base vectorielle) pour récupérer des documents pertinents
+en ceux qui concerne 2 points particuliers:
+1. Répondre a des interrogations sur le projet en lui même.
+2. Répondre a des interrogations sur l'utilisation des Vcub, leurs prix etc...
+
+Tu peux faire un résumé de la réponse en te basant sur les documents pertinents qui te sont retournés
+en étant le plus concis possible. Si tu as des doutes sur la pertinence de l'information, ne l'utilise pas.
+
+Si tu as besoin de plus d'informations, tu peux poser des questions complémentaires
+pour affiner ta recherche.
 """

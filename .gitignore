@@ -9,6 +9,9 @@ model
 # test data for CI
 !/tests/data_for_tests/*
 *.parquet
+# Vector database
+**/chroma_langchain_db/
+*.sqlite3
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

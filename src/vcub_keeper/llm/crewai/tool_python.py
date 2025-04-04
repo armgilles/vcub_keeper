@@ -7,6 +7,7 @@ from geopy.distance import geodesic
 from geopy.geocoders import Nominatim
 from langchain_core.tools import tool
 
+from vcub_keeper.llm.crewai.rag import build_retriever_rag
 from vcub_keeper.llm.utils_agent import get_current_dataframe
 from vcub_keeper.ml.prediction_station.model import get_feature_to_use_for_model, train_model_for_station
 from vcub_keeper.ml.prediction_station.production import make_prediction_for_user
@@ -56,6 +57,7 @@ def get_distance_wrapper(params: dict | str) -> float:
     """
     Wrapper pour la fonction get_distance afin de l'utiliser avec LangChain
     avec en entrée une chaîne de caractères contenant les paramètres de la requête.
+    Permets de calculer la distance de façon précise entre deux points géographiques
 
     Parameters
     ----------
@@ -283,3 +285,28 @@ def get_prediction_station(params: str) -> str:  # int | pl.DataFrame:
     )
 
     return prediction
+
+
+def use_rag(param: str | dict) -> str:
+    """
+    Permets l'utilisation d'information interne pour répondre à des questions
+    sur le projet ou sur l'utilisation des vcub (prix etc...) pour l'agent
+
+    Parameters
+    ----------
+    params : str | dict
+
+    Returns
+    -------
+    retriever : VectorStoreRetriever
+        Permets de récupérer les informations sur le projet / vcub en générale
+
+    Example
+    -------
+    retriever = use_rag()
+    """
+
+    # Get retriever
+    retriever = build_retriever_rag()
+
+    return retriever

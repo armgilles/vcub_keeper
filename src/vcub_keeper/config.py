@@ -43,6 +43,7 @@ try:
     ROOT_DATA_RAW = str(ROOT_DIR) + "/data/raw/"
     ROOT_DATA_CLEAN = str(ROOT_DIR) + "/data/clean/"
     ROOT_DATA_REF = str(ROOT_DIR) + "/data/ref/"
+    ROOT_DATA_LLM = str(ROOT_DIR) + "/data/llm/"
     ROOT_MODEL = str(ROOT_DIR) + "/model/"
     ROOT_TESTS_DATA = str(ROOT_DIR) + "/tests/data_for_tests/"
     ROOT_LLM_CONFIG = str(ROOT_DIR) + "/config_llm/"
@@ -69,6 +70,11 @@ if IS_PROD is False:
     if not os.path.exists(ROOT_DATA_REF):
         os.mkdir(ROOT_DATA_REF)
         print("Create " + ROOT_DATA_REF)
+
+    # ROOT_DATA_LLM
+    if not os.path.exists(ROOT_DATA_LLM):
+        os.mkdir(ROOT_DATA_LLM)
+        print("Create " + ROOT_DATA_LLM)
 
     # ROOT_MODEL
     if not os.path.exists(ROOT_MODEL):
