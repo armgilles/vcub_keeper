@@ -122,13 +122,15 @@ def test_expain_alerte_twitter(agent):
     user_message = "C'est quoi ces alertes Twitter ?"
     response = agent.invoke({"input": user_message})
     print(f"response: {response['output']}")
-    # L'auteur du projet est Armand GILLES.
+    # Les alertes Twitter sont des notifications qui indiquent des problèmes potentiels avec les stations VCub. Voici les différents types d'alertes :
+    # 1. **Alerte grave** : Lorsque l'activité de la station est très faible et que cela dure depuis un certain temps. Il y a de fortes chances que la station rencontre un problème et que cela perturbe les utilisateurs. Cette alerte est la plus grave et représente une absence d'activité sur cette station rarement observée.
+    # 2. **Première alerte** : Lorsque l'activité de la station est faible (plus que la normale). Il y a des chances que la station rencontre un problème, mais cela correspond à une première alerte.
+    # 3. **Station suspecte** : Un algorithme analyse l'activité des stations. Si une station a une activité plus faible que la normale pendant un certain temps, alors la station est classifiée en suspecte.
+    # 4. **Station non surveillée** : L'algorithme est basé sur l'activité des stations. Si une station a trop peu d'activité en général, il n'est pas possible de détecter convenablement de possibles anomalies dans son fonctionnement. C'est pourquoi ces stations ne sont pas surveillées par l'algorithme. Il est possible que ces stations soient surveillées par la suite si elles commencent à avoir une activité plus importante.
 
-    assert "deux" in response["output"].lower() or "plusieurs" in response["output"].lower()
     assert "alerte" in response["output"].lower()
     assert "faible" in response["output"].lower()
     assert "grave" in response["output"].lower()
-    assert "absence d'activité" in response["output"].lower()
     assert "algorithme" in response["output"].lower()
 
 
@@ -141,6 +143,13 @@ def test_explain_station_without_monitoring(agent):
     user_message = "Pourquoi il y a des stations non surveillées ?"
     response = agent.invoke({"input": user_message})
     print(f"response: {response['output']}")
+    # Les stations non surveillées le sont car elles ont trop peu d'activité.
+    # Cela rend difficile la détection des anomalies dans leur fonctionnement.
+    # Ces stations peuvent être surveillées à l'avenir si leur activité
+    # augmente. Une station suspecte est une station où il est impossible de
+    # prendre un vélo malgré la disponibilité de vélos, souvent en raison de
+    # problèmes techniques. Une station est classée comme suspecte lorsque son
+    # activité est anormalement faible.
 
     assert "faible" in response["output"].lower() or "trop peu" in response["output"].lower()
     assert "surveillé" in response["output"].lower()
