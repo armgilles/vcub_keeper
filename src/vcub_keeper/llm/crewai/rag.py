@@ -116,7 +116,7 @@ def create_vector_store_with_embed(path_to_db: str, force_to_recreate_vector_bas
     persist_directory = f"{path_to_db}chroma_langchain_db"
 
     if force_to_recreate_vector_base:
-        delete_vector_store(path_to_db=ROOT_DATA_LLM)
+        delete_vector_store(path_to_db=path_to_db)
 
     # Vérifier si le répertoire contient une base existante
     if os.path.exists(persist_directory) and os.listdir(persist_directory):
@@ -165,7 +165,9 @@ def delete_vector_store(path_to_db: str) -> None:
 
 
 def build_retriever_rag(
-    usual_number_of_docs: int = 49, force_rebuild_vector_store: bool = False
+    usual_number_of_docs: int = 49,
+    force_rebuild_vector_store: bool = False,
+    path_to_llm_dir: str = ROOT_DATA_LLM,
 ) -> VectorStoreRetriever:
     """
     Permets la création d'un retriever pour la recherche de documents à partir d'une base vectorielle
@@ -182,6 +184,10 @@ def build_retriever_rag(
     force_rebuild_vector_store : bool
         Si True, la base vectorielle est recréée même si elle existe déjà.
 
+    path_to_llm : str
+        Chemin vers le répertoire de la base vectorielle Chroma et
+        les documents à charger.
+
     Returns
     -------
     retriever : VectorStoreRetriever
@@ -193,9 +199,9 @@ def build_retriever_rag(
     """
 
     if force_rebuild_vector_store:
-        delete_vector_store(path_to_db=ROOT_DATA_LLM)
+        delete_vector_store(path_to_db=path_to_llm_dir)
 
-    vector_store = create_vector_store_with_embed(path_to_db=ROOT_DATA_LLM)
+    vector_store = create_vector_store_with_embed(path_to_db=path_to_llm_dir)
 
     if vector_store._collection.count() != usual_number_of_docs:
         print("La collection de documents est vide ou ne correspond pas au nombre attendu de documents.")
@@ -203,10 +209,10 @@ def build_retriever_rag(
 
         # Si il y a déjà des documents dans la base vectorielle, on les supprime
         if vector_store._collection.count() != 0:
-            delete_vector_store(path_to_db=ROOT_DATA_LLM)
+            delete_vector_store(path_to_db=path_to_llm_dir)
 
         # Informations from markdown file
-        sections = get_documents_about_project(path_directory=ROOT_DATA_LLM)
+        sections = get_documents_about_project(path_directory=path_to_llm_dir)
         vector_store.add_documents(documents=sections)
 
         # Informations from web_site
