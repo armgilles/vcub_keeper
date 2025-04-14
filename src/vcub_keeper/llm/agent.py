@@ -114,7 +114,7 @@ def create_agent(chat: ChatMistralAI, list_dfs: list[pl.DataFrame, pl.LazyFrame]
         "return_intermediate_steps": CONFIG_LLM["vcub_agent"]["return_intermediate_steps"],
         "number_of_head_rows": last_info_station.shape[0],
         "prefix": CONFIG_LLM["vcub_agent_prompt"]["prefix_agent"] + CONFIG_LLM["vcub_agent_prompt"]["template_llm"],
-        "extra_tools": build_tools(),
+        "extra_tools": build_tools(path_to_llm_dir=kwargs.get("path_to_llm_dir")),
         "max_iterations": CONFIG_LLM["vcub_agent"]["max_iterations"],
         "allow_dangerous_code": CONFIG_LLM["vcub_agent"]["allow_dangerous_code"],
         "verbose": CONFIG_LLM["vcub_agent"]["verbose"],
@@ -146,9 +146,16 @@ def create_agent(chat: ChatMistralAI, list_dfs: list[pl.DataFrame, pl.LazyFrame]
     return agent
 
 
-def build_tools() -> list[Tool]:
+def build_tools(path_to_llm_dir: str | None = None) -> list[Tool]:
     """
+    Permets de créer les outils pour l'agent.
 
+    Parameters
+    ----------
+
+    path_to_llm_dir : str
+        Chemin vers le répertoire de la base vectorielle Chroma et
+        les documents à charger pour la fonction build_retriever_rag()
 
     Returns
     -------
@@ -179,7 +186,7 @@ def build_tools() -> list[Tool]:
             # verbose=True,
         ),
         create_retriever_tool(
-            retriever=build_retriever_rag(),
+            retriever=build_retriever_rag(path_to_llm_dir=path_to_llm_dir),
             name="retriever_tool",
             description=CONFIG_LLM["retriever_tool_prompt"]["prompt_description"],
         ),

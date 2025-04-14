@@ -198,6 +198,9 @@ def build_retriever_rag(
 
     """
 
+    if path_to_llm_dir is None:
+        path_to_llm_dir = ROOT_DATA_LLM
+
     if force_rebuild_vector_store:
         delete_vector_store(path_to_db=path_to_llm_dir)
 
