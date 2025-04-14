@@ -161,7 +161,7 @@ def test_find_vcub_price(agent):
     vcub (classique)
     """
 
-    user_message = "Quel est le prix d'un vcub classique ?"
+    user_message = "Quel est le prix d'un vcub classique et son abonnement ?"
     response = agent.invoke({"input": user_message})
     print(f"response: {response['output']}")
     # Le prix d'un Vcub classique est de 1€ pour le décrochage, puis 10 centimes
@@ -182,7 +182,7 @@ def test_find_vcub_elec_price(agent):
     vcub (électrique)
     """
 
-    user_message = "Quel est le prix d'un vcub électrique ?"
+    user_message = "Quel est le prix d'un vcub électrique et son abonnement ?"
     response = agent.invoke({"input": user_message})
     print(f"response: {response['output']}")
     # Le prix d'un Vcub électrique est de 2€ pour le décrochage, puis 10
