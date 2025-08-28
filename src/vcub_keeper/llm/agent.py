@@ -51,6 +51,7 @@ def create_chat(model: str, temperature: float = 0.1, agent_name_monitor: str = 
     Examples
     --------
     chat_llm = create_chat(model="mistral-small-latest", temperature=0.1)
+    pouquoi ??
     """
     # To avoid rate limit errors (429 - Requests rate limit exceeded)
     rate_limiter = InMemoryRateLimiter(requests_per_second=3, check_every_n_seconds=0.3, max_bucket_size=4)
